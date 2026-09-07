@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788822799"></script>
-<script src="./kicon.js?v=1788822799"></script>
+<script src="./data.js?v=1788823203"></script>
+<script src="./kicon.js?v=1788823203"></script>
 </head>
 <body>
 <x-dc>
@@ -105,12 +105,15 @@
         <span style="display:inline-flex; align-items:center; gap:4px; height:22px; padding:0 8px; border-radius:8px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:600;"><k-icon name="TickCircleSize12" size="12" style="color:#3F52B4"></k-icon>オフラインOK</span>
       </div>
       <div style="font-size:12px; font-weight:500; color:#6B6E80;">画面を見せるだけで伝わります。タップで大きく表示。</div>
+      <div style="display:flex; gap:8px; overflow-x:auto; padding-bottom:2px;">
+        <sc-for list="{{ sits }}" as="t" hint-placeholder-count="5"><div onClick="{{ t.onClick }}" style="flex-shrink:0; display:inline-flex; align-items:center; height:32px; padding:0 14px; border-radius:32px; background:{{ t.bg }}; box-shadow:{{ t.ring }}; color:{{ t.fg }}; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;">{{ t.label }}</div></sc-for>
+      </div>
       <sc-for list="{{ cards }}" as="c" hint-placeholder-count="4">
-        <div style="min-height:96px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:14px 16px; display:flex; align-items:center; gap:14px;">
+        <div onClick="{{ c.onClick }}" style="min-height:96px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:14px 16px; display:flex; align-items:center; gap:14px; cursor:pointer;">
           <div style="width:48px; height:48px; flex-shrink:0; border-radius:16px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="{{ c.icon }}" size="24" style="color:#3F52B4"></k-icon></div>
           <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
             <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527;">{{ c.jp }}</div>
-            <div style="font-size:14px; font-weight:500; color:#4B4F63; line-height:1.45;">{{ c.ko }}</div>
+            <div style="font-size:{{ c.koSize }}; font-weight:{{ c.koWeight }}; color:#111527; line-height:1.45;">{{ c.ko }}</div>
             <sc-if value="{{ c.sub }}" hint-placeholder-val="{{ false }}">
               <div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ c.sub }}</div>
             </sc-if>
@@ -151,13 +154,13 @@
       <div style="font-size:16px; font-weight:700; color:#111527;">地図で迷ったら</div>
       <div style="height:48px; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #D1D3DB; padding:0 16px; display:flex; align-items:center; gap:8px;">
         <k-icon name="SearchNormal2Size20" size="20" style="color:#9C9FAF"></k-icon>
-        <div style="flex:1; font-size:14px; font-weight:500; color:#9C9FAF;">日本語の店名を入力</div>
+        <input value="{{ mq }}" onInput="{{ onMq }}" placeholder="日本語の店名・スポット名を入力" style="flex:1; font-size:14px; font-weight:500; color:#111527; border:0; outline:0; background:transparent; padding:0; font-family:inherit; min-width:0;" />
       </div>
       <div style="border-radius:16px; background:#F2F4FC; padding:14px 16px; display:flex; flex-direction:column; gap:10px;">
-        <div style="font-size:11px; font-weight:600; color:#6B6E80;">「明洞カルグクス」の韓国語表記</div>
-        <div style="font-size:16px; font-weight:700; color:#111527;">명동칼국수</div>
-        <div style="font-size:12px; font-weight:500; color:#4B4F63;">서울 중구 명동8길 <span style="font-family:Poppins,sans-serif;">21</span></div>
-        <div style="display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:14px; font-weight:600;"><k-icon name="LocationSize18" size="18" style="color:#3F52B4"></k-icon>NAVER地図で開く</div>
+        <div style="font-size:11px; font-weight:600; color:#6B6E80;">「{{ mName }}」の韓国語表記</div>
+        <div style="font-size:16px; font-weight:700; color:#111527;">{{ mKo }}</div>
+        <div style="font-size:12px; font-weight:500; color:#4B4F63;">{{ mAddr }}</div>
+        <a href="{{ mHref }}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:14px; font-weight:600; text-decoration:none;"><k-icon name="LocationSize18" size="18" style="color:#3F52B4"></k-icon>NAVER地図で開く</a>
       </div>
     </div>
 
@@ -171,6 +174,16 @@
           <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
         </a>
       </sc-for>
+    </div>
+
+<div style="display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">韓国はここが違う</div>
+      <div style="font-size:12px; color:#6B6E80;">日本と違って戸惑いやすいこと20</div>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+      <sc-for list="{{ culture }}" as="u" hint-placeholder-count="3">
+        <a href="{{ u.href }}" style="display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 12px; border-radius:34px; background:#fff; box-shadow:inset 0 0 0 1px #D1D3DB; color:#111527; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap;"><span style="color:#3F52B4; font-size:10px;">{{ u.cat }}</span>{{ u.q }}</a>
+      </sc-for>
+      </div>
     </div>
 
     <div style="display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
@@ -205,15 +218,15 @@
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
 class Component extends DCLogic {
   renderVals() {
+    const mq = (this.state.mq || '').trim().toLowerCase(); const SPL = window.KG.spots || []; const hit = mq ? (SPL.find(x => (x.name || '').toLowerCase().includes(mq)) || SPL.find(x => (x.kana || '').includes(mq) || (x.ko || '').includes(mq))) : SPL.find(x => x.id === 'S016');
     return {
-      cards: [
-        { icon: 'AddCircleSize24', jp: '病院に行きたいです', ko: '병원에 가고 싶어요', sub: '' },
-        { icon: 'TickCircleSize24', jp: 'これをください（辛くしないで）', ko: '이거 주세요. 맵지 않게 해주세요.', sub: '' },
-        { icon: 'CarSize24', jp: 'ここまでお願いします', ko: '여기까지 가주세요', sub: '' },
-        { icon: 'RoutingSize24', jp: '道に迷いました', ko: '길을 잃었어요', sub: '' },
-        { icon: 'LocationSize24', jp: '現在地を韓国語で見せる', ko: '지금 여기에 있어요', sub: '救急・タクシーに' },
-        { icon: 'BagSize24', jp: 'これを失くしました', ko: '이것을 잃어버렸어요', sub: '' },
-      ],
+      mq: this.state.mq || '', onMq: (e) => this.setState({ mq: e.target.value }), mName: hit ? hit.name : (mq || '—'), mKo: hit ? hit.ko : '見つかりません（さがすタブで検索してください）', mAddr: hit ? (hit.addrKo || hit.addr || '') : '', mHref: hit ? (hit.naver || ('https://map.naver.com/p/search/' + encodeURIComponent(hit.ko || hit.name))) : '#',
+      ...(() => { const ICON = { '病院': 'AddCircleSize24', '薬局': 'AddCircleSize24', '食堂': 'TickCircleSize24', 'カフェ': 'TickCircleSize24', 'タクシー': 'CarSize24', '地下鉄': 'RoutingSize24', 'ホテル': 'HomeSize24', 'ショッピング': 'TickCircleSize24', '紛失': 'InfoCircleSize24', '道を聞く': 'LocationSize24', '道': 'LocationSize24', '現在地': 'LocationSize24', '観光': 'LocationSize24', '免税': 'TickCircleSize24', '写真': 'TickCircleSize24' };
+        const all = KG.cards || []; const sits = []; all.forEach(c => { if (!sits.includes(c.situation)) sits.push(c.situation); });
+        const sit = this.state.sit || sits[0]; const big = this.state.big;
+        return { sits: sits.map(x => ({ label: x, onClick: () => this.setState({ sit: x, big: null }), bg: x === sit ? '#3F52B4' : '#fff', fg: x === sit ? '#fff' : '#4B4F63', ring: x === sit ? 'none' : 'inset 0 0 0 1px #D1D3DB' })),
+          cards: all.filter(c => c.situation === sit).map(c => ({ icon: ICON[c.situation] || 'InfoCircleSize24', jp: c.ja, ko: c.ko, sub: c.sub || '', koSize: big === c.id ? '26px' : '15px', koWeight: big === c.id ? '700' : '500', onClick: () => this.setState({ big: big === c.id ? null : c.id }) })) };
+      })(),
       arrival: [
         { icon: 'BusSize24', title: '空港バス時刻表', sub: '6001 · 6015 · 明洞まで' },
         { icon: 'CarSize24', title: '空港→ホテル', sub: 'タクシー 約60分 · ₩70,000〜' },
@@ -228,7 +241,7 @@ class Component extends DCLogic {
         { day: '土', date: 13, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: 'transparent' },
         { day: '日', date: 14, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: '#B22459' },
       ],
-      faq: (window.KG.faq || []).filter(f => /^Q/.test(f.id)).map(f => ({ q: f.q, href: 'faq.html?id=' + f.id })), howto: (window.KG.faq || []).filter(f => !/^Q/.test(f.id)).map(f => ({ q: f.q, cat: f.category || '', href: 'faq.html?id=' + f.id })),
+      faq: (window.KG.faq || []).filter(f => /^Q/.test(f.id)).map(f => ({ q: f.q, href: 'faq.html?id=' + f.id })), howto: (window.KG.faq || []).filter(f => /^[HF]/.test(f.id)).map(f => ({ q: f.q, cat: f.category || '', href: 'faq.html?id=' + f.id })), culture: (window.KG.faq || []).filter(f => /^U/.test(f.id)).map(f => ({ q: f.q, cat: f.category || '', href: 'faq.html?id=' + f.id })),
     };
   }
 }
