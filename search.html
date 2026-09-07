@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788815149"></script>
-<script src="./kicon.js?v=1788815149"></script>
+<script src="./data.js?v=1788819566"></script>
+<script src="./kicon.js?v=1788819566"></script>
 </head>
 <body>
 <x-dc>
@@ -214,13 +214,13 @@ const SHUT = { dot: '#B22459', open: '本日休館', openFg: '#B22459' };
 const SHEETS = {
   area: {
     title: 'エリア', hint: '1つ選べます', multi: false,
-    groups: [{ title: '', options: ['明洞', '鍾路 · 光化門', '北村 · 三清洞', '東大門', '弘大', '江南', '梨泰院', '聖水', '蚕室', '汝矣島', '大学路 · 城北', '新村 · 西大門'] }],
+    groups: [{ title: 'ソウル', options: ['明洞', '鍾路 · 光化門', '北村 · 三清洞', '東大門', '弘大', '江南', '梨泰院', '聖水', '蚕室', '汝矣島', '大学路 · 城北', '新村 · 西大門'] }, { title: '地方（ソウルから日帰り・1泊）', options: ['釜山', '慶州', '全州', '麗水', '大邱', '大田'] }],
   },
   genre: {
     title: 'ジャンル', hint: 'いくつでも選べます', multi: true,
     groups: [
-      { title: '大きく分ける', options: ['名所', 'グルメ', '体験'] },
-      { title: 'グルメの種類', options: ['韓食', '洋食', '粉食', 'カフェ'] },
+      { title: '大きく分ける', options: ['名所', 'グルメ', 'カフェ', 'ショッピング', '体験', 'ドラマロケ地'] },
+      { title: 'グルメの種類', options: ['冷麺', '参鶏湯', '焼肉', 'チキン', '粉食', '海鮮', 'ベーカリー'] },
     ],
   },
   budget: {
@@ -229,7 +229,7 @@ const SHEETS = {
   },
 };
 
-const ALL = SP.map(s => ({ ...s, ...st(s), tags: [s.type, s.genre].filter(Boolean), meta: metaOf(s), photo: bg(s.photo), href: 'spot.html?id=' + s.id }));
+const ALL = SP.map(s => ({ ...s, ...st(s), tags: [s.type, s.genre, ...(s.tags2 || [])].filter(Boolean), meta: metaOf(s), photo: bg(s.photo), href: 'spot.html?id=' + s.id }));
     const favOf = (self, s) => ({ fav: (e) => { stopNav(e); FAV.toggle(s.id); self.setState({ favTick: Date.now() }); }, favStyle: FAV.has(s.id) ? 'color:#B22459' : 'color:#9C9FAF' });
 
 class Component extends DCLogic {
@@ -256,7 +256,7 @@ class Component extends DCLogic {
     const { area, genres, budget, jpOnly, q } = this.state; const qq = (q || '').trim().toLowerCase();
     const filtered = this.props.noResult ? [] : ALL.filter(r =>
       (!area || r.areaKey === area) &&
-      (!genres.length || genres.some(g => r.tags.includes(g))) &&
+      (!genres.length || genres.some(g => r.tags.some(t => t.includes(g)))) &&
       (!budget || r.band === budget) &&
       (!jpOnly || r.jp) &&
       (!qq || [r.name, r.ko, r.area, r.genre, r.sig, r.addr].join(' ').toLowerCase().includes(qq))

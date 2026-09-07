@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788815149"></script>
-<script src="./kicon.js?v=1788815149"></script>
+<script src="./data.js?v=1788819566"></script>
+<script src="./kicon.js?v=1788819566"></script>
 </head>
 <body>
 <x-dc>
@@ -104,6 +104,14 @@
         </div>
       </div>
       <div style="font-size:14px; font-weight:500; line-height:1.7; color:#111527;">{{ tip }}</div>
+    </div>
+    </sc-if>
+    <sc-if value="{{ hasDrama }}" hint-placeholder-val="{{ false }}">
+    <div style="margin:0 16px; border-radius:16px; background:#F2F4FC; padding:14px 16px; display:flex; flex-direction:column; gap:6px;">
+      <div style="font-size:11px; font-weight:600; color:#3F52B4;">ドラマロケ地</div>
+      <div style="font-size:14px; font-weight:700; color:#111527;">{{ drama }}</div>
+      <div style="font-size:13px; font-weight:500; line-height:1.7; color:#373B51;">{{ scene }}</div>
+      <sc-if value="{{ visit }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px; color:#6B6E80;">{{ visit }}</div></sc-if>
     </div>
     </sc-if>
     <sc-if value="{{ hasOverview }}" hint-placeholder-val="{{ false }}">
@@ -220,9 +228,9 @@ class Component extends DCLogic {
     document.title = s.name + ' | K-GUIDE';
     return {
       name: s.name, ko: s.ko || '', hero: bg(s.photo), dot: stt.dot, open: stt.open, openFg: stt.openFg,
-      areaText: [s.area, s.type].filter(Boolean).join(' · '), verified: !!s.verified, hasSrc: !!s.src, src: s.src || '', photoCredit: /visitkorea/.test(s.photo) ? '写真：韓国観光公社（公共ヌリ）' : /unsplash/.test(s.photo) ? '写真：Unsplash' : /pexels/.test(s.photo) ? '写真：Pexels' : '',
+      areaText: [s.city && s.city !== 'ソウル' ? s.city : '', s.area, s.type].filter(Boolean).join(' · '), verified: !!s.verified, hasSrc: !!s.src, src: s.src || '', photoCredit: /visitkorea/.test(s.photo) ? '写真：韓国観光公社（公共ヌリ）' : /unsplash/.test(s.photo) ? '写真：Unsplash' : /pexels/.test(s.photo) ? '写真：Pexels' : '',
       info, nearby, naver: s.naver || ('https://map.naver.com/p/search/' + encodeURIComponent(s.ko || s.name)),
-      hasTip: !!s.tip, tip: s.tip || '', hasOverview: !!s.overview, overview: s.overview || '',
+      hasTip: !!s.tip, tip: s.tip || '', hasDrama: !!s.drama, drama: s.drama || '', scene: s.scene || '', visit: s.visit || '', hasOverview: !!s.overview, overview: s.overview || '',
       hasAudio: !!(s.audio && s.audio.length), audio: (s.audio || []).map(a => { const on = this.state.playing === a.url; const min = a.sec ? Math.round(a.sec / 60) + '分' : ''; return { ...a, onClick: () => this.toggle(a.url), mark: on ? '■' : '▶', bg: on ? '#F2F4FC' : '#F7F7FA', sub: on ? '再生中 · ' + min : min }; }),
       hasOfficial: !!s.official, official: s.official || '',
       favToggle: () => { FAV.toggle(s.id); this.setState({ favTick: Date.now() }); }, favStyle: FAV.has(s.id) ? 'color:#fff' : 'color:#B22459', favBg: FAV.has(s.id) ? '#B22459' : '#fff',
