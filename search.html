@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788821846"></script>
-<script src="./kicon.js?v=1788821846"></script>
+<script src="./data.js?v=1788822539"></script>
+<script src="./kicon.js?v=1788822539"></script>
 </head>
 <body>
 <x-dc>
@@ -95,7 +95,7 @@
             <span style="font-size:11px; font-weight:600; color:{{ r.openFg }};">{{ r.open }}</span>
             <span style="font-size:11px; font-weight:500; color:#6B6E80;">{{ r.area }}</span>
           </div>
-          <div style="font-size:16px; font-weight:700; line-height:23px; flex-shrink:0; color:#111527; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.name }}</div>
+          <div style="font-size:16px; font-weight:700; line-height:23px; flex-shrink:0; color:#111527; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.name }}</div><sc-if value="{{ r.hasKana }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px; font-weight:500; color:#9C9FAF; margin-top:-4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.kana }}</div></sc-if>
           <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
             <sc-if value="{{ r.verified }}" hint-placeholder-val="{{ true }}">
               <span style="display:inline-flex; align-items:center; gap:4px; height:22px; padding:0 8px; border-radius:8px; background:#3F52B4; color:#fff; font-size:11px; font-weight:600; white-space:nowrap;"><k-icon name="TickCircleSize12" size="12" style="color:#fff"></k-icon>ガイド確認済み</span>
@@ -132,7 +132,7 @@
               <div style="display:flex; gap:8px; flex-wrap:wrap;">
                 <sc-for list="{{ g.options }}" as="o" hint-placeholder-count="4">
                   <div onClick="{{ o.onClick }}" style="display:inline-flex; align-items:center; gap:6px; height:38px; padding:0 16px; border-radius:38px; background:{{ o.bg }}; box-shadow:{{ o.ring }}; color:{{ o.fg }}; font-size:12px; font-weight:600; cursor:pointer;">
-                    <sc-if value="{{ o.on }}" hint-placeholder-val="{{ false }}"><k-icon name="TickCircleSize12" size="12" style="color:#fff"></k-icon></sc-if>{{ o.label }}
+                    <sc-if value="{{ o.on }}" hint-placeholder-val="{{ false }}"><k-icon name="TickCircleSize12" size="12" style="color:#fff"></k-icon></sc-if>{{ o.label }}<span style="font-size:10px; font-weight:500; opacity:.75;">{{ o.yomi }}</span>
                   </div>
                 </sc-for>
               </div>
@@ -171,6 +171,7 @@
 
 
 const KG = window.KG; const SP = KG.spots;
+const YOMI = {'明洞':'ミョンドン','鍾路 · 光化門':'チョンノ・クァンファムン','北村 · 三清洞':'プクチョン・サムチョンドン','東大門':'トンデムン','弘大':'ホンデ','江南':'カンナム','梨泰院':'イテウォン','聖水':'ソンス','蚕室':'チャムシル','汝矣島':'ヨイド','大学路 · 城北':'テハンノ・ソンブク','新村 · 西大門':'シンチョン・ソデムン','水原':'スウォン','仁川':'インチョン','坡州':'パジュ','龍仁':'ヨンイン','南怡島・春川':'ナミソム・チュンチョン','江陵・束草':'カンヌン・ソクチョ','釜山':'プサン','慶州':'キョンジュ','全州':'チョンジュ','麗水':'ヨス','大邱':'テグ','大田':'テジョン'};
 const FAV = { get() { try { return JSON.parse(localStorage.getItem('kg_fav') || '[]'); } catch (e) { return []; } }, has(id) { return FAV.get().includes(id); }, toggle(id) { const l = FAV.get(); const i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.unshift(id); try { localStorage.setItem('kg_fav', JSON.stringify(l)); } catch (e) {} return i < 0; } };
 const stopNav = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } };
 const byId = (id) => SP.find(s => s.id === id);
@@ -229,7 +230,7 @@ const SHEETS = {
   },
 };
 
-const ALL = SP.map(s => ({ ...s, ...st(s), tags: [s.type, s.genre, ...(s.tags2 || [])].filter(Boolean), meta: metaOf(s), photo: bg(s.photo), href: 'spot.html?id=' + s.id }));
+const ALL = SP.map(s => ({ ...s, hasKana: !!s.kana, ...st(s), tags: [s.type, s.genre, ...(s.tags2 || [])].filter(Boolean), meta: metaOf(s), photo: bg(s.photo), href: 'spot.html?id=' + s.id }));
     const favOf = (self, s) => ({ fav: (e) => { stopNav(e); FAV.toggle(s.id); self.setState({ favTick: Date.now() }); }, favStyle: FAV.has(s.id) ? 'color:#B22459' : 'color:#9C9FAF' });
 
 class Component extends DCLogic {
@@ -266,7 +267,7 @@ class Component extends DCLogic {
       sheetOpen: !!sheet,
       sheetTitle: sheet ? sheet.title : '',
       sheetHint: sheet ? sheet.hint : '',
-      resultCount: filtered.length, q: this.state.q, onQ: (e) => this.setState({ q: e.target.value }), title: qq ? `「${q.trim()}」の検索結果` : area ? `${area}のまわり` : genres.length ? genres[0] : 'ソウル全体',
+      resultCount: filtered.length, q: this.state.q, onQ: (e) => this.setState({ q: e.target.value }), title: qq ? `「${q.trim()}」の検索結果` : area ? `${area}のまわり` : genres.length ? genres[0] : 'すべてのスポット',
       isNoResult: filtered.length === 0,
       clearAll: () => this.setState({ genres: [], budget: '', jpOnly: false, area: '' }),
       jpBg: this.state.jpOnly ? '#F2F4FC' : '#fff',
@@ -284,7 +285,7 @@ class Component extends DCLogic {
         options: g.options.map(label => {
           const o = picked(label);
           return {
-            label, on: o,
+            label, yomi: YOMI[label] || '', on: o,
             bg: o ? '#3F52B4' : '#fff',
             ring: o ? 'none' : 'inset 0 0 0 1px #D1D3DB',
             fg: o ? '#fff' : '#4B4F63',

@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788821846"></script>
-<script src="./kicon.js?v=1788821846"></script>
+<script src="./data.js?v=1788822539"></script>
+<script src="./kicon.js?v=1788822539"></script>
 </head>
 <body>
 <x-dc>
@@ -60,7 +60,7 @@
       </div>
       <div style="position:relative; margin:-64px 16px 16px; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:16px; display:flex; flex-direction:column; gap:8px;">
         <div style="display:flex; align-items:flex-end; gap:8px;">
-          <div style="font-size:24px; font-weight:700; line-height:1.25; color:#111527;">{{ name }}</div>
+          <div style="font-size:24px; font-weight:700; line-height:1.25; color:#111527;">{{ name }}</div><sc-if value="{{ hasKana }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; font-weight:500; color:#6B6E80; margin-top:-4px;">{{ kana }}</div></sc-if>
           <div style="font-size:13px; font-weight:500; color:#6B6E80; padding-bottom:3px;">{{ ko }}</div>
         </div>
         <div style="display:flex; align-items:center; gap:8px;">
@@ -171,6 +171,7 @@
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
 
 const KG = window.KG; const SP = KG.spots;
+const YOMI = {'明洞':'ミョンドン','鍾路 · 光化門':'チョンノ・クァンファムン','北村 · 三清洞':'プクチョン・サムチョンドン','東大門':'トンデムン','弘大':'ホンデ','江南':'カンナム','梨泰院':'イテウォン','聖水':'ソンス','蚕室':'チャムシル','汝矣島':'ヨイド','大学路 · 城北':'テハンノ・ソンブク','新村 · 西大門':'シンチョン・ソデムン','水原':'スウォン','仁川':'インチョン','坡州':'パジュ','龍仁':'ヨンイン','南怡島・春川':'ナミソム・チュンチョン','江陵・束草':'カンヌン・ソクチョ','釜山':'プサン','慶州':'キョンジュ','全州':'チョンジュ','麗水':'ヨス','大邱':'テグ','大田':'テジョン'};
 const FAV = { get() { try { return JSON.parse(localStorage.getItem('kg_fav') || '[]'); } catch (e) { return []; } }, has(id) { return FAV.get().includes(id); }, toggle(id) { const l = FAV.get(); const i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.unshift(id); try { localStorage.setItem('kg_fav', JSON.stringify(l)); } catch (e) {} return i < 0; } };
 const stopNav = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } };
 const byId = (id) => SP.find(s => s.id === id);
@@ -228,7 +229,7 @@ class Component extends DCLogic {
     document.title = s.name + ' | K-GUIDE';
     return {
       name: s.name, ko: s.ko || '', hero: bg(s.photo), dot: stt.dot, open: stt.open, openFg: stt.openFg,
-      areaText: [s.city && s.city !== 'ソウル' ? s.city : '', s.area, s.type].filter(Boolean).join(' · '), verified: !!s.verified, hasSrc: !!s.src, src: s.src || '', photoCredit: /visitkorea/.test(s.photo) ? '写真：韓国観光公社（公共ヌリ）' : /unsplash/.test(s.photo) ? '写真：Unsplash' : /pexels/.test(s.photo) ? '写真：Pexels' : '',
+      areaText: [s.city && s.city !== 'ソウル' ? s.city : '', s.area, s.type].filter(Boolean).join(' · '), kana: s.kana || '', hasKana: !!s.kana, verified: !!s.verified, hasSrc: !!s.src, src: s.src || '', photoCredit: /visitkorea/.test(s.photo) ? '写真：韓国観光公社（公共ヌリ）' : /unsplash/.test(s.photo) ? '写真：Unsplash' : /pexels/.test(s.photo) ? '写真：Pexels' : '',
       info, nearby, naver: s.naver || ('https://map.naver.com/p/search/' + encodeURIComponent(s.ko || s.name)),
       hasTip: !!s.tip, tip: s.tip || '', hasDrama: !!s.drama, drama: s.drama || '', scene: s.scene || '', visit: s.visit || '', hasOverview: !!s.overview, overview: s.overview || '',
       hasAudio: !!(s.audio && s.audio.length), audio: (s.audio || []).map(a => { const on = this.state.playing === a.url; const min = a.sec ? Math.round(a.sec / 60) + '分' : ''; return { ...a, onClick: () => this.toggle(a.url), mark: on ? '■' : '▶', bg: on ? '#F2F4FC' : '#F7F7FA', sub: on ? '再生中 · ' + min : min }; }),
