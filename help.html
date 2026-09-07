@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788820220"></script>
-<script src="./kicon.js?v=1788820220"></script>
+<script src="./data.js?v=1788820454"></script>
+<script src="./kicon.js?v=1788820454"></script>
 </head>
 <body>
 <x-dc>
@@ -161,6 +161,18 @@
       </div>
     </div>
 
+<div style="display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">予約・使い方ガイド</div>
+      <div style="font-size:12px; color:#6B6E80;">KTX・バス・タクシー・チケット・交通カードなどの手順をステップで説明します</div>
+      <sc-for list="{{ howto }}" as="h" hint-placeholder-count="3">
+        <a href="{{ h.href }}" style="flex-shrink:0; display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); text-decoration:none;">
+          <span style="flex-shrink:0; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:600;">{{ h.cat }}</span>
+          <div style="flex:1; font-size:14px; font-weight:500; color:#111527;">{{ h.q }}</div>
+          <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
+        </a>
+      </sc-for>
+    </div>
+
     <div style="display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
       <div style="font-size:16px; font-weight:700; color:#111527;">よくある質問</div>
       <sc-for list="{{ faq }}" as="q" hint-placeholder-count="3">
@@ -216,7 +228,7 @@ class Component extends DCLogic {
         { day: '土', date: 13, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: 'transparent' },
         { day: '日', date: 14, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: '#B22459' },
       ],
-      faq: (window.KG.faq || []).map(f => ({ q: f.q, href: 'faq.html?id=' + f.id })),
+      faq: (window.KG.faq || []).filter(f => /^Q/.test(f.id)).map(f => ({ q: f.q, href: 'faq.html?id=' + f.id })), howto: (window.KG.faq || []).filter(f => !/^Q/.test(f.id)).map(f => ({ q: f.q, cat: f.category || '', href: 'faq.html?id=' + f.id })),
     };
   }
 }
