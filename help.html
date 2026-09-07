@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788814796"></script>
-<script src="./kicon.js?v=1788814796"></script>
+<script src="./data.js?v=1788815149"></script>
+<script src="./kicon.js?v=1788815149"></script>
 </head>
 <body>
 <x-dc>
@@ -164,8 +164,8 @@
     <div style="display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
       <div style="font-size:16px; font-weight:700; color:#111527;">よくある質問</div>
       <sc-for list="{{ faq }}" as="q" hint-placeholder-count="3">
-        <a href="faq.html" style="flex-shrink:0; display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:16px; background:#F2F4FC; text-decoration:none;">
-          <div style="flex:1; font-size:14px; font-weight:500; color:#111527;">{{ q }}</div>
+        <a href="{{ q.href }}" style="flex-shrink:0; display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:16px; background:#F2F4FC; text-decoration:none;">
+          <div style="flex:1; font-size:14px; font-weight:500; color:#111527;">{{ q.q }}</div>
           <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
         </a>
       </sc-for>
@@ -216,12 +216,7 @@ class Component extends DCLogic {
         { day: '土', date: 13, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: 'transparent' },
         { day: '日', date: 14, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: '#B22459' },
       ],
-      faq: [
-        '地下鉄のきっぷはどう買いますか？',
-        'クレジットカードは使えますか？',
-        '免税の手続きはどこで？',
-        '落とし物はどこに問い合わせ？',
-      ],
+      faq: (window.KG.faq || []).map(f => ({ q: f.q, href: 'faq.html?id=' + f.id })),
     };
   }
 }
