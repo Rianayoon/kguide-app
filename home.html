@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788820220"></script>
-<script src="./kicon.js?v=1788820220"></script>
+<script src="./data.js?v=1788821846"></script>
+<script src="./kicon.js?v=1788821846"></script>
 </head>
 <body>
 <x-dc>
@@ -94,15 +94,41 @@
       </div>
       <div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; padding:0 16px;">
         <sc-for list="{{ areas }}" as="a" hint-placeholder-count="4">
-          <div style="position:relative; height:165px; border-radius:16px; overflow:hidden; background:{{ a.bg }};">
+          <a href="{{ a.href }}" style="display:block; position:relative; height:165px; border-radius:16px; overflow:hidden; background:{{ a.bg }}; text-decoration:none;">
             <div style="position:absolute; left:16px; bottom:16px; right:16px; display:flex; flex-direction:column;">
               <div style="font-size:20px; font-weight:700; line-height:24px; color:#fff;">{{ a.name }}</div>
               <div style="font-size:16px; font-weight:400; line-height:24px; color:#fff;">{{ a.sub }}</div>
             </div>
-          </div>
+          </a>
+        </sc-for>
+      </div>
+      <div style="display:flex; align-items:baseline; justify-content:space-between; padding:8px 16px 0;">
+        <div style="font-size:16px; font-weight:700; color:#111527;">地方・近郊へ</div>
+        <a href="search.html?area=釜山" style="font-size:12px; font-weight:600; color:#3F52B4;">すべて見る</a>
+      </div>
+      <div style="display:flex; gap:8px; padding:0 16px; overflow-x:auto;">
+        <sc-for list="{{ regions }}" as="r" hint-placeholder-count="4">
+          <a href="{{ r.href }}" style="flex-shrink:0; width:120px; height:80px; border-radius:16px; overflow:hidden; background:{{ r.bg }}; position:relative; text-decoration:none;"><div style="position:absolute; left:10px; bottom:8px; font-size:14px; font-weight:700; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.5);">{{ r.name }}</div><div style="position:absolute; right:10px; bottom:9px; font-size:11px; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.5);">{{ r.sub }}</div></a>
         </sc-for>
       </div>
     </div>
+
+    <sc-if value="{{ hasEvents }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; align-items:baseline; justify-content:space-between; padding:0 16px;">
+        <div style="font-size:20px; font-weight:700; color:#111527;">この時期のイベント</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:8px; padding:0 16px;">
+        <sc-for list="{{ events }}" as="e" hint-placeholder-count="3">
+          <a href="{{ e.href }}" target="_blank" style="display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); text-decoration:none;">
+            <div style="flex-shrink:0; width:52px; text-align:center; font-family:Poppins,sans-serif; font-size:11px; font-weight:600; line-height:1.3; color:#3F52B4; background:#F2F4FC; border-radius:10px; padding:6px 0; white-space:pre-line;">{{ e.when }}</div>
+            <div style="flex:1; min-width:0;"><div style="font-size:14px; font-weight:600; color:#111527; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ e.name }}</div><div style="font-size:11px; color:#6B6E80; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ e.place }}</div></div>
+            <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
+          </a>
+        </sc-for>
+      </div>
+    </div>
+    </sc-if>
 
     <div style="display:flex; flex-direction:column; gap:12px;">
       <div style="display:flex; align-items:baseline; justify-content:space-between; padding:0 16px;">
@@ -206,6 +232,8 @@ class Component extends DCLogic {
       holidayBanner: this.props.holidayBanner ?? true,
       liveCamera: this.props.liveCamera ?? true,
       areas: [['鍾路 · 光化門','景福宮エリア'],['明洞','明洞'],['北村 · 三清洞','北村'],['弘大','弘大']].map(([k, label]) => { const list = SP.filter(x => x.areaKey === k); const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: `スポット ${list.length}件`, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }),
+      regions: [['水原','水原'],['南怡島・春川','南怡島'],['坡州','坡州'],['仁川','仁川'],['龍仁','龍仁'],['江陵・束草','江陵・束草'],['釜山','釜山'],['慶州','慶州'],['全州','全州'],['麗水','麗水'],['大邱','大邱'],['大田','大田']].map(([k, label]) => { const list = SP.filter(x => x.areaKey === k); if (!list.length) return null; const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: list.length + '件', bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }).filter(Boolean),
+      hasEvents: !!(KG.events || []).length, events: (() => { const t = new Date(); const ymd = t.toISOString().slice(0, 10); const fmt = d => d ? (parseInt(d.slice(5, 7)) + '/' + parseInt(d.slice(8, 10))) : ''; return (KG.events || []).filter(e => (e.end || e.start) >= ymd).sort((a, b) => a.start < b.start ? -1 : 1).slice(0, 5).map(e => ({ when: fmt(e.start) + (e.end && e.end !== e.start ? String.fromCharCode(10) + '〜' + fmt(e.end) : ''), name: e.name, place: [e.city, e.place].filter(Boolean).join(' · '), href: e.url || '#' })); })(),
       openings: SP.filter(x => x.type === '名所' && x.hours).slice(0, 5).map(x => { const c = isClosedToday(x); return { name: x.name, hours: c ? '本日休館' : x.hours.split(/[ （(]/)[0].slice(0, 18), ...(c ? closed : open), href: 'spot.html?id=' + x.id }; }),
       cams: [
         { name: '明洞', crowd: 'やや混雑', bg: shot('Myeongdong_at_night.jpg') },
