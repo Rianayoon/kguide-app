@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js"></script>
-
+<script src="./data.js?v=1788812688"></script>
+<script src="./kicon.js?v=1788812688"></script>
 </head>
 <body>
 <x-dc>
@@ -46,7 +46,7 @@
     a { color:#3F52B4; text-decoration:none; } a:hover { color:#323D76; }
     ::-webkit-scrollbar { display:none; }
   </style>
-  <script src="./kicon.js"></script>
+  
 </helmet>
 <div data-screen-label="マイページ" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
 
@@ -78,9 +78,9 @@
         <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">ログインすると保存・予約ができます</div>
         <div style="font-size:12px; font-weight:400; line-height:16px; color:#4B4F63;">スポットの保存 · ルートの保存 · 見積もりの依頼</div>
       </div>
-      <div style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; letter-spacing:.02em;">
+      <a href="login.html" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; letter-spacing:.02em;">
         <k-icon name="MessagesSize24" size="20" style="color:#fff"></k-icon>LINEでログイン
-      </div>
+      </a>
     </div>
     </sc-if>
 
@@ -131,12 +131,12 @@ class Component extends DCLogic {
       userName: loggedIn ? 'たろう' : 'ゲスト',
       userSub: loggedIn ? 'LINE アカウント連携済み' : '見るだけならログインは不要です',
       menu: [
-        { icon: 'HeartSize24', title: '保存したスポット', sub: '', value: '', href: 'K-GUIDE%20Saved.dc.html?tab=spots' },
-        { icon: 'RoutingSize24', title: '私のルート', sub: '', value: '', href: 'K-GUIDE%20Saved.dc.html?tab=routes' },
-        { icon: 'TickCircleSize24', title: '予約・見積もり', sub: '', value: '', href: 'K-GUIDE%20Quote.dc.html' },
+        { icon: 'HeartSize24', title: '保存したスポット', sub: '', value: '', href: 'saved.html?tab=spots' },
+        { icon: 'RoutingSize24', title: '私のルート', sub: '', value: '', href: 'saved.html?tab=routes' },
+        { icon: 'TickCircleSize24', title: '予約・見積もり', sub: '', value: '', href: 'bookings.html' },
         { icon: 'Setting2Size24', title: '言語', sub: '', value: '日本語', href: '#' },
-        { icon: 'MessagesSize24', title: 'お問い合わせ', sub: 'ガイドに直接つながります', value: '', href: 'K-GUIDE%20Help.dc.html' },
-        { icon: 'InfoCircleSize24', title: 'アプリについて', sub: '', value: '', href: '#' },
+        { icon: 'MessagesSize24', title: 'お問い合わせ', sub: 'ガイドに直接つながります', value: '', href: 'help.html' },
+        { icon: 'InfoCircleSize24', title: 'アプリについて', sub: '', value: '', href: 'guide.html' },
       ],
     };
   }

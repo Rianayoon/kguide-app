@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js"></script>
-
+<script src="./data.js?v=1788812688"></script>
+<script src="./kicon.js?v=1788812688"></script>
 </head>
 <body>
 <x-dc>
@@ -46,7 +46,7 @@
     a { color:#3F52B4; text-decoration:none; } a:hover { color:#323D76; }
     ::-webkit-scrollbar { display:none; }
   </style>
-  <script src="./kicon.js"></script>
+  
 </helmet>
 <div data-screen-label="スポット詳細" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
 
@@ -80,7 +80,7 @@
             <div style="width:40px; height:40px; flex-shrink:0; border-radius:20px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="{{ i.icon }}" size="24" style="color:#3F52B4"></k-icon></div>
             <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
               <div style="font-size:12px; font-weight:400; line-height:16px; color:#4B4F63;">{{ i.label }}</div>
-              <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">{{ i.value }}</div>
+              <div style="font-size:14px; font-weight:600; line-height:22px; color:#373B51; white-space:pre-line;">{{ i.value }}</div>
               <sc-if value="{{ i.ko }}" hint-placeholder-val="{{ false }}">
                 <div style="font-size:12px; font-weight:500; line-height:16px; color:#6B6E80;">{{ i.ko }}</div>
               </sc-if>
@@ -117,9 +117,9 @@
     <div style="margin:0 16px; display:flex; flex-direction:column; gap:8px;">
       <div style="font-size:16px; font-weight:700; color:#111527;">音声ガイド <span style="font-size:11px; font-weight:500; color:#6B6E80;">韓国観光公社 Odii · 日本語</span></div>
       <sc-for list="{{ audio }}" as="a" hint-placeholder-count="2">
-        <div style="border-radius:16px; background:#F7F7FA; padding:12px 16px; display:flex; flex-direction:column; gap:8px;">
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;"><div style="font-size:13px; font-weight:600; color:#373B51; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ a.t }}</div><div style="font-size:11px; color:#6B6E80; flex-shrink:0;">{{ a.min }}</div></div>
-          <audio controls preload="none" src="{{ a.url }}" style="width:100%; height:36px;"></audio>
+        <div onClick="{{ a.onClick }}" style="border-radius:16px; background:{{ a.bg }}; padding:12px 16px; display:flex; align-items:center; gap:12px; cursor:pointer;">
+          <div style="width:40px; height:40px; border-radius:20px; background:#3F52B4; color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;">{{ a.mark }}</div>
+          <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;"><div style="font-size:14px; font-weight:600; color:#373B51; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ a.t }}</div><div style="font-size:11px; color:#6B6E80;">{{ a.sub }}</div></div>
         </div>
       </sc-for>
     </div>
@@ -175,15 +175,18 @@ const st = (s) => isClosedToday(s) ? SHUT : OPEN;
 const metaOf = (s) => [s.jp ? '日本語対応' : '', s.stay ? `約${s.stay}分` : '', s.fee && s.fee.length < 22 ? s.fee : '', s.area].filter(Boolean).slice(0,2).join(' · ');
 
 class Component extends DCLogic {
+  state = { playing: null };
+  toggle(url) { if (!this.au) { this.au = new Audio(); this.au.onended = () => this.setState({ playing: null }); } if (this.state.playing === url) { this.au.pause(); this.setState({ playing: null }); } else { this.au.src = url; this.au.play(); this.setState({ playing: url }); } }
   renderVals() {
     const s = byId(qid()) || SP[0];
     const stt = st(s);
     const info = [];
-    if (s.hours) info.push({ icon: 'ClockSize24', label: '営業時間', value: s.hours, ko: '' });
-    if (s.rest) info.push({ icon: 'InfoCircleSize24', label: '休館日', value: s.rest, ko: '' });
-    if (s.fee) info.push({ icon: 'TicketDiscountSize24', label: '料金', value: s.fee, ko: '' });
+    const fmt = (v) => String(v || '').replace(/\s*※\s*/g, '\n※').replace(/\s*\/\s*/g, '\n').replace(/）、\s*/g, '）\n').replace(/\s*\/ \s*/g, '\n').replace(/^\n+|\n+$/g, '');
+    if (s.hours) info.push({ icon: 'ClockSize24', label: '営業時間', value: fmt(s.hours), ko: '' });
+    if (s.rest) info.push({ icon: 'InfoCircleSize24', label: '休館日', value: fmt(s.rest), ko: '' });
+    if (s.fee) info.push({ icon: 'TicketDiscountSize24', label: '料金', value: fmt(s.fee), ko: '' });
     if (s.stay) info.push({ icon: 'RoutingSize24', label: '所要時間', value: '約 ' + s.stay + '分', ko: '' });
-    if (s.sig) info.push({ icon: 'TickCircleSize24', label: '名物', value: s.sig, ko: '' });
+    if (s.sig) info.push({ icon: 'TickCircleSize24', label: '名物', value: fmt(s.sig), ko: '' });
     if (s.addr) info.push({ icon: 'LocationSize24', label: '住所', value: s.addr, ko: s.addrKo || '' });
     if (s.tel) info.push({ icon: 'CallSize24', label: '電話', value: s.tel, ko: '' });
     const nearby = (s.nearby || []).map(id => byId(id)).filter(Boolean).map(n => ({ name: n.name, walk: (s.walk || {})[n.id] || '', photo: bg(n.photo), href: 'spot.html?id=' + n.id }));
@@ -193,7 +196,7 @@ class Component extends DCLogic {
       areaText: [s.area, s.type].filter(Boolean).join(' · '), verified: !!s.verified, hasSrc: !!s.src, src: s.src || '',
       info, nearby, naver: s.naver || ('https://map.naver.com/p/search/' + encodeURIComponent(s.ko || s.name)),
       hasTip: !!s.tip, tip: s.tip || '', hasOverview: !!s.overview, overview: s.overview || '',
-      hasAudio: !!(s.audio && s.audio.length), audio: (s.audio || []).map(a => ({ ...a, min: a.sec ? Math.round(a.sec / 60) + '分' : '' })),
+      hasAudio: !!(s.audio && s.audio.length), audio: (s.audio || []).map(a => { const on = this.state.playing === a.url; const min = a.sec ? Math.round(a.sec / 60) + '分' : ''; return { ...a, onClick: () => this.toggle(a.url), mark: on ? '■' : '▶', bg: on ? '#F2F4FC' : '#F7F7FA', sub: on ? '再生中 · ' + min : min }; }),
       hasOfficial: !!s.official, official: s.official || '',
     };
   }
