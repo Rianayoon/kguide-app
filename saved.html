@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3F52B4">
+<title>K-GUIDE</title>
+<style>
+  html, body { margin:0; background:#F2F4FC; min-height:100%; }
+</style>
+<script>
+(function(){
+  var W=390, H=844;
+  function fit(){
+    var all=document.querySelectorAll('[data-screen-label]'), s=null;
+    for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
+    if(!s) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var stage=s.parentNode; if(!stage||stage===document.body){ return; }
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    s.style.flexShrink='0'; s.style.transformOrigin='center center';
+    var k;
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }  /* 패드·PC: 가운데에 폰 프레임 */
+    s.style.transform='scale('+k+')';
+    s.style.margin='0';
+  }
+  var mo=new MutationObserver(function(){ fit(); });
+  document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+})();
+</script>
+
+<script src="https://kguide-rt.vercel.app/support.js"></script>
+<script src="./data.js"></script>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap">
+  <style>
+    body { margin:0; background:#FAFAFA; font-family:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#111527; }
+    a { color:#3F52B4; text-decoration:none; } a:hover { color:#323D76; }
+    ::-webkit-scrollbar { display:none; }
+  </style>
+  <script src="./kicon.js"></script>
+</helmet>
+<div data-screen-label="保存したもの" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
+
+  <div style="flex-shrink:0; padding:16px 16px 12px; display:flex; flex-direction:column; gap:12px;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <a href="my.html" style="width:48px; height:48px; flex-shrink:0; border-radius:24px; background:#F2F4FC; display:flex; align-items:center; justify-content:center; text-decoration:none;"><k-icon name="ArrowRightSize24" size="24" style="color:#3F52B4; transform:scaleX(-1)"></k-icon></a>
+      <div style="font-size:16px; font-weight:600; line-height:24px; color:#373B51;">保存したもの</div>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2">
+        <div onClick="{{ t.onClick }}" style="display:inline-flex; align-items:center; gap:6px; height:38px; padding:0 16px; border-radius:38px; background:{{ t.bg }}; box-shadow:{{ t.ring }}; color:{{ t.fg }}; font-size:12px; font-weight:600; cursor:pointer;">{{ t.label }}<span style="font-family:Poppins,sans-serif;">{{ t.count }}</span></div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:16px; padding:4px 16px 112px;">
+
+    <sc-if value="{{ showSpots }}" hint-placeholder-val="{{ true }}">
+      <sc-for list="{{ spots }}" as="s" hint-placeholder-count="3">
+        <a href="spot.html" style="min-height:106px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:8px; display:flex; gap:8px; align-items:center; text-decoration:none;">
+          <div style="width:88px; min-height:90px; align-self:stretch; flex-shrink:0; border-radius:8px; background:{{ s.photo }};"></div>
+          <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; justify-content:center;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="width:7px; height:7px; border-radius:50%; background:{{ s.dot }}; flex-shrink:0;"></span>
+              <span style="font-size:11px; font-weight:600; color:{{ s.openFg }};">{{ s.open }}</span>
+              <span style="font-size:11px; font-weight:500; color:#6B6E80;">{{ s.area }}</span>
+            </div>
+            <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ s.name }}</div>
+            <div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ s.meta }}</div>
+          </div>
+          <div style="width:44px; height:44px; flex-shrink:0; display:flex; align-items:center; justify-content:center;"><k-icon name="HeartSize24" size="24" style="color:#B22459"></k-icon></div>
+        </a>
+      </sc-for>
+    </sc-if>
+
+    <sc-if value="{{ showRoutes }}" hint-placeholder-val="{{ false }}">
+      <sc-for list="{{ routes }}" as="r" hint-placeholder-count="2">
+        <a href="course.html" style="flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:8px; display:flex; flex-direction:column; gap:8px; text-decoration:none;">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <div style="width:88px; height:90px; flex-shrink:0; border-radius:8px; background:{{ r.photo }};"></div>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+              <div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ r.date }}</div>
+              <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527;">{{ r.name }}</div>
+              <div style="font-size:11px; font-weight:500; color:#6B6E80;"><span style="font-family:Poppins,sans-serif;">{{ r.spots }}</span>スポット · 所要 <span style="font-family:Poppins,sans-serif;">{{ r.hours }}</span>時間</div>
+            </div>
+            <k-icon name="ArrowRightSize18" size="18" style="color:#9C9FAF"></k-icon>
+          </div>
+          <sc-if value="{{ r.quoted }}" hint-placeholder-val="{{ false }}">
+            <div style="border-radius:8px; background:#F2F4FC; padding:8px 12px; display:flex; align-items:center; gap:8px;">
+              <k-icon name="MessagesSize20" size="18" style="color:#3F52B4"></k-icon>
+              <div style="flex:1; font-size:11px; font-weight:600; color:#3F52B4;">見積もり依頼中 · 返信待ち</div>
+            </div>
+          </sc-if>
+        </a>
+      </sc-for>
+    </sc-if>
+
+    <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1; min-height:400px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;">
+        <div style="width:88px; height:88px; border-radius:44px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="{{ emptyIcon }}" size="40" style="color:#9C9FAF"></k-icon></div>
+        <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+          <div style="font-size:20px; font-weight:700; text-align:center; color:#111527;">{{ emptyTitle }}</div>
+          <div style="font-size:14px; font-weight:500; line-height:1.7; text-align:center; color:#4B4F63;">{{ emptySub }}</div>
+        </div>
+        <a href="search.html" style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; padding:0 24px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; letter-spacing:.02em; text-decoration:none;"><k-icon name="SearchNormal2Size20" size="20" style="color:#fff"></k-icon>さがすへ</a>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="position:absolute; left:0; right:0; bottom:0; height:98px; border-radius:16px 16px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:grid; grid-template-columns:repeat(5,1fr); align-items:start; padding:6px 12px 0; box-sizing:border-box;">
+    <a href="home.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="HomeSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">ホーム</span></a>
+    <a href="search.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="SearchNormal2Size24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">さがす</span></a>
+    <a href="plan.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="RoutingSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">プラン</span></a>
+    <a href="help.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="MessagesSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">ヘルプ</span></a>
+    <a href="my.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="24" style="color:#3F52B4"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#3F52B4;">マイページ</span></a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;emptyState&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;状態&quot;}}">
+const WM = {"Bukchon-ro_11-gil_street_with_hanok_houses_and_blue_sky_in_Bukchon_Hanok_Village_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/17/3537917_image1_1.jpg", "Bukchon-ro_11-gil_street_with_hanok_houses_at_sunrise_in_Bukchon_Hanok_Village_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/17/3537917_image1_1.jpg", "Bukchon_Village_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/17/3537917_image1_1.jpg", "Front_view_of_Heungnyemun_Gate_in_Gyeongbokgung_Palace_Seoul_South_Korea.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/05/3551005_image1_1.jpg", "Front_view_of_the_Imperial_Throne_Hall_Geunjeongjeon_at_Gyeongbokgung_Palace_with_blue_sky_in_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/05/3551005_image1_1.jpg", "Front_view_of_Jibokjae_Hall_under_blue_sky_at_Gyeongbokgung_Palace_in_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/62/4061962_image2_1.jpg", "Gwanghwamun_20240413.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/03/3551103_image1_1.jpg", "Insadong_Street_in_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/87/2546387_image2_1.jpg", "Myeongdong_Cathedral_6.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/05/1939005_image2_1.jpg", "Myeongdong_at_night.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/45/2588645_image2_1.jpg", "Myeongdong_Neon_at_Night,_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/45/2588645_image2_1.jpg", "Tteokbokki.JPG": "https://tong.visitkorea.or.kr/cms/resource_photo/67/2540167_image2_1.jpg"};
+const photo = (file) => `url('${WM[file] || ''}') center / cover no-repeat`;
+const OPEN = { dot: '#047857', open: '開館中', openFg: '#047857' };
+const SHUT = { dot: '#B22459', open: '本日休館', openFg: '#B22459' };
+
+class Component extends DCLogic {
+  state = { tab: (typeof location !== 'undefined' && /tab=routes/.test(location.search)) ? 'routes' : 'spots' };
+
+  renderVals() {
+    const empty = this.props.emptyState ?? false;
+    const tab = this.state.tab;
+    const spots = empty ? [] : [
+      { name: '景福宮', area: '鍾路区', ...OPEN, meta: '日本語案内あり · 交代式 10:00', photo: photo('Front_view_of_Heungnyemun_Gate_in_Gyeongbokgung_Palace_Seoul_South_Korea.jpg') },
+      { name: '明洞聖堂', area: '中区', ...OPEN, meta: '日本語案内あり · 徒歩 8分', photo: photo('Myeongdong_Cathedral_6.jpg') },
+      { name: 'ソウル市立美術館', area: '西大門', ...SHUT, meta: '火〜日 10:00 · 日本語対応', photo: photo('Gwanghwamun_20240413.jpg') },
+    ];
+    const routes = empty ? [] : [
+      { name: '景福宮 → 北村 → 仁寺洞', date: '9月10日（水）', spots: 3, hours: 4, quoted: true, photo: photo('Bukchon-ro_11-gil_street_with_hanok_houses_and_blue_sky_in_Bukchon_Hanok_Village_Seoul.jpg') },
+      { name: '明洞 → 南山 夕景プラン', date: '9月12日（金）', spots: 2, hours: 3, quoted: false, photo: photo('Myeongdong_at_night.jpg') },
+    ];
+    const on = { bg: '#3F52B4', fg: '#fff', ring: 'none' };
+    const off = { bg: '#fff', fg: '#4B4F63', ring: 'inset 0 0 0 1px #D1D3DB' };
+    const list = tab === 'spots' ? spots : routes;
+
+    return {
+      spots, routes,
+      showSpots: tab === 'spots' && spots.length > 0,
+      showRoutes: tab === 'routes' && routes.length > 0,
+      isEmpty: list.length === 0,
+      emptyIcon: tab === 'spots' ? 'HeartSize24' : 'RoutingSize24',
+      emptyTitle: tab === 'spots' ? 'まだ保存したスポットはありません' : 'まだ保存したルートはありません',
+      emptySub: tab === 'spots'
+        ? '気になる場所の ♡ を押すと、ここに残ります'
+        : 'スポットを選んで順番を決めると、ルートとして保存できます',
+      tabs: [
+        { label: 'スポット ', count: spots.length, ...(tab === 'spots' ? on : off), onClick: () => this.setState({ tab: 'spots' }) },
+        { label: 'ルート ', count: routes.length, ...(tab === 'routes' ? on : off), onClick: () => this.setState({ tab: 'routes' }) },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

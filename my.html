@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3F52B4">
+<title>K-GUIDE</title>
+<style>
+  html, body { margin:0; background:#F2F4FC; min-height:100%; }
+</style>
+<script>
+(function(){
+  var W=390, H=844;
+  function fit(){
+    var all=document.querySelectorAll('[data-screen-label]'), s=null;
+    for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
+    if(!s) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var stage=s.parentNode; if(!stage||stage===document.body){ return; }
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    s.style.flexShrink='0'; s.style.transformOrigin='center center';
+    var k;
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }  /* 패드·PC: 가운데에 폰 프레임 */
+    s.style.transform='scale('+k+')';
+    s.style.margin='0';
+  }
+  var mo=new MutationObserver(function(){ fit(); });
+  document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+})();
+</script>
+
+<script src="https://kguide-rt.vercel.app/support.js"></script>
+<script src="./data.js"></script>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap">
+  <style>
+    body { margin:0; background:#FAFAFA; font-family:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#111527; }
+    a { color:#3F52B4; text-decoration:none; } a:hover { color:#323D76; }
+    ::-webkit-scrollbar { display:none; }
+  </style>
+  <script src="./kicon.js"></script>
+</helmet>
+<div data-screen-label="マイページ" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
+
+  <div style="position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; gap:16px; padding-bottom:112px;">
+
+    <div style="position:relative; height:300px; flex-shrink:0; overflow:hidden;">
+      <div style="position:absolute; left:0; right:0; top:0; height:230px; background:url('https://tong.visitkorea.or.kr/cms/resource_photo/62/4061962_image2_1.jpg') center / cover no-repeat;"></div>
+      <div style="position:absolute; left:0; right:0; top:0; height:300px; background:linear-gradient(180deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,1) 104%);"></div>
+      <div style="position:relative; padding:16px; display:flex; align-items:center; justify-content:center; height:56px; box-sizing:border-box;">
+        <div style="font-size:16px; font-weight:600; line-height:24px; color:#373B51;">マイページ</div>
+      </div>
+      <div style="position:absolute; left:149px; top:116px; width:92px; height:92px; border-radius:73px; overflow:hidden; display:flex; align-items:center; justify-content:center;">
+        <sc-if value="{{ loggedIn }}" hint-placeholder-val="{{ false }}">
+          <div style="width:80px; height:80px; border-radius:200px; background:url('./assets/avatar.png') center / cover no-repeat;"></div>
+        </sc-if>
+        <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
+          <div style="width:80px; height:80px; border-radius:200px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="36" style="color:#3F52B4"></k-icon></div>
+        </sc-if>
+      </div>
+      <div style="position:absolute; left:16px; top:216px; width:358px; display:flex; flex-direction:column; gap:4px; align-items:center;">
+        <div style="font-size:16px; font-weight:600; line-height:24px; text-align:center; color:#373B51;">{{ userName }}</div>
+        <div style="font-size:14px; font-weight:500; line-height:20px; text-align:center; color:#6B6E80;">{{ userSub }}</div>
+      </div>
+    </div>
+
+    <sc-if value="{{ isGuest }}" hint-placeholder-val="{{ true }}">
+    <div style="margin:0 16px; flex-shrink:0; border-radius:16px; background:#F2F4FC; padding:16px; display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; flex-direction:column; gap:4px;">
+        <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">ログインすると保存・予約ができます</div>
+        <div style="font-size:12px; font-weight:400; line-height:16px; color:#4B4F63;">スポットの保存 · ルートの保存 · 見積もりの依頼</div>
+      </div>
+      <div style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; letter-spacing:.02em;">
+        <k-icon name="MessagesSize24" size="20" style="color:#fff"></k-icon>LINEでログイン
+      </div>
+    </div>
+    </sc-if>
+
+    <div style="display:flex; flex-direction:column; gap:16px; padding:8px 16px 0;">
+      <sc-for list="{{ menu }}" as="m" hint-placeholder-count="6">
+        <a href="{{ m.href }}" style="text-decoration:none; min-height:60px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#F7F7FA; padding:8px 16px; display:flex; align-items:center; gap:16px;">
+          <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
+            <div style="width:40px; height:40px; flex-shrink:0; border-radius:20px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="{{ m.icon }}" size="24" style="color:#3F52B4"></k-icon></div>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+              <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51; white-space:nowrap;">{{ m.title }}</div>
+              <sc-if value="{{ m.sub }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:12px; font-weight:400; line-height:16px; color:#4B4F63;">{{ m.sub }}</div>
+              </sc-if>
+            </div>
+          </div>
+          <sc-if value="{{ m.value }}" hint-placeholder-val="{{ false }}">
+            <div style="font-size:14px; font-weight:600; color:#3F52B4; white-space:nowrap;">{{ m.value }}</div>
+          </sc-if>
+          <k-icon name="ArrowRightSize24" size="24" style="color:#9C9FAF"></k-icon>
+        </a>
+      </sc-for>
+    </div>
+
+    <div style="padding:8px 16px 0; display:flex; flex-direction:column; gap:6px; flex-shrink:0;">
+      <div style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:400; line-height:16px; color:#4B4F63;">
+        <a href="#">利用規約</a><span style="color:#D1D3DB;">·</span><a href="#">プライバシーポリシー</a>
+      </div>
+      <div style="font-family:Poppins,'Noto Sans JP',sans-serif; font-size:12px; font-weight:500; color:#6B6E80;">K-GUIDE v0.1.0</div>
+    </div>
+  </div>
+
+  <div style="position:absolute; left:0; right:0; bottom:0; height:98px; border-radius:16px 16px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:grid; grid-template-columns:repeat(5,1fr); align-items:start; padding:6px 12px 0; box-sizing:border-box;">
+    <a href="home.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="HomeSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">ホーム</span></a>
+    <a href="search.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="SearchNormal2Size24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">さがす</span></a>
+    <a href="plan.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="RoutingSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">プラン</span></a>
+    <a href="help.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="MessagesSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">ヘルプ</span></a>
+    <a href="my.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="24" style="color:#3F52B4"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#3F52B4;">マイページ</span></a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;loggedIn&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;状態&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const loggedIn = this.props.loggedIn ?? false;
+    return {
+      loggedIn,
+      isGuest: !loggedIn,
+      userName: loggedIn ? 'たろう' : 'ゲスト',
+      userSub: loggedIn ? 'LINE アカウント連携済み' : '見るだけならログインは不要です',
+      menu: [
+        { icon: 'HeartSize24', title: '保存したスポット', sub: '', value: '', href: 'K-GUIDE%20Saved.dc.html?tab=spots' },
+        { icon: 'RoutingSize24', title: '私のルート', sub: '', value: '', href: 'K-GUIDE%20Saved.dc.html?tab=routes' },
+        { icon: 'TickCircleSize24', title: '予約・見積もり', sub: '', value: '', href: 'K-GUIDE%20Quote.dc.html' },
+        { icon: 'Setting2Size24', title: '言語', sub: '', value: '日本語', href: '#' },
+        { icon: 'MessagesSize24', title: 'お問い合わせ', sub: 'ガイドに直接つながります', value: '', href: 'K-GUIDE%20Help.dc.html' },
+        { icon: 'InfoCircleSize24', title: 'アプリについて', sub: '', value: '', href: '#' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

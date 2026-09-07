@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3F52B4">
+<title>K-GUIDE</title>
+<style>
+  html, body { margin:0; background:#F2F4FC; min-height:100%; }
+</style>
+<script>
+(function(){
+  var W=390, H=844;
+  function fit(){
+    var all=document.querySelectorAll('[data-screen-label]'), s=null;
+    for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
+    if(!s) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var stage=s.parentNode; if(!stage||stage===document.body){ return; }
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    s.style.flexShrink='0'; s.style.transformOrigin='center center';
+    var k;
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }  /* 패드·PC: 가운데에 폰 프레임 */
+    s.style.transform='scale('+k+')';
+    s.style.margin='0';
+  }
+  var mo=new MutationObserver(function(){ fit(); });
+  document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+})();
+</script>
+
+<script src="https://kguide-rt.vercel.app/support.js"></script>
+<script src="./data.js"></script>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap">
+  <style>
+    body { margin:0; background:#FAFAFA; font-family:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#111527; }
+    a { color:#3F52B4; text-decoration:none; } a:hover { color:#323D76; }
+    ::-webkit-scrollbar { display:none; }
+  </style>
+  <script src="./kicon.js"></script>
+</helmet>
+<div data-screen-label="さがす" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
+
+  <div style="position:relative; z-index:2; flex-shrink:0; background:#fff; padding:20px 16px 12px; display:flex; flex-direction:column; gap:12px;">
+    <div style="height:64px; box-sizing:border-box; border-radius:100px; background:#fff; box-shadow:0 4px 4px rgba(0,0,0,.10); display:flex; align-items:center; gap:8px; padding:12px 16px;">
+      <k-icon name="SearchNormal2Size20" size="20" style="color:#111527"></k-icon>
+      <div style="width:1px; align-self:stretch; background:#D1D3DB;"></div>
+      <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+        <input value="{{ q }}" onInput="{{ onQ }}" placeholder="キーワード（例：景福宮 / 参鶏湯）" style="font-size:14px; font-weight:500; line-height:20px; color:#111527; border:0; outline:0; background:transparent; width:100%; padding:0; font-family:inherit;" />
+        <div style="font-size:12px; font-weight:500; line-height:16px; color:#9C9FAF;">スポット · グルメ · エリア</div>
+      </div>
+      <k-icon name="ArrowRightSize18" size="18" style="color:#9C9FAF"></k-icon>
+    </div>
+    <div style="display:flex; gap:8px; overflow-x:auto;">
+      <sc-for list="{{ filters }}" as="f" hint-placeholder-count="3">
+        <div onClick="{{ f.onClick }}" style="display:inline-flex; align-items:center; gap:6px; height:38px; padding:0 16px; border-radius:38px; background:{{ f.bg }}; box-shadow:{{ f.ring }}; color:{{ f.fg }}; font-size:12px; font-weight:600; white-space:nowrap; flex-shrink:0; cursor:pointer;">
+          {{ f.label }}<k-icon name="ArrowRightSize18" size="14" style="{{ f.caret }}"></k-icon>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; gap:16px; padding:4px 16px 112px;">
+    <div style="display:flex; align-items:baseline; justify-content:space-between;">
+      <div style="font-size:20px; font-weight:700; color:#111527;">{{ title }}</div>
+      <div style="font-size:12px; font-weight:500; color:#6B6E80;"><span style="font-family:Poppins,sans-serif;">{{ resultCount }}</span>件</div>
+    </div>
+
+    <sc-if value="{{ isNoResult }}" hint-placeholder-val="{{ false }}">
+      <div style="flex-shrink:0; padding-top:32px; display:flex; flex-direction:column; align-items:center; gap:16px;">
+        <div style="width:88px; height:88px; border-radius:44px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="SearchNormal2Size24" size="40" style="color:#9C9FAF"></k-icon></div>
+        <div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+          <div style="font-size:20px; font-weight:700; text-align:center; color:#111527;">見つかりませんでした</div>
+          <div style="font-size:14px; font-weight:500; line-height:1.7; text-align:center; color:#4B4F63;">条件を減らすか、エリアを広げてみてください</div>
+        </div>
+        <div onClick="{{ clearAll }}" style="height:48px; padding:0 24px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;"><k-icon name="CloseCircleSize20" size="20" style="color:#fff"></k-icon>条件をクリア</div>
+      </div>
+    </sc-if>
+
+    <sc-for list="{{ results }}" as="r" hint-placeholder-count="5">
+      <a href="{{ r.href }}" style="color:inherit; text-decoration:none; min-height:106px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:8px; display:flex; gap:8px; align-items:center;">
+        <div style="width:88px; min-height:90px; align-self:stretch; flex-shrink:0; border-radius:8px; background:{{ r.photo }};"></div>
+        <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; justify-content:center;">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="width:7px; height:7px; border-radius:50%; background:{{ r.dot }}; flex-shrink:0;"></span>
+            <span style="font-size:11px; font-weight:600; color:{{ r.openFg }};">{{ r.open }}</span>
+            <span style="font-size:11px; font-weight:500; color:#6B6E80;">{{ r.area }}</span>
+          </div>
+          <div style="font-size:16px; font-weight:700; line-height:23px; flex-shrink:0; color:#111527; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.name }}</div>
+          <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+            <sc-if value="{{ r.verified }}" hint-placeholder-val="{{ true }}">
+              <span style="display:inline-flex; align-items:center; gap:4px; height:22px; padding:0 8px; border-radius:8px; background:#3F52B4; color:#fff; font-size:11px; font-weight:600; white-space:nowrap;"><k-icon name="TickCircleSize12" size="12" style="color:#fff"></k-icon>ガイド確認済み</span>
+            </sc-if>
+            <sc-if value="{{ r.genre }}" hint-placeholder-val="{{ true }}">
+              <span style="display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:600;">{{ r.genre }}</span>
+            </sc-if>
+          </div>
+          <div style="font-size:11px; font-weight:500; color:#6B6E80; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.meta }}</div>
+        </div>
+        <k-icon name="HeartSize20" size="20" style="color:#9C9FAF"></k-icon>
+      </a>
+    </sc-for>
+  </div>
+
+  <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute; inset:0; z-index:10; display:flex; flex-direction:column; justify-content:flex-end;">
+      <div onClick="{{ closeSheet }}" style="position:absolute; inset:0; background:rgba(17,21,41,0.4);"></div>
+      <div style="position:relative; border-radius:32px 32px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:flex; flex-direction:column;">
+        <div style="height:32px; display:flex; align-items:center; justify-content:center;"><div style="width:40px; height:4px; border-radius:100px; background:#D1D3DB;"></div></div>
+        <div style="padding:0 16px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px;">
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <div style="font-size:20px; font-weight:700; color:#111527;">{{ sheetTitle }}</div>
+            <div style="font-size:12px; font-weight:500; color:#6B6E80;">{{ sheetHint }}</div>
+          </div>
+          <div onClick="{{ closeSheet }}" style="width:44px; height:44px; flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer;"><k-icon name="CloseCircleSize24" size="24" style="color:#4B4F63"></k-icon></div>
+        </div>
+        <div style="padding:0 16px; display:flex; flex-direction:column; gap:16px;">
+          <sc-for list="{{ sheetGroups }}" as="g" hint-placeholder-count="2">
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <sc-if value="{{ g.title }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:12px; font-weight:500; line-height:12px; color:#373B51;">{{ g.title }}</div>
+              </sc-if>
+              <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                <sc-for list="{{ g.options }}" as="o" hint-placeholder-count="4">
+                  <div onClick="{{ o.onClick }}" style="display:inline-flex; align-items:center; gap:6px; height:38px; padding:0 16px; border-radius:38px; background:{{ o.bg }}; box-shadow:{{ o.ring }}; color:{{ o.fg }}; font-size:12px; font-weight:600; cursor:pointer;">
+                    <sc-if value="{{ o.on }}" hint-placeholder-val="{{ false }}"><k-icon name="TickCircleSize12" size="12" style="color:#fff"></k-icon></sc-if>{{ o.label }}
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
+          <div onClick="{{ toggleJp }}" style="min-height:60px; box-sizing:border-box; border-radius:16px; background:#F7F7FA; padding:8px 16px; display:flex; align-items:center; gap:12px; cursor:pointer;">
+            <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
+              <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">日本語対応のみ</div>
+              <div style="font-size:12px; font-weight:400; line-height:16px; color:#4B4F63;">日本語メニュー・案内があるところだけ</div>
+            </div>
+            <div style="width:44px; height:44px; flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+              <div style="width:20px; height:20px; box-sizing:border-box; border-radius:4px; background:{{ jpBg }}; box-shadow:{{ jpRing }}; display:flex; align-items:center; justify-content:center;">
+                <div style="width:10.667px; height:7.333px; border-left:1.5px solid {{ jpTick }}; border-bottom:1.5px solid {{ jpTick }}; transform:rotate(-45deg) translate(1px,-1px);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="padding:24px 16px 34px; display:flex; align-items:center; gap:16px;">
+          <div onClick="{{ clearSheet }}" style="flex:1; height:48px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:16px; font-weight:600; letter-spacing:.02em; display:flex; align-items:center; justify-content:center; cursor:pointer;">クリア</div>
+          <div onClick="{{ closeSheet }}" style="flex:2; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; letter-spacing:.02em; display:flex; align-items:center; justify-content:center; cursor:pointer; white-space:nowrap;"><span style="font-family:Poppins,'Noto Sans JP',sans-serif;">{{ resultCount }}</span>件を表示</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="position:absolute; left:0; right:0; bottom:0; height:98px; border-radius:16px 16px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:grid; grid-template-columns:repeat(5,1fr); align-items:start; padding:6px 12px 0; box-sizing:border-box;">
+    <a href="home.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="HomeSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">ホーム</span></a>
+    <a href="search.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="SearchNormal2Size24" size="24" style="color:#3F52B4"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#3F52B4;">さがす</span></a>
+    <a href="plan.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="RoutingSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">プラン</span></a>
+    <a href="help.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="MessagesSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">ヘルプ</span></a>
+    <a href="my.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">マイページ</span></a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;filterOpen&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;状態&quot;},&quot;noResult&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;状態&quot;}}">
+
+
+const KG = window.KG; const SP = KG.spots;
+const byId = (id) => SP.find(s => s.id === id);
+const bg = (u, w) => u ? `url('${u}') center / cover no-repeat` : 'linear-gradient(135deg,#E9ECF8,#D1D6EE)';
+const shot = (u) => `linear-gradient(180deg, rgba(17,21,41,0) 45%, rgba(17,21,41,0.8) 100%), ${bg(u)}`;
+const qid = () => new URLSearchParams(location.search).get('id');
+const DOW = ['日','月','火','水','木','金','土'];
+function isClosedToday(s){ const d = DOW[new Date().getDay()]; const r = s.rest || ''; if (!r) return false; if (/年中無休|無休/.test(r)) return false; if (r.includes(d + '曜')) return true; return false; }
+const st = (s) => isClosedToday(s) ? SHUT : OPEN;
+const metaOf = (s) => [s.jp ? '日本語対応' : '', s.stay ? `約${s.stay}分` : '', s.fee && s.fee.length < 22 ? s.fee : '', s.area].filter(Boolean).slice(0,2).join(' · ');
+
+
+const OPEN = { dot: '#047857', open: '開館中', openFg: '#047857' };
+const SHUT = { dot: '#B22459', open: '本日休館', openFg: '#B22459' };
+
+const SHEETS = {
+  area: {
+    title: 'エリア', hint: '1つ選べます', multi: false,
+    groups: [{ title: '', options: ['明洞', '鍾路 · 光化門', '北村 · 三清洞', '東大門', '弘大', '江南', '梨泰院', '蚕室', '汝矣島'] }],
+  },
+  genre: {
+    title: 'ジャンル', hint: 'いくつでも選べます', multi: true,
+    groups: [
+      { title: '大きく分ける', options: ['名所', 'グルメ', '体験'] },
+      { title: 'グルメの種類', options: ['韓食', '洋食', '粉食', 'カフェ'] },
+    ],
+  },
+  budget: {
+    title: '予算', hint: '1人あたり · 1つ選べます', multi: false,
+    groups: [{ title: '', options: ['〜₩10,000', '〜₩20,000', '₩20,000〜'] }],
+  },
+};
+
+const ALL = SP.map(s => ({ ...s, ...st(s), tags: [s.type, s.genre].filter(Boolean), meta: metaOf(s), photo: bg(s.photo), href: 'spot.html?id=' + s.id }));
+
+class Component extends DCLogic {
+  state = (() => { const u = new URLSearchParams(location.search); return { sheet: undefined, area: u.get('area') || '', genres: u.get('type') ? [u.get('type')] : [], budget: '', jpOnly: false, q: u.get('q') || '' }; })();
+
+  renderVals() {
+    const on = { bg: '#3F52B4', fg: '#fff', ring: 'none', caret: 'color:#fff; transform:rotate(90deg)' };
+    const off = { bg: '#fff', fg: '#4B4F63', ring: 'inset 0 0 0 1px #D1D3DB', caret: 'color:#6B6E80; transform:rotate(90deg)' };
+    const key = this.state.sheet === undefined ? (this.props.filterOpen ? 'area' : null) : this.state.sheet;
+    const sheet = key ? SHEETS[key] : null;
+    const picked = (label) => key === 'genre' ? this.state.genres.includes(label)
+      : key === 'area' ? this.state.area === label : this.state.budget === label;
+    const pick = (label) => {
+      if (key === 'genre') {
+        this.setState(s => ({ genres: s.genres.includes(label) ? s.genres.filter(g => g !== label) : [...s.genres, label] }));
+      } else if (key === 'area') {
+        this.setState({ area: label });
+      } else {
+        this.setState({ budget: label });
+      }
+    };
+    const genreLabel = this.state.genres.length ? `ジャンル · ${this.state.genres.length}` : 'ジャンル';
+
+    const { area, genres, budget, jpOnly, q } = this.state; const qq = (q || '').trim().toLowerCase();
+    const filtered = this.props.noResult ? [] : ALL.filter(r =>
+      (!area || r.areaKey === area) &&
+      (!genres.length || genres.some(g => r.tags.includes(g))) &&
+      (!budget || r.band === budget) &&
+      (!jpOnly || r.jp) &&
+      (!qq || [r.name, r.ko, r.area, r.genre, r.sig, r.addr].join(' ').toLowerCase().includes(qq))
+    );
+
+    return {
+      sheetOpen: !!sheet,
+      sheetTitle: sheet ? sheet.title : '',
+      sheetHint: sheet ? sheet.hint : '',
+      resultCount: filtered.length, q: this.state.q, onQ: (e) => this.setState({ q: e.target.value }), title: qq ? `「${q.trim()}」の検索結果` : area ? `${area}のまわり` : genres.length ? genres[0] : 'ソウル全体',
+      isNoResult: filtered.length === 0,
+      clearAll: () => this.setState({ genres: [], budget: '', jpOnly: false, area: '' }),
+      jpBg: this.state.jpOnly ? '#F2F4FC' : '#fff',
+      jpRing: this.state.jpOnly ? 'inset 0 0 0 1px #3F52B4' : 'inset 0 0 0 1px #323D76',
+      jpTick: this.state.jpOnly ? '#3F52B4' : 'transparent',
+      toggleJp: () => this.setState(s => ({ jpOnly: !s.jpOnly })),
+      closeSheet: () => this.setState({ sheet: null }),
+      clearSheet: () => {
+        if (key === 'genre') this.setState({ genres: [], jpOnly: false });
+        else if (key === 'area') this.setState({ area: '' });
+        else this.setState({ budget: '' });
+      },
+      sheetGroups: sheet ? sheet.groups.map(g => ({
+        title: g.title,
+        options: g.options.map(label => {
+          const o = picked(label);
+          return {
+            label, on: o,
+            bg: o ? '#3F52B4' : '#fff',
+            ring: o ? 'none' : 'inset 0 0 0 1px #D1D3DB',
+            fg: o ? '#fff' : '#4B4F63',
+            onClick: () => pick(label),
+          };
+        }),
+      })) : [],
+      filters: [
+        { label: this.state.area ? `エリア · ${this.state.area}` : 'エリア', ...(this.state.area ? on : off), onClick: () => this.setState({ sheet: 'area' }) },
+        { label: genreLabel, ...(this.state.genres.length ? on : off), onClick: () => this.setState({ sheet: 'genre' }) },
+        { label: this.state.budget || '予算', ...(this.state.budget ? on : off), onClick: () => this.setState({ sheet: 'budget' }) },
+      ],
+      results: filtered,
+      resultLabel: `${filtered.length}件`,
+    };
+  }
+}
+
+</script>
+</body>
+</html>

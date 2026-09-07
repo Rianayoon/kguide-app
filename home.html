@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3F52B4">
+<title>K-GUIDE</title>
+<style>
+  html, body { margin:0; background:#F2F4FC; min-height:100%; }
+</style>
+<script>
+(function(){
+  var W=390, H=844;
+  function fit(){
+    var all=document.querySelectorAll('[data-screen-label]'), s=null;
+    for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
+    if(!s) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var stage=s.parentNode; if(!stage||stage===document.body){ return; }
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    s.style.flexShrink='0'; s.style.transformOrigin='center center';
+    var k;
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }  /* 패드·PC: 가운데에 폰 프레임 */
+    s.style.transform='scale('+k+')';
+    s.style.margin='0';
+  }
+  var mo=new MutationObserver(function(){ fit(); });
+  document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+})();
+</script>
+
+<script src="https://kguide-rt.vercel.app/support.js"></script>
+<script src="./data.js"></script>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap">
+  <style>
+    body { margin:0; background:#FAFAFA; font-family:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#111527; }
+    a { color:#3F52B4; text-decoration:none; } a:hover { color:#323D76; }
+    ::-webkit-scrollbar { display:none; }
+  </style>
+  <script src="./kicon.js"></script>
+</helmet>
+<div data-screen-label="ホーム" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
+
+  <div style="position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; gap:32px; padding-bottom:112px;">
+
+    <div style="position:relative; height:400px; flex-shrink:0;">
+      <div style="position:absolute; left:0; right:0; top:0; height:368px; border-radius:0 0 32px 32px; overflow:hidden; background:url('https://tong.visitkorea.or.kr/cms/resource_photo/17/3537917_image1_1.jpg') center / cover no-repeat;">
+        <div style="position:absolute; left:0; right:0; bottom:0; height:30%; background:linear-gradient(180deg, rgba(17,21,41,0) 0%, rgba(17,21,41,0.55) 100%);"></div>
+      </div>
+      <div style="position:absolute; left:16px; right:16px; top:20px; display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <div style="width:32px; height:32px; border-radius:8px; background:#3F52B4; display:flex; align-items:center; justify-content:center; color:#fff; font-family:Poppins,sans-serif; font-weight:700; font-size:14px;">K</div>
+          <div style="font-family:Poppins,sans-serif; font-weight:700; font-size:16px; color:#fff; letter-spacing:.02em; text-shadow:0 1px 4px rgba(17,21,41,.45);">K-GUIDE</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; height:36px; padding:0 14px; border-radius:38px; background:#fff; font-size:12px; font-weight:600; color:#3F52B4;">日本語</div>
+      </div>
+      <div style="position:absolute; right:16px; top:64px; display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px; border-radius:38px; background:#fff; font-size:11px; font-weight:600; color:#4B4F63;">
+        <k-icon name="SunSize18" size="16" style="color:#3F52B4"></k-icon>
+        <span style="font-family:Poppins,sans-serif; font-weight:600; color:#111527;">24°</span> · 薄手の上着があると安心
+      </div>
+      <div style="position:absolute; left:16px; top:336px; width:358px; height:64px; box-sizing:border-box; border-radius:100px; background:#fff; box-shadow:0 4px 4px rgba(0,0,0,.25); display:flex; align-items:center; gap:8px; padding:12px 16px;">
+        <k-icon name="SearchNormal2Size20" size="20" style="color:#111527"></k-icon>
+        <div style="width:1px; align-self:stretch; background:#D1D3DB;"></div>
+        <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
+          <div style="font-size:14px; font-weight:500; line-height:20px; color:#4B4F63;">どこへ？</div>
+          <div style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:500; line-height:16px; color:#9C9FAF;">スポット<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>グルメ<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>エリア</div>
+        </div>
+      </div>
+    </div>
+
+    <a href="course.html?id=C001" style="display:block; position:relative; height:200px; flex-shrink:0; overflow:hidden; background:url('https://tong.visitkorea.or.kr/cms/resource_photo/05/3551005_image1_1.jpg') center / cover no-repeat;">
+      <div style="position:absolute; left:0; right:0; bottom:0; height:52%; background:linear-gradient(180deg, rgba(17,21,41,0) 0%, rgba(17,21,41,0.72) 42%, rgba(17,21,41,0.94) 100%);"></div>
+      <span style="position:absolute; left:16px; top:16px; display:inline-flex; align-items:center; gap:4px; height:22px; padding:0 8px; border-radius:8px; background:#3F52B4; color:#fff; font-size:11px; font-weight:600;"><k-icon name="TickCircleSize12" size="12" style="color:#fff"></k-icon>ガイド確認済み</span>
+      <div style="position:absolute; left:16px; bottom:16px; width:358px; display:flex; flex-direction:column; gap:4px;">
+        <div style="font-size:28px; font-weight:700; line-height:32px; letter-spacing:-1px; color:#fff;">今週のコース</div>
+        <div style="font-size:20px; font-weight:500; line-height:24px; color:#fff;">景福宮 → 北村 → 仁寺洞</div>
+        <div style="font-size:12px; font-weight:500; color:#fff;">所要 <span style="font-family:Poppins,sans-serif;">4</span>時間 · 徒歩 <span style="font-family:Poppins,sans-serif;">2.6</span>km · 日本語対応</div>
+      </div>
+    </a>
+
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div style="display:flex; align-items:baseline; justify-content:space-between; padding:0 16px;">
+        <div style="font-size:20px; font-weight:700; color:#111527;">エリアで見る</div>
+        <a href="search.html" style="font-size:12px; font-weight:600; color:#3F52B4;">すべて見る</a>
+      </div>
+      <div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; padding:0 16px;">
+        <sc-for list="{{ areas }}" as="a" hint-placeholder-count="4">
+          <div style="position:relative; height:165px; border-radius:16px; overflow:hidden; background:{{ a.bg }};">
+            <div style="position:absolute; left:16px; bottom:16px; right:16px; display:flex; flex-direction:column;">
+              <div style="font-size:20px; font-weight:700; line-height:24px; color:#fff;">{{ a.name }}</div>
+              <div style="font-size:16px; font-weight:400; line-height:24px; color:#fff;">{{ a.sub }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; align-items:baseline; justify-content:space-between; padding:0 16px;">
+        <div style="font-size:20px; font-weight:700; color:#111527;">今日行けるところ</div>
+        <a href="help.html" style="font-size:12px; font-weight:600; color:#3F52B4;">休館日カレンダー</a>
+      </div>
+      <div style="display:flex; gap:8px; padding:0 16px; overflow-x:auto;">
+        <sc-for list="{{ openings }}" as="o" hint-placeholder-count="4">
+          <div style="display:inline-flex; align-items:center; gap:8px; height:36px; padding:0 14px; border-radius:38px; background:#fff; box-shadow:inset 0 0 0 1px #D1D3DB; font-size:12px; font-weight:600; color:#111527; white-space:nowrap; flex-shrink:0;">
+            <span style="width:7px; height:7px; border-radius:50%; background:{{ o.dot }};"></span>{{ o.name }}<span style="font-family:Poppins,sans-serif; font-weight:500; color:{{ o.subColor }};">{{ o.hours }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <sc-if value="{{ holidayBanner }}" hint-placeholder-val="{{ true }}">
+        <div style="margin:0 16px; display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:16px; background:#F2F4FC;">
+          <k-icon name="InfoCircleSize24" size="22" style="color:#3F52B4"></k-icon>
+          <div style="flex:1; font-size:13px; color:#111527; line-height:1.5;"><b><span style="font-family:Poppins,sans-serif;">9月24日〜26日</span>は秋夕（チュソク）</b><br><span style="color:#4B4F63;">休みの店・混む場所が多い日です</span></div>
+          <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
+        </div>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ liveCamera }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; align-items:baseline; justify-content:space-between; padding:0 16px;">
+          <div style="font-size:20px; font-weight:700; color:#111527;">ライブカメラ</div>
+          <a href="search.html" style="font-size:12px; font-weight:600; color:#3F52B4;">すべて見る</a>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; padding:0 16px;">
+          <sc-for list="{{ cams }}" as="cam" hint-placeholder-count="2">
+            <div style="position:relative; height:165px; border-radius:16px; overflow:hidden; background:{{ cam.bg }};">
+              <span style="position:absolute; top:12px; left:12px; display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px; border-radius:8px; background:#fff; color:#4B4F63; font-size:11px; font-weight:600;"><span style="width:6px; height:6px; border-radius:50%; background:#B22459;"></span>LIVE</span>
+              <div style="position:absolute; left:16px; bottom:16px; right:16px; display:flex; flex-direction:column;">
+                <div style="font-size:20px; font-weight:700; line-height:24px; color:#fff;">{{ cam.name }}</div>
+                <div style="font-size:16px; font-weight:400; line-height:24px; color:#fff;">{{ cam.crowd }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+  </div>
+
+  <div style="position:absolute; left:0; right:0; bottom:0; height:98px; border-radius:16px 16px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:grid; grid-template-columns:repeat(5,1fr); align-items:start; padding:6px 12px 0; box-sizing:border-box;">
+    <a href="home.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="HomeSize24" size="24" style="color:#3F52B4"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#3F52B4;">ホーム</span></a>
+    <a href="search.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="SearchNormal2Size24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">さがす</span></a>
+    <a href="plan.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="RoutingSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">プラン</span></a>
+    <a href="help.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="MessagesSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">ヘルプ</span></a>
+    <a href="my.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">マイページ</span></a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;holidayBanner&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;ホーム&quot;},&quot;liveCamera&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;ホーム&quot;}}">
+
+
+const KG = window.KG; const SP = KG.spots;
+const byId = (id) => SP.find(s => s.id === id);
+const bg = (u, w) => u ? `url('${u}') center / cover no-repeat` : 'linear-gradient(135deg,#E9ECF8,#D1D6EE)';
+const shot = (u) => `linear-gradient(180deg, rgba(17,21,41,0) 45%, rgba(17,21,41,0.8) 100%), ${bg(u)}`;
+const qid = () => new URLSearchParams(location.search).get('id');
+const DOW = ['日','月','火','水','木','金','土'];
+function isClosedToday(s){ const d = DOW[new Date().getDay()]; const r = s.rest || ''; if (!r) return false; if (/年中無休|無休/.test(r)) return false; if (r.includes(d + '曜')) return true; return false; }
+const OPEN = { dot: '#047857', open: '開館中', openFg: '#047857' };
+const SHUT = { dot: '#B22459', open: '本日休館', openFg: '#B22459' };
+const st = (s) => isClosedToday(s) ? SHUT : OPEN;
+const metaOf = (s) => [s.jp ? '日本語対応' : '', s.stay ? `約${s.stay}分` : '', s.fee && s.fee.length < 22 ? s.fee : '', s.area].filter(Boolean).slice(0,2).join(' · ');
+
+
+class Component extends DCLogic {
+  renderVals() {
+    const open = { dot: '#047857', subColor: '#6B6E80' };
+    const closed = { dot: '#B22459', subColor: '#B22459' };
+    return {
+      holidayBanner: this.props.holidayBanner ?? true,
+      liveCamera: this.props.liveCamera ?? true,
+      areas: [['鍾路 · 光化門','景福宮エリア'],['明洞','明洞'],['北村 · 三清洞','北村'],['弘大','弘大']].map(([k, label]) => { const list = SP.filter(x => x.areaKey === k); const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: `スポット ${list.length}件`, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }),
+      openings: SP.filter(x => x.type === '名所' && x.hours).slice(0, 5).map(x => { const c = isClosedToday(x); return { name: x.name, hours: c ? '本日休館' : x.hours.split(/[ （(]/)[0].slice(0, 18), ...(c ? closed : open), href: 'spot.html?id=' + x.id }; }),
+      cams: [
+        { name: '明洞', crowd: 'やや混雑', bg: shot('Myeongdong_at_night.jpg') },
+        { name: '景福宮', crowd: '空いている', bg: shot('Gyeongbokgung(palace)_Geunjeongjeon(hall).jpg') },
+      ],
+    };
+  }
+}
+
+</script>
+</body>
+</html>

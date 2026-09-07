@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3F52B4">
+<title>K-GUIDE</title>
+<style>
+  html, body { margin:0; background:#F2F4FC; min-height:100%; }
+</style>
+<script>
+(function(){
+  var W=390, H=844;
+  function fit(){
+    var all=document.querySelectorAll('[data-screen-label]'), s=null;
+    for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
+    if(!s) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var stage=s.parentNode; if(!stage||stage===document.body){ return; }
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    s.style.flexShrink='0'; s.style.transformOrigin='center center';
+    var k;
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }  /* 패드·PC: 가운데에 폰 프레임 */
+    s.style.transform='scale('+k+')';
+    s.style.margin='0';
+  }
+  var mo=new MutationObserver(function(){ fit(); });
+  document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+})();
+</script>
+
+<script src="https://kguide-rt.vercel.app/support.js"></script>
+<script src="./data.js"></script>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap">
+  <style>
+    body { margin:0; background:#FAFAFA; font-family:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#111527; }
+    a { color:#3F52B4; text-decoration:none; } a:hover { color:#323D76; }
+    ::-webkit-scrollbar { display:none; }
+  </style>
+  <script src="./kicon.js"></script>
+</helmet>
+<div data-screen-label="ヘルプ" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
+
+  <div style="position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; gap:24px; padding:20px 16px 112px;">
+
+    <div style="display:flex; flex-direction:column; gap:4px; flex-shrink:0;">
+      <div style="font-size:20px; font-weight:700; color:#111527;">ヘルプ</div>
+      <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; color:#6B6E80;">
+        <k-icon name="TickCircleSize14" size="14" style="color:#047857"></k-icon>オフラインでも「見せるカード」は使えます
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex-shrink:0;">
+      <div style="display:flex; flex-direction:column; gap:2px;">
+        <div style="font-size:16px; font-weight:700; color:#111527;"><span style="font-family:Poppins,'Noto Sans JP',sans-serif;">24</span>時間 通訳サービス</div>
+        <div style="font-size:12px; font-weight:500; color:#6B6E80;">無料・日本語OK</div>
+      </div>
+      <div style="min-height:64px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#3F52B4; padding:12px 16px; display:flex; align-items:center; gap:12px;">
+        <k-icon name="CallSize24" size="24" style="color:#fff"></k-icon>
+        <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+          <div style="font-size:16px; font-weight:600; line-height:23px; color:#fff; letter-spacing:.02em;"><span style="font-family:Poppins,'Noto Sans JP',sans-serif;">1330</span> 観光通訳案内</div>
+          <div style="font-size:11px; font-weight:500; color:#fff;">韓国観光公社 · 案内・通訳・苦情</div>
+        </div>
+        <k-icon name="ArrowRightSize18" size="18" style="color:#fff"></k-icon>
+      </div>
+      <div style="min-height:64px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; padding:12px 16px; display:flex; align-items:center; gap:12px;">
+        <k-icon name="MessagesSize24" size="24" style="color:#3F52B4"></k-icon>
+        <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+          <div style="font-size:16px; font-weight:600; line-height:23px; color:#3F52B4; letter-spacing:.02em;">BBB 生活通訳ボランティア</div>
+          <div style="font-size:11px; font-weight:500; color:#4B4F63;">病院・タクシー・お店で</div>
+        </div>
+        <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
+      </div>
+      <div style="font-size:11px; font-weight:500; color:#6B6E80;">ガイドはBBBで<span style="font-family:Poppins,'Noto Sans JP',sans-serif;">5</span>年通訳ボランティア中</div>
+    </div>
+
+
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">着いたばかりの方へ</div>
+      <sc-for list="{{ arrival }}" as="a" hint-placeholder-count="3">
+        <div style="min-height:76px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:14px 16px; display:flex; align-items:center; gap:14px;">
+          <div style="width:48px; height:48px; flex-shrink:0; border-radius:16px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="{{ a.icon }}" size="24" style="color:#3F52B4"></k-icon></div>
+          <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+            <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527; white-space:nowrap;">{{ a.title }}</div>
+            <div style="font-size:12px; font-weight:500; color:#6B6E80;">{{ a.sub }}</div>
+          </div>
+          <k-icon name="ArrowRightSize18" size="18" style="color:#9C9FAF"></k-icon>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex-shrink:0;">
+      <div style="display:flex; align-items:baseline; justify-content:space-between;">
+        <div style="font-size:16px; font-weight:700; color:#111527;">見せるカード</div>
+        <span style="display:inline-flex; align-items:center; gap:4px; height:22px; padding:0 8px; border-radius:8px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:600;"><k-icon name="TickCircleSize12" size="12" style="color:#3F52B4"></k-icon>オフラインOK</span>
+      </div>
+      <div style="font-size:12px; font-weight:500; color:#6B6E80;">画面を見せるだけで伝わります。タップで大きく表示。</div>
+      <sc-for list="{{ cards }}" as="c" hint-placeholder-count="4">
+        <div style="min-height:96px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:14px 16px; display:flex; align-items:center; gap:14px;">
+          <div style="width:48px; height:48px; flex-shrink:0; border-radius:16px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="{{ c.icon }}" size="24" style="color:#3F52B4"></k-icon></div>
+          <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+            <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527;">{{ c.jp }}</div>
+            <div style="font-size:14px; font-weight:500; color:#4B4F63; line-height:1.45;">{{ c.ko }}</div>
+            <sc-if value="{{ c.sub }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ c.sub }}</div>
+            </sc-if>
+          </div>
+          <k-icon name="ArrowRightSize18" size="18" style="color:#9C9FAF"></k-icon>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">休館日カレンダー</div>
+      <div style="border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:14px 12px; display:flex; flex-direction:column; gap:12px;">
+        <div style="display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:4px;">
+          <sc-for list="{{ week }}" as="d" hint-placeholder-count="7">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+              <div style="height:24px; font-size:14px; font-weight:600; letter-spacing:.02em; line-height:24px; color:#4B4F63;">{{ d.day }}</div>
+              <div style="width:36px; height:36px; box-sizing:border-box; border-radius:200px; background:{{ d.bg }}; box-shadow:{{ d.ring }}; display:flex; align-items:center; justify-content:center; font-family:Poppins,'Noto Sans JP',sans-serif; font-size:14px; font-weight:600; letter-spacing:.02em; line-height:14px; color:{{ d.fg }};">{{ d.date }}</div>
+              <div style="width:6px; height:6px; border-radius:50%; background:{{ d.dot }};"></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size:12px; font-weight:500; color:#4B4F63;">今日休み: <span style="font-weight:700; color:#111527;">ソウル市立美術館</span></div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">今日の運航</div>
+      <div style="min-height:76px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:14px 16px; display:flex; align-items:center; gap:12px;">
+        <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+          <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527;">仁川空港</div>
+          <div style="font-size:12px; font-weight:500; color:#4B4F63;">北風 <span style="font-family:Poppins,sans-serif; color:#111527;">12kt</span> · 視程 <span style="font-family:Poppins,sans-serif; color:#111527;">10km</span></div>
+        </div>
+        <span style="display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#047857; color:#fff; font-size:11px; font-weight:600; white-space:nowrap;">欠航リスク 低</span>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">地図で迷ったら</div>
+      <div style="height:48px; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #D1D3DB; padding:0 16px; display:flex; align-items:center; gap:8px;">
+        <k-icon name="SearchNormal2Size20" size="20" style="color:#9C9FAF"></k-icon>
+        <div style="flex:1; font-size:14px; font-weight:500; color:#9C9FAF;">日本語の店名を入力</div>
+      </div>
+      <div style="border-radius:16px; background:#F2F4FC; padding:14px 16px; display:flex; flex-direction:column; gap:10px;">
+        <div style="font-size:11px; font-weight:600; color:#6B6E80;">「明洞カルグクス」の韓国語表記</div>
+        <div style="font-size:16px; font-weight:700; color:#111527;">명동칼국수</div>
+        <div style="font-size:12px; font-weight:500; color:#4B4F63;">서울 중구 명동8길 <span style="font-family:Poppins,sans-serif;">21</span></div>
+        <div style="display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:14px; font-weight:600;"><k-icon name="LocationSize18" size="18" style="color:#3F52B4"></k-icon>NAVER地図で開く</div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">よくある質問</div>
+      <sc-for list="{{ faq }}" as="q" hint-placeholder-count="3">
+        <a href="faq.html" style="flex-shrink:0; display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:16px; background:#F2F4FC; text-decoration:none;">
+          <div style="flex:1; font-size:14px; font-weight:500; color:#111527;">{{ q }}</div>
+          <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
+        </a>
+      </sc-for>
+    </div>
+
+    <div style="min-height:64px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; padding:12px 16px; display:flex; align-items:center; gap:12px;">
+      <k-icon name="MessagesSize24" size="24" style="color:#3F52B4"></k-icon>
+      <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+        <div style="font-size:16px; font-weight:600; line-height:23px; color:#3F52B4; letter-spacing:.02em;">ガイドに相談する</div>
+        <div style="font-size:11px; font-weight:500; color:#4B4F63;">LINEで気軽に</div>
+      </div>
+      <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
+    </div>
+  </div>
+
+  <div style="position:absolute; left:0; right:0; bottom:0; height:98px; border-radius:16px 16px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:grid; grid-template-columns:repeat(5,1fr); align-items:start; padding:6px 12px 0; box-sizing:border-box;">
+    <a href="home.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="HomeSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">ホーム</span></a>
+    <a href="search.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="SearchNormal2Size24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">さがす</span></a>
+    <a href="plan.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="RoutingSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">プラン</span></a>
+    <a href="help.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="MessagesSize24" size="24" style="color:#3F52B4"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#3F52B4;">ヘルプ</span></a>
+    <a href="my.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">マイページ</span></a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      cards: [
+        { icon: 'AddCircleSize24', jp: '病院に行きたいです', ko: '병원에 가고 싶어요', sub: '' },
+        { icon: 'TickCircleSize24', jp: 'これをください（辛くしないで）', ko: '이거 주세요. 맵지 않게 해주세요.', sub: '' },
+        { icon: 'CarSize24', jp: 'ここまでお願いします', ko: '여기까지 가주세요', sub: '' },
+        { icon: 'RoutingSize24', jp: '道に迷いました', ko: '길을 잃었어요', sub: '' },
+        { icon: 'LocationSize24', jp: '現在地を韓国語で見せる', ko: '지금 여기에 있어요', sub: '救急・タクシーに' },
+        { icon: 'BagSize24', jp: 'これを失くしました', ko: '이것을 잃어버렸어요', sub: '' },
+      ],
+      arrival: [
+        { icon: 'BusSize24', title: '空港バス時刻表', sub: '6001 · 6015 · 明洞まで' },
+        { icon: 'CarSize24', title: '空港→ホテル', sub: 'タクシー 約60分 · ₩70,000〜' },
+        { icon: 'WifiSize24', title: 'SIM・Wi-Fi', sub: '到着ロビー 1F カウンター' },
+      ],
+      week: [
+        { day: '月', date: 8, bg: '#3F52B4', ring: 'inset 0 0 0 1.5px #fff', fg: '#F2F4FC', dot: '#B22459' },
+        { day: '火', date: 9, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: 'transparent' },
+        { day: '水', date: 10, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: 'transparent' },
+        { day: '木', date: 11, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: 'transparent' },
+        { day: '金', date: 12, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: 'transparent' },
+        { day: '土', date: 13, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: 'transparent' },
+        { day: '日', date: 14, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: '#B22459' },
+      ],
+      faq: [
+        '地下鉄のきっぷはどう買いますか？',
+        'クレジットカードは使えますか？',
+        '免税の手続きはどこで？',
+        '落とし物はどこに問い合わせ？',
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>

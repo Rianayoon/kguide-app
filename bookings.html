@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3F52B4">
+<title>K-GUIDE</title>
+<style>
+  html, body { margin:0; background:#F2F4FC; min-height:100%; }
+</style>
+<script>
+(function(){
+  var W=390, H=844;
+  function fit(){
+    var all=document.querySelectorAll('[data-screen-label]'), s=null;
+    for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
+    if(!s) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var stage=s.parentNode; if(!stage||stage===document.body){ return; }
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    s.style.flexShrink='0'; s.style.transformOrigin='center center';
+    var k;
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }  /* 패드·PC: 가운데에 폰 프레임 */
+    s.style.transform='scale('+k+')';
+    s.style.margin='0';
+  }
+  var mo=new MutationObserver(function(){ fit(); });
+  document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+})();
+</script>
+
+<script src="https://kguide-rt.vercel.app/support.js"></script>
+<script src="./data.js"></script>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap">
+  <style>
+    body { margin:0; background:#FAFAFA; font-family:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#111527; }
+    a { color:#3F52B4; text-decoration:none; } a:hover { color:#323D76; }
+    ::-webkit-scrollbar { display:none; }
+  </style>
+  <script src="./kicon.js"></script>
+</helmet>
+<div data-screen-label="予約・見積もり" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
+
+  <div style="flex-shrink:0; padding:16px 16px 12px; display:flex; align-items:center; gap:12px;">
+    <div onClick="{{ back }}" style="width:48px; height:48px; flex-shrink:0; border-radius:24px; background:#F2F4FC; display:flex; align-items:center; justify-content:center; cursor:pointer;"><k-icon name="ArrowRightSize24" size="24" style="color:#3F52B4; transform:scaleX(-1)"></k-icon></div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:2px;">
+      <div style="font-size:16px; font-weight:600; line-height:24px; color:#373B51;">{{ headerTitle }}</div>
+      <div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ headerSub }}</div>
+    </div>
+  </div>
+
+  <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:16px; padding:4px 16px 112px;">
+      <sc-for list="{{ items }}" as="b" hint-placeholder-count="3">
+        <div onClick="{{ b.onOpen }}" style="flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:8px; display:flex; flex-direction:column; gap:8px; cursor:pointer;">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <div style="width:88px; height:90px; flex-shrink:0; border-radius:8px; background:{{ b.photo }};"></div>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+              <span style="align-self:flex-start; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:{{ b.badgeBg }}; color:{{ b.badgeFg }}; font-size:11px; font-weight:600;">{{ b.status }}</span>
+              <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ b.name }}</div>
+              <div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ b.date }} · 大人 <span style="font-family:Poppins,sans-serif;">{{ b.people }}</span>名</div>
+            </div>
+            <k-icon name="ArrowRightSize18" size="18" style="color:#9C9FAF"></k-icon>
+          </div>
+          <sc-if value="{{ b.reply }}" hint-placeholder-val="{{ false }}">
+            <div style="border-radius:8px; background:#F2F4FC; padding:8px 12px; display:flex; align-items:center; gap:8px;">
+              <k-icon name="MessagesSize20" size="18" style="color:#3F52B4"></k-icon>
+              <div style="flex:1; font-size:11px; font-weight:600; color:#3F52B4;">{{ b.reply }}</div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+      <div style="font-size:11px; font-weight:500; line-height:1.6; color:#6B6E80;">お支払いは当日、ガイドと直接。キャンセルは前日まで無料です。</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:16px; padding:4px 16px 190px;">
+
+      <div style="flex-shrink:0; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:8px; display:flex; gap:8px; align-items:center;">
+        <div style="width:88px; height:90px; flex-shrink:0; border-radius:8px; background:{{ detail.photo }};"></div>
+        <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+          <span style="align-self:flex-start; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:{{ detail.badgeBg }}; color:{{ detail.badgeFg }}; font-size:11px; font-weight:600;">{{ detail.status }}</span>
+          <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527;">{{ detail.name }}</div>
+          <div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ detail.date }} · 大人 <span style="font-family:Poppins,sans-serif;">{{ detail.people }}</span>名</div>
+        </div>
+      </div>
+
+      <div style="flex-shrink:0; border-radius:16px; background:#F2F4FC; padding:16px; display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:40px; height:40px; flex-shrink:0; border-radius:20px; background:#fff; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="22" style="color:#3F52B4"></k-icon></div>
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">ガイドからの返信</div>
+            <div style="font-size:11px; font-weight:500; color:#4B4F63;">9月8日（火） 18:20</div>
+          </div>
+        </div>
+        <div style="font-size:14px; font-weight:500; line-height:1.7; color:#111527;">ご依頼ありがとうございます。景福宮は交代式の <span style="font-family:Poppins,'Noto Sans JP',sans-serif; font-weight:600;">10:00</span> に合わせて <span style="font-family:Poppins,'Noto Sans JP',sans-serif; font-weight:600;">09:30</span> 集合でいかがでしょうか。仁寺洞の昼食は日本語メニューのある店を予約しておきます。</div>
+      </div>
+
+      <div style="flex-shrink:0; display:flex; flex-direction:column; gap:12px;">
+        <div style="font-size:16px; font-weight:700; color:#111527;">見積もり</div>
+        <div style="border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:16px; display:flex; flex-direction:column; gap:12px;">
+          <sc-for list="{{ quote }}" as="q" hint-placeholder-count="4">
+            <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">{{ q.k }}</div>
+                <sc-if value="{{ q.note }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ q.note }}</div></sc-if>
+              </div>
+              <div style="font-family:Poppins,'Noto Sans JP',sans-serif; font-size:14px; font-weight:600; color:#373B51; white-space:nowrap;">{{ q.v }}</div>
+            </div>
+          </sc-for>
+          <div style="height:1px; background:#D1D3DB;"></div>
+          <div style="display:flex; align-items:baseline; justify-content:space-between;">
+            <div style="font-size:14px; font-weight:600; color:#111527;">合計（大人2名）</div>
+            <div style="font-family:Poppins,'Noto Sans JP',sans-serif; font-size:20px; font-weight:600; color:#3F52B4;">₩96,000</div>
+          </div>
+          <div style="font-size:11px; font-weight:500; line-height:1.6; color:#6B6E80;">入場料・昼食代は各自負担です。お支払いは当日、現金または送金で。</div>
+        </div>
+      </div>
+
+      <div style="flex-shrink:0; display:flex; flex-direction:column; gap:12px;">
+        <div style="font-size:16px; font-weight:700; color:#111527;">当日の流れ</div>
+        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+          <div style="min-height:60px; box-sizing:border-box; border-radius:16px; background:#F7F7FA; padding:8px 16px; display:flex; align-items:center; gap:12px;">
+            <div style="font-family:Poppins,sans-serif; font-size:14px; font-weight:600; color:#3F52B4; width:44px; flex-shrink:0;">{{ s.time }}</div>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+              <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">{{ s.title }}</div>
+              <div style="font-size:12px; font-weight:400; line-height:16px; color:#4B4F63;">{{ s.note }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="position:absolute; left:0; right:0; bottom:98px; padding:12px 16px; box-sizing:border-box; background:#fff; box-shadow:0 -8px 24px rgba(131,139,180,.10); display:flex; flex-direction:column; gap:8px;">
+      <div style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; letter-spacing:.02em;"><k-icon name="TickCircleSize24" size="20" style="color:#fff"></k-icon>この見積もりで確定する</div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div style="flex:1; height:48px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:14px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px;"><k-icon name="MessagesSize20" size="18" style="color:#3F52B4"></k-icon>LINEで質問</div>
+        <div style="flex:1; height:48px; border-radius:16px; background:#fff; color:#B22459; font-size:14px; font-weight:600; display:flex; align-items:center; justify-content:center;">依頼を取り消す</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="position:absolute; left:0; right:0; bottom:0; height:98px; border-radius:16px 16px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:grid; grid-template-columns:repeat(5,1fr); align-items:start; padding:6px 12px 0; box-sizing:border-box;">
+    <a href="home.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="HomeSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">ホーム</span></a>
+    <a href="search.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="SearchNormal2Size24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">さがす</span></a>
+    <a href="plan.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="RoutingSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">プラン</span></a>
+    <a href="help.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="MessagesSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">ヘルプ</span></a>
+    <a href="my.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="24" style="color:#3F52B4"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#3F52B4;">マイページ</span></a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+const WM = {"Bukchon-ro_11-gil_street_with_hanok_houses_and_blue_sky_in_Bukchon_Hanok_Village_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/17/3537917_image1_1.jpg", "Bukchon-ro_11-gil_street_with_hanok_houses_at_sunrise_in_Bukchon_Hanok_Village_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/17/3537917_image1_1.jpg", "Bukchon_Village_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/17/3537917_image1_1.jpg", "Front_view_of_Heungnyemun_Gate_in_Gyeongbokgung_Palace_Seoul_South_Korea.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/05/3551005_image1_1.jpg", "Front_view_of_the_Imperial_Throne_Hall_Geunjeongjeon_at_Gyeongbokgung_Palace_with_blue_sky_in_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/05/3551005_image1_1.jpg", "Front_view_of_Jibokjae_Hall_under_blue_sky_at_Gyeongbokgung_Palace_in_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/62/4061962_image2_1.jpg", "Gwanghwamun_20240413.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/03/3551103_image1_1.jpg", "Insadong_Street_in_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/87/2546387_image2_1.jpg", "Myeongdong_Cathedral_6.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/05/1939005_image2_1.jpg", "Myeongdong_at_night.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/45/2588645_image2_1.jpg", "Myeongdong_Neon_at_Night,_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/45/2588645_image2_1.jpg", "Tteokbokki.JPG": "https://tong.visitkorea.or.kr/cms/resource_photo/67/2540167_image2_1.jpg"};
+const photo = (file) => `url('${WM[file] || ''}') center / cover no-repeat`;
+
+const REPLIED = { status: '返信あり', badgeBg: '#3F52B4', badgeFg: '#fff' };
+const WAITING = { status: '返信待ち', badgeBg: '#F2F4FC', badgeFg: '#3F52B4' };
+const CLOSED = { status: '終了', badgeBg: '#fff', badgeFg: '#6B6E80' };
+
+class Component extends DCLogic {
+  state = { view: 'list' };
+
+  renderVals() {
+    const detail = {
+      ...REPLIED,
+      name: '景福宮 → 北村 → 仁寺洞',
+      date: '9月10日（水） 09:30',
+      people: 2,
+      photo: photo('Bukchon-ro_11-gil_street_with_hanok_houses_and_blue_sky_in_Bukchon_Hanok_Village_Seoul.jpg'),
+    };
+    const list = this.state.view === 'list';
+    return {
+      isList: list,
+      isDetail: !list,
+      headerTitle: list ? '予約・見積もり' : '見積もりの詳細',
+      headerSub: list ? '返信は LINE にも届きます' : 'KG-260908-014',
+      back: () => this.setState({ view: 'list' }),
+      detail,
+      items: [
+        { ...detail, reply: 'ガイドから返信があります · ₩96,000', onOpen: () => this.setState({ view: 'detail' }) },
+        { ...WAITING, name: '明洞 → 南山 夕景プラン', date: '9月12日（金） 16:00', people: 2, reply: '', photo: photo('Myeongdong_at_night.jpg'), onOpen: () => this.setState({ view: 'detail' }) },
+        { ...CLOSED, name: '弘大 グルメ散歩', date: '9月2日（水）', people: 3, reply: '', photo: photo('Tteokbokki.JPG'), onOpen: () => this.setState({ view: 'detail' }) },
+      ],
+      quote: [
+        { k: 'ガイド料', v: '₩80,000', note: '4時間 · 日本語' },
+        { k: '交通費', v: '₩16,000', note: '地下鉄・タクシー実費' },
+        { k: '入場料', v: '各自', note: '景福宮 ₩3,000 / 韓服なら無料' },
+        { k: '昼食', v: '各自', note: '₩8,000〜（予約はガイドが代行）' },
+      ],
+      steps: [
+        { time: '09:30', title: '明洞のホテル 集合', note: 'ロビーでお待ちします' },
+        { time: '10:00', title: '景福宮 · 守門将交代式', note: '韓服レンタルなら入場無料' },
+        { time: '11:20', title: '北村韓屋村', note: '坂道あり · 歩きやすい靴で' },
+        { time: '12:40', title: '仁寺洞で昼食', note: '日本語メニューのある店を予約' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>
