@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788823203"></script>
-<script src="./kicon.js?v=1788823203"></script>
+<script src="./data.js?v=1788823378"></script>
+<script src="./kicon.js?v=1788823378"></script>
 </head>
 <body>
 <x-dc>
@@ -226,7 +226,7 @@ class Component extends DCLogic {
           const P = pts.map(x => proj(x.lat, x.lng, z)); const cx = P.reduce((a, q) => a + q[0], 0) / P.length, cy = P.reduce((a, q) => a + q[1], 0) / P.length;
           const tx0 = Math.floor((cx - 179) / R), ty0 = Math.floor((cy - 90) / R); const left = 179 - (cx - tx0 * R), top = 90 - (cy - ty0 * R);
           mapLeft = left + 'px'; mapTop = top + 'px';
-          tiles = [[0, 0], [1, 0], [0, 1], [1, 1]].map(([dx, dy]) => ({ url: `'https://basemaps.cartocdn.com/light_all/${z}/${tx0 + dx}/${ty0 + dy}.png'` }));
+          tiles = [[0, 0], [1, 0], [0, 1], [1, 1]].map(([dx, dy]) => ({ url: `'https://tile.openstreetmap.org/${z}/${tx0 + dx}/${ty0 + dy}.png'` }));
           pins = P.map((q, i) => ({ n: i + 1, x: (left + q[0] - tx0 * R - 14) + 'px', y: (top + q[1] - ty0 * R - 14) + 'px', color: '#3F52B4' }));
         }
         const d = new Date(); const dow = '日月火水木金土'[d.getDay()];
