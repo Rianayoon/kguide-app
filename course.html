@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788814097"></script>
-<script src="./kicon.js?v=1788814097"></script>
+<script src="./data.js?v=1788814796"></script>
+<script src="./kicon.js?v=1788814796"></script>
 </head>
 <body>
 <x-dc>
@@ -139,6 +139,8 @@
 
 
 const KG = window.KG; const SP = KG.spots;
+const FAV = { get() { try { return JSON.parse(localStorage.getItem('kg_fav') || '[]'); } catch (e) { return []; } }, has(id) { return FAV.get().includes(id); }, toggle(id) { const l = FAV.get(); const i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.unshift(id); try { localStorage.setItem('kg_fav', JSON.stringify(l)); } catch (e) {} return i < 0; } };
+const stopNav = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } };
 const byId = (id) => SP.find(s => s.id === id);
 const bg = (u, w) => u ? `url('${u}') center / cover no-repeat` : 'linear-gradient(135deg,#E9ECF8,#D1D6EE)';
 const shot = (u) => `linear-gradient(180deg, rgba(17,21,41,0) 45%, rgba(17,21,41,0.8) 100%), ${bg(u)}`;

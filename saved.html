@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788814097"></script>
-<script src="./kicon.js?v=1788814097"></script>
+<script src="./data.js?v=1788814796"></script>
+<script src="./kicon.js?v=1788814796"></script>
 </head>
 <body>
 <x-dc>
@@ -66,7 +66,7 @@
 
     <sc-if value="{{ showSpots }}" hint-placeholder-val="{{ true }}">
       <sc-for list="{{ spots }}" as="s" hint-placeholder-count="3">
-        <a href="spot.html" style="min-height:106px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:8px; display:flex; gap:8px; align-items:center; text-decoration:none;">
+        <a href="{{ s.href }}" style="min-height:106px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:8px; display:flex; gap:8px; align-items:center; text-decoration:none;">
           <div style="width:88px; min-height:90px; align-self:stretch; flex-shrink:0; border-radius:8px; background:{{ s.photo }};"></div>
           <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; justify-content:center;">
             <div style="display:flex; align-items:center; gap:6px;">
@@ -77,14 +77,14 @@
             <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ s.name }}</div>
             <div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ s.meta }}</div>
           </div>
-          <div style="width:44px; height:44px; flex-shrink:0; display:flex; align-items:center; justify-content:center;"><k-icon name="HeartSize24" size="24" style="color:#B22459"></k-icon></div>
+          <div onClick="{{ s.unfav }}" style="width:44px; height:44px; flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:pointer;"><k-icon name="HeartSize24" size="24" style="color:#B22459"></k-icon></div>
         </a>
       </sc-for>
     </sc-if>
 
     <sc-if value="{{ showRoutes }}" hint-placeholder-val="{{ false }}">
       <sc-for list="{{ routes }}" as="r" hint-placeholder-count="2">
-        <a href="course.html" style="flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:8px; display:flex; flex-direction:column; gap:8px; text-decoration:none;">
+        <a href="{{ r.href }}" style="flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:8px; display:flex; flex-direction:column; gap:8px; text-decoration:none;">
           <div style="display:flex; gap:8px; align-items:center;">
             <div style="width:88px; height:90px; flex-shrink:0; border-radius:8px; background:{{ r.photo }};"></div>
             <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
@@ -126,8 +126,46 @@
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;emptyState&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;状態&quot;}}">
-const WM = {"Bukchon-ro_11-gil_street_with_hanok_houses_and_blue_sky_in_Bukchon_Hanok_Village_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg", "Bukchon-ro_11-gil_street_with_hanok_houses_at_sunrise_in_Bukchon_Hanok_Village_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg", "Bukchon_Village_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg", "Front_view_of_Heungnyemun_Gate_in_Gyeongbokgung_Palace_Seoul_South_Korea.jpg": "https://tong.visitkorea.or.kr/cms/resource/97/3487597_image2_1.jpg", "Front_view_of_the_Imperial_Throne_Hall_Geunjeongjeon_at_Gyeongbokgung_Palace_with_blue_sky_in_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource/97/3487597_image2_1.jpg", "Front_view_of_Jibokjae_Hall_under_blue_sky_at_Gyeongbokgung_Palace_in_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/62/4061962_image2_1.jpg", "Gwanghwamun_20240413.jpg": "https://tong.visitkorea.or.kr/cms/resource/88/3589188_image2_1.jpg", "Insadong_Street_in_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/87/2546387_image2_1.jpg", "Myeongdong_Cathedral_6.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/05/1939005_image2_1.jpg", "Myeongdong_at_night.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/45/2588645_image2_1.jpg", "Myeongdong_Neon_at_Night,_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/45/2588645_image2_1.jpg", "Tteokbokki.JPG": "https://tong.visitkorea.or.kr/cms/resource_photo/67/2540167_image2_1.jpg"};
-const photo = (file) => `url('${WM[file] || ''}') center / cover no-repeat`;
+
+
+const KG = window.KG; const SP = KG.spots;
+const FAV = { get() { try { return JSON.parse(localStorage.getItem('kg_fav') || '[]'); } catch (e) { return []; } }, has(id) { return FAV.get().includes(id); }, toggle(id) { const l = FAV.get(); const i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.unshift(id); try { localStorage.setItem('kg_fav', JSON.stringify(l)); } catch (e) {} return i < 0; } };
+const stopNav = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } };
+const byId = (id) => SP.find(s => s.id === id);
+const bg = (u, w) => u ? `url('${u}') center / cover no-repeat` : 'linear-gradient(135deg,#E9ECF8,#D1D6EE)';
+const shot = (u) => `linear-gradient(180deg, rgba(17,21,41,0) 45%, rgba(17,21,41,0.8) 100%), ${bg(u)}`;
+const qid = () => new URLSearchParams(location.search).get('id');
+const DOW = ['日','月','火','水','木','金','土'];
+const KR_HOLI = new Set(['2026-01-01','2026-02-16','2026-02-17','2026-02-18','2026-03-01','2026-03-02','2026-05-05','2026-05-24','2026-05-25','2026-06-06','2026-08-15','2026-08-17','2026-09-24','2026-09-25','2026-09-26','2026-10-03','2026-10-05','2026-10-09','2026-12-25','2027-01-01','2027-02-06','2027-02-07','2027-02-08','2027-03-01','2027-05-05','2027-05-13','2027-06-06','2027-08-15','2027-08-16','2027-09-14','2027-09-15','2027-09-16','2027-10-03','2027-10-04','2027-10-09','2027-12-25']);
+const SEOL = {day: ['2026-02-17','2027-02-07'], run: ['2026-02-16','2026-02-17','2026-02-18','2027-02-06','2027-02-07','2027-02-08']};
+const CHUSEOK = {day: ['2026-09-25','2027-09-15'], run: ['2026-09-24','2026-09-25','2026-09-26','2027-09-14','2027-09-15','2027-09-16']};
+const ymd = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+function closedOn(r, d) {
+  r = r || ''; if (!r) return false;
+  if (/年中無休|無休|年中開放|年中運航|休みなし/.test(r) && !/店舗により|一部/.test(r)) return false;
+  const key = ymd(d), dow = DOW[d.getDay()], isHoli = KR_HOLI.has(key);
+  const r1 = r.replace(/第\d月曜日?/g, ''), r2 = r1.replace(/[（(][^）)]*[）)]/g, '').replace(/[^、,／/]*祝日の(場合|次|翌|時)[^、,／/]*/g, '');
+  const wd = new Set((r1.match(/[月火水木金土日](?=曜)/g) || [])); if (/週末/.test(r)) { wd.add('土'); wd.add('日'); }
+  if (/祝日|公休日|祝祭日/.test(r2) && isHoli) return true;
+  if (/1月1日/.test(r) && key.endsWith('-01-01')) return true;
+  if (/12月25日/.test(r) && key.endsWith('-12-25')) return true;
+  if (/5月1日/.test(r) && key.endsWith('-05-01')) return true;
+  const run = /連休/.test(r);
+  if (/ソルナル|ソルラル|旧正月|旧暦1月1日/.test(r) && (run ? SEOL.run : SEOL.day).includes(key)) return true;
+  if (/秋夕|旧暦8月15日/.test(r) && (run ? CHUSEOK.run : CHUSEOK.day).includes(key)) return true;
+  if (/第1月曜/.test(r) && dow === '月' && d.getDate() <= 7) { const ms = (r.match(/(\d{1,2})月/g) || []).map(x => parseInt(x)); if (!ms.length || ms.includes(d.getMonth() + 1)) return true; }
+  if (wd.has(dow)) {
+    if (/祝日の場合|祝日は開|祝日の時|祝日と重なる/.test(r) && isHoli) return false;   // 휴관요일이 공휴일이면 개관
+    return true;
+  }
+  if (/翌日|翌平日|次の平日/.test(r)) { const y = new Date(d); y.setDate(y.getDate() - 1); if (wd.has(DOW[y.getDay()]) && KR_HOLI.has(ymd(y))) return true; }
+  return false;
+}
+function isClosedToday(s){ return closedOn(s.rest, new Date()); }
+const st = (s) => isClosedToday(s) ? SHUT : OPEN;
+const metaOf = (s) => [s.jp ? '日本語対応' : '', s.stay ? `約${s.stay}分` : '', s.fee && s.fee.length < 22 ? s.fee : '', s.area].filter(Boolean).slice(0,2).join(' · ');
+
+
 const OPEN = { dot: '#047857', open: '開館中', openFg: '#047857' };
 const SHUT = { dot: '#B22459', open: '本日休館', openFg: '#B22459' };
 
@@ -137,15 +175,8 @@ class Component extends DCLogic {
   renderVals() {
     const empty = this.props.emptyState ?? false;
     const tab = this.state.tab;
-    const spots = empty ? [] : [
-      { name: '景福宮', area: '鍾路区', ...OPEN, meta: '日本語案内あり · 交代式 10:00', photo: photo('Front_view_of_Heungnyemun_Gate_in_Gyeongbokgung_Palace_Seoul_South_Korea.jpg') },
-      { name: '明洞聖堂', area: '中区', ...OPEN, meta: '日本語案内あり · 徒歩 8分', photo: photo('Myeongdong_Cathedral_6.jpg') },
-      { name: 'ソウル市立美術館', area: '西大門', ...SHUT, meta: '火〜日 10:00 · 日本語対応', photo: photo('Gwanghwamun_20240413.jpg') },
-    ];
-    const routes = empty ? [] : [
-      { name: '景福宮 → 北村 → 仁寺洞', date: '9月10日（水）', spots: 3, hours: 4, quoted: true, photo: photo('Bukchon-ro_11-gil_street_with_hanok_houses_and_blue_sky_in_Bukchon_Hanok_Village_Seoul.jpg') },
-      { name: '明洞 → 南山 夕景プラン', date: '9月12日（金）', spots: 2, hours: 3, quoted: false, photo: photo('Myeongdong_at_night.jpg') },
-    ];
+    const spots = empty ? [] : FAV.get().map(id => byId(id)).filter(Boolean).map(x => ({ name: x.name, area: x.area, ...st(x), meta: metaOf(x), photo: bg(x.photo), href: 'spot.html?id=' + x.id, unfav: (e) => { stopNav(e); FAV.toggle(x.id); this.setState({ t: Date.now() }); } }));
+    const routes = empty ? [] : (KG.courses || []).map(c => { const ids = String(c.spots || c.spot_ids || '').split(',').map(x => x.trim()).filter(Boolean); const first = byId(ids[0]); return { name: c.name, date: c.sub || '', spots: ids.length, hours: c.hours || '', quoted: false, photo: bg(first ? first.photo : ''), href: 'course.html?id=' + c.id }; });
     const on = { bg: '#3F52B4', fg: '#fff', ring: 'none' };
     const off = { bg: '#fff', fg: '#4B4F63', ring: 'inset 0 0 0 1px #D1D3DB' };
     const list = tab === 'spots' ? spots : routes;
@@ -167,6 +198,7 @@ class Component extends DCLogic {
     };
   }
 }
+
 </script>
 </body>
 </html>

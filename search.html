@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788814097"></script>
-<script src="./kicon.js?v=1788814097"></script>
+<script src="./data.js?v=1788814796"></script>
+<script src="./kicon.js?v=1788814796"></script>
 </head>
 <body>
 <x-dc>
@@ -106,7 +106,7 @@
           </div>
           <div style="font-size:11px; font-weight:500; color:#6B6E80; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.meta }}</div>
         </div>
-        <k-icon name="HeartSize20" size="20" style="color:#9C9FAF"></k-icon>
+        <div onClick="{{ r.fav }}" style="width:36px; height:36px; margin:-8px; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;"><k-icon name="HeartSize20" size="20" style="{{ r.favStyle }}"></k-icon></div>
       </a>
     </sc-for>
   </div>
@@ -171,6 +171,8 @@
 
 
 const KG = window.KG; const SP = KG.spots;
+const FAV = { get() { try { return JSON.parse(localStorage.getItem('kg_fav') || '[]'); } catch (e) { return []; } }, has(id) { return FAV.get().includes(id); }, toggle(id) { const l = FAV.get(); const i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.unshift(id); try { localStorage.setItem('kg_fav', JSON.stringify(l)); } catch (e) {} return i < 0; } };
+const stopNav = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } };
 const byId = (id) => SP.find(s => s.id === id);
 const bg = (u, w) => u ? `url('${u}') center / cover no-repeat` : 'linear-gradient(135deg,#E9ECF8,#D1D6EE)';
 const shot = (u) => `linear-gradient(180deg, rgba(17,21,41,0) 45%, rgba(17,21,41,0.8) 100%), ${bg(u)}`;
@@ -228,6 +230,7 @@ const SHEETS = {
 };
 
 const ALL = SP.map(s => ({ ...s, ...st(s), tags: [s.type, s.genre].filter(Boolean), meta: metaOf(s), photo: bg(s.photo), href: 'spot.html?id=' + s.id }));
+    const favOf = (self, s) => ({ fav: (e) => { stopNav(e); FAV.toggle(s.id); self.setState({ favTick: Date.now() }); }, favStyle: FAV.has(s.id) ? 'color:#B22459' : 'color:#9C9FAF' });
 
 class Component extends DCLogic {
   state = (() => { const u = new URLSearchParams(location.search); return { sheet: undefined, area: u.get('area') || '', genres: u.get('type') ? [u.get('type')] : [], budget: '', jpOnly: false, q: u.get('q') || '' }; })();
@@ -257,7 +260,7 @@ class Component extends DCLogic {
       (!budget || r.band === budget) &&
       (!jpOnly || r.jp) &&
       (!qq || [r.name, r.ko, r.area, r.genre, r.sig, r.addr].join(' ').toLowerCase().includes(qq))
-    );
+    ).map(r => ({ ...r, ...favOf(this, r) }));
 
     return {
       sheetOpen: !!sheet,
