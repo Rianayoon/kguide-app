@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788859002"></script>
-<script src="./kicon.js?v=1788859002"></script>
+<script src="./data.js?v=1788859237"></script>
+<script src="./kicon.js?v=1788859237"></script>
 </head>
 <body>
 <x-dc>
@@ -74,7 +74,7 @@
     </div>
 
     <sc-if value="{{ hasGallery }}" hint-placeholder-val="{{ false }}">
-    <div style="display:flex; gap:8px; padding:0 16px; overflow-x:auto; margin-top:-12px;">
+    <div style="flex-shrink:0; display:flex; gap:8px; padding:0 16px; overflow-x:auto; margin-top:-12px;">
       <sc-for list="{{ thumbs }}" as="t" hint-placeholder-count="5">
         <div data-kgphoto="{{ t.i }}" style="flex-shrink:0; width:88px; height:66px; border-radius:12px; background:{{ t.bg }}; box-shadow:{{ t.ring }}; cursor:pointer;"></div>
       </sc-for>
