@@ -26,11 +26,6 @@
     s.style.transform='scale('+k+')';
     s.style.margin='0';
   }
-  var KB=false, NAV=null;
-  function navEl(){ var a=document.querySelectorAll('[data-screen-label] div'); for(var i=0;i<a.length;i++){ var st=a[i].getAttribute('style')||''; if(st.indexOf('bottom:0')>-1&&st.indexOf('height:98px')>-1) return a[i]; } return null; }
-  document.addEventListener('focusin', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){ KB=true; NAV=navEl(); if(NAV) NAV.style.display='none'; } });
-  document.addEventListener('focusout', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){ KB=false; if(NAV) NAV.style.display=''; setTimeout(fit,50); } });
-  var _fit=fit; fit=function(){ if(KB) return; _fit(); };
   var mo=new MutationObserver(function(){ fit(); });
   document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
   window.addEventListener('resize', fit);
@@ -39,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788854511"></script>
-<script src="./kicon.js?v=1788854511"></script>
+<script src="./data.js?v=1788857006"></script>
+<script src="./kicon.js?v=1788857006"></script>
 </head>
 <body>
 <x-dc>
@@ -97,7 +92,7 @@
         <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; justify-content:center;">
           <div style="display:flex; align-items:center; gap:6px;">
             <span style="width:7px; height:7px; border-radius:50%; background:{{ r.dot }}; flex-shrink:0;"></span>
-            <span style="font-size:11px; font-weight:600; color:{{ r.openFg }}; white-space:nowrap;">{{ r.open }}</span>
+            <span style="font-size:11px; font-weight:600; color:{{ r.openFg }};">{{ r.open }}</span>
             <span style="font-size:11px; font-weight:500; color:#6B6E80;">{{ r.area }}</span>
           </div>
           <div style="font-size:16px; font-weight:700; line-height:23px; flex-shrink:0; color:#111527; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.name }}</div><sc-if value="{{ r.hasKana }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px; font-weight:500; color:#9C9FAF; margin-top:-4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.kana }}</div></sc-if>
@@ -105,10 +100,11 @@
             <sc-if value="{{ r.verified }}" hint-placeholder-val="{{ true }}">
               <span style="display:inline-flex; align-items:center; gap:4px; height:22px; padding:0 8px; border-radius:8px; background:#3F52B4; color:#fff; font-size:11px; font-weight:600; white-space:nowrap;"><k-icon name="TickCircleSize12" size="12" style="color:#fff"></k-icon>ガイド確認済み</span>
             </sc-if>
-            <span style="display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#EEF0F7; color:#4B4F63; font-size:11px; font-weight:600; white-space:nowrap;">{{ r.type }}</span>
-            <sc-if value="{{ r.hasAudio }}" hint-placeholder-val="{{ false }}"><span style="display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#FCF2F6; color:#B22459; font-size:11px; font-weight:600; white-space:nowrap;">♪ 日本語音声</span></sc-if>
             <sc-if value="{{ r.genre }}" hint-placeholder-val="{{ true }}">
               <span style="display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:600;">{{ r.genre }}</span>
+            </sc-if>
+            <sc-if value="{{ r.hasAudio }}" hint-placeholder-val="{{ false }}">
+              <span style="display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#F7F7FA; color:#4B4F63; font-size:11px; font-weight:600; white-space:nowrap;">♪ 日本語音声</span>
             </sc-if>
           </div>
           <div style="font-size:11px; font-weight:500; color:#6B6E80; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.meta }}</div>
@@ -215,6 +211,20 @@ function closedOn(r, d) {
 function isClosedToday(s){ return closedOn(s.rest, new Date()); }
 const st = (s) => isClosedToday(s) ? SHUT : OPEN;
 const metaOf = (s) => [s.jp ? '日本語対応' : '', s.stay ? `約${s.stay}分` : '', s.fee && s.fee.length < 22 ? s.fee : '', s.area].filter(Boolean).slice(0,2).join(' · ');
+const WXTXT = (c) => c <= 2 ? '晴' : c === 3 ? '曇' : (c === 45 || c === 48) ? '霧' : ((c >= 71 && c <= 77) || c === 85 || c === 86) ? '雪' : '雨';
+const WEAR = (mx, pop) => { const w = mx >= 30 ? '日よけ・水分補給' : mx >= 20 ? '半袖＋薄手の上着' : mx >= 10 ? '上着必須' : 'コート・手袋'; return pop >= 50 ? '傘 · ' + w : w; };
+const CITY_LL = {'ソウル':[37.57,126.98],'釜山':[35.18,129.08],'江陵・束草':[37.75,128.88],'慶州':[35.86,129.22],'全州':[35.82,127.15],'麗水':[34.76,127.66],'大邱':[35.87,128.60],'大田':[36.35,127.38]};
+function wxFetch(lat, lng) {
+  const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia/Seoul&forecast_days=7`;
+  return fetch(u).then(r => r.json()).then(j => {
+    const d = j.daily;
+    return d.time.map((t, i) => {
+      const pd = t.split('-').map(Number), dt = new Date(pd[0], pd[1] - 1, pd[2]), mx = Math.round(d.temperature_2m_max[i]), mn = Math.round(d.temperature_2m_min[i]);
+      const pop = d.precipitation_probability_max[i] || 0;
+      return { date: t, label: (dt.getMonth() + 1) + '/' + dt.getDate() + '（' + DOW[dt.getDay()] + '）', sky: WXTXT(d.weathercode[i]), max: mx, min: mn, pop: pop, wear: WEAR(mx, pop), rain: pop >= 50 };
+    });
+  });
+}
 
 
 const OPEN = { dot: '#047857', open: '開館中', openFg: '#047857' };
@@ -238,7 +248,7 @@ const SHEETS = {
   },
 };
 
-const ALL = SP.map(s => ({ ...s, hasKana: !!s.kana, ...st(s), tags: [s.type, s.genre, ...(s.tags2 || [])].filter(Boolean), hasAudio: !!(s.audio && s.audio.length), meta: metaOf(s), photo: bg(s.photo), href: 'spot.html?id=' + s.id }));
+const ALL = SP.map(s => ({ ...s, hasKana: !!s.kana, hasAudio: !!(s.audio && s.audio.length), ...st(s), tags: [s.type, s.genre, ...(s.tags2 || [])].filter(Boolean), meta: metaOf(s), photo: bg(s.photo), href: 'spot.html?id=' + s.id }));
     const favOf = (self, s) => ({ fav: (e) => { stopNav(e); FAV.toggle(s.id); self.setState({ favTick: Date.now() }); }, favStyle: FAV.has(s.id) ? 'color:#B22459' : 'color:#9C9FAF' });
 
 class Component extends DCLogic {

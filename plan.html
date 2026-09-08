@@ -26,11 +26,6 @@
     s.style.transform='scale('+k+')';
     s.style.margin='0';
   }
-  var KB=false, NAV=null;
-  function navEl(){ var a=document.querySelectorAll('[data-screen-label] div'); for(var i=0;i<a.length;i++){ var st=a[i].getAttribute('style')||''; if(st.indexOf('bottom:0')>-1&&st.indexOf('height:98px')>-1) return a[i]; } return null; }
-  document.addEventListener('focusin', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){ KB=true; NAV=navEl(); if(NAV) NAV.style.display='none'; } });
-  document.addEventListener('focusout', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){ KB=false; if(NAV) NAV.style.display=''; setTimeout(fit,50); } });
-  var _fit=fit; fit=function(){ if(KB) return; _fit(); };
   var mo=new MutationObserver(function(){ fit(); });
   document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
   window.addEventListener('resize', fit);
@@ -39,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788854511"></script>
-<script src="./kicon.js?v=1788854511"></script>
+<script src="./data.js?v=1788857006"></script>
+<script src="./kicon.js?v=1788857006"></script>
 </head>
 <body>
 <x-dc>
@@ -198,6 +193,20 @@ const OPEN = { dot: '#047857', open: '開館中', openFg: '#047857' };
 const SHUT = { dot: '#B22459', open: '本日休館', openFg: '#B22459' };
 const st = (s) => isClosedToday(s) ? SHUT : OPEN;
 const metaOf = (s) => [s.jp ? '日本語対応' : '', s.stay ? `約${s.stay}分` : '', s.fee && s.fee.length < 22 ? s.fee : '', s.area].filter(Boolean).slice(0,2).join(' · ');
+const WXTXT = (c) => c <= 2 ? '晴' : c === 3 ? '曇' : (c === 45 || c === 48) ? '霧' : ((c >= 71 && c <= 77) || c === 85 || c === 86) ? '雪' : '雨';
+const WEAR = (mx, pop) => { const w = mx >= 30 ? '日よけ・水分補給' : mx >= 20 ? '半袖＋薄手の上着' : mx >= 10 ? '上着必須' : 'コート・手袋'; return pop >= 50 ? '傘 · ' + w : w; };
+const CITY_LL = {'ソウル':[37.57,126.98],'釜山':[35.18,129.08],'江陵・束草':[37.75,128.88],'慶州':[35.86,129.22],'全州':[35.82,127.15],'麗水':[34.76,127.66],'大邱':[35.87,128.60],'大田':[36.35,127.38]};
+function wxFetch(lat, lng) {
+  const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia/Seoul&forecast_days=7`;
+  return fetch(u).then(r => r.json()).then(j => {
+    const d = j.daily;
+    return d.time.map((t, i) => {
+      const pd = t.split('-').map(Number), dt = new Date(pd[0], pd[1] - 1, pd[2]), mx = Math.round(d.temperature_2m_max[i]), mn = Math.round(d.temperature_2m_min[i]);
+      const pop = d.precipitation_probability_max[i] || 0;
+      return { date: t, label: (dt.getMonth() + 1) + '/' + dt.getDate() + '（' + DOW[dt.getDay()] + '）', sky: WXTXT(d.weathercode[i]), max: mx, min: mn, pop: pop, wear: WEAR(mx, pop), rain: pop >= 50 };
+    });
+  });
+}
 
 
 class Component extends DCLogic {
@@ -231,7 +240,7 @@ class Component extends DCLogic {
           const P = pts.map(x => proj(x.lat, x.lng, z)); const cx = P.reduce((a, q) => a + q[0], 0) / P.length, cy = P.reduce((a, q) => a + q[1], 0) / P.length;
           const tx0 = Math.floor((cx - 179) / R), ty0 = Math.floor((cy - 90) / R); const left = 179 - (cx - tx0 * R), top = 90 - (cy - ty0 * R);
           mapLeft = left + 'px'; mapTop = top + 'px';
-          tiles = [[0, 0], [1, 0], [0, 1], [1, 1]].map(([dx, dy]) => ({ url: `'https://tile.openstreetmap.org/${z}/${tx0 + dx}/${ty0 + dy}.png'` }));
+          tiles = [[0, 0], [1, 0], [0, 1], [1, 1]].map(([dx, dy]) => ({ url: `'https://basemaps.cartocdn.com/light_all/${z}/${tx0 + dx}/${ty0 + dy}.png'` }));
           pins = P.map((q, i) => ({ n: i + 1, x: (left + q[0] - tx0 * R - 14) + 'px', y: (top + q[1] - ty0 * R - 14) + 'px', color: '#3F52B4' }));
         }
         const d = new Date(); const dow = '日月火水木金土'[d.getDay()];

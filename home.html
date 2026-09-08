@@ -26,11 +26,6 @@
     s.style.transform='scale('+k+')';
     s.style.margin='0';
   }
-  var KB=false, NAV=null;
-  function navEl(){ var a=document.querySelectorAll('[data-screen-label] div'); for(var i=0;i<a.length;i++){ var st=a[i].getAttribute('style')||''; if(st.indexOf('bottom:0')>-1&&st.indexOf('height:98px')>-1) return a[i]; } return null; }
-  document.addEventListener('focusin', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){ KB=true; NAV=navEl(); if(NAV) NAV.style.display='none'; } });
-  document.addEventListener('focusout', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){ KB=false; if(NAV) NAV.style.display=''; setTimeout(fit,50); } });
-  var _fit=fit; fit=function(){ if(KB) return; _fit(); };
   var mo=new MutationObserver(function(){ fit(); });
   document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
   window.addEventListener('resize', fit);
@@ -39,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788854511"></script>
-<script src="./kicon.js?v=1788854511"></script>
+<script src="./data.js?v=1788857006"></script>
+<script src="./kicon.js?v=1788857006"></script>
 </head>
 <body>
 <x-dc>
@@ -68,16 +63,45 @@
         </div>
         <div style="display:flex; align-items:center; gap:6px; height:36px; padding:0 14px; border-radius:38px; background:#fff; font-size:12px; font-weight:600; color:#3F52B4;">日本語</div>
       </div>
-      <div style="position:absolute; right:16px; top:64px; display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px; border-radius:38px; background:#fff; font-size:11px; font-weight:600; color:#4B4F63;">
-        <k-icon name="SunSize18" size="16" style="color:#3F52B4"></k-icon>
-        <span style="font-family:Poppins,sans-serif; font-weight:600; color:#111527;">24°</span> · 薄手の上着があると安心
+      <div style="position:absolute; right:16px; top:64px; z-index:6; display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+        <div onClick="{{ wxToggle }}" style="display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px; border-radius:38px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.16); font-size:11px; font-weight:600; color:#4B4F63; cursor:pointer; white-space:nowrap;">
+          <k-icon name="SunSize18" size="16" style="color:#3F52B4"></k-icon>
+          <span style="font-family:Poppins,sans-serif; font-weight:600; color:#111527;">{{ wxNow }}</span> · {{ wxWear }}<span style="font-size:9px; color:#3F52B4;">{{ wxCaret }}</span>
+        </div>
+        <sc-if value="{{ wxOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="width:252px; max-height:430px; overflow-y:auto; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.24); padding:10px 12px; display:flex; flex-direction:column; gap:4px;">
+          <sc-for list="{{ wxDays }}" as="w" hint-placeholder-count="7">
+            <div style="display:flex; flex-direction:column; gap:2px; padding:5px 0; border-bottom:1px solid #F2F4FC;">
+              <div style="display:flex; align-items:center; gap:6px; font-size:11px; font-weight:600; color:#111527;">
+                <span style="font-family:Poppins,sans-serif; width:50px; flex-shrink:0;">{{ w.label }}</span>
+                <span style="width:20px; flex-shrink:0; color:#3F52B4;">{{ w.sky }}</span>
+                <span style="font-family:Poppins,sans-serif;">{{ w.temp }}</span>
+                <span style="font-weight:500; color:#6B6E80;">{{ w.popText }}</span>
+              </div>
+              <div style="font-size:11px; font-weight:500; color:#4B4F63; padding-left:56px;">{{ w.wear }}</div>
+              <sc-if value="{{ w.rain }}" hint-placeholder-val="{{ false }}">
+                <a href="course.html?id=C207" style="font-size:11px; font-weight:600; color:#3F52B4; padding-left:56px;">雨の日コース →</a>
+              </sc-if>
+            </div>
+          </sc-for>
+          <sc-for list="{{ wxCities }}" as="c" hint-placeholder-count="1">
+            <div style="display:flex; align-items:center; gap:6px; padding:5px 0; font-size:11px; font-weight:600; color:#111527;">
+              <span style="width:50px; flex-shrink:0;">{{ c.city }}</span>
+              <span style="width:20px; flex-shrink:0; color:#3F52B4;">{{ c.sky }}</span>
+              <span style="font-family:Poppins,sans-serif;">{{ c.temp }}</span>
+              <span style="font-weight:500; color:#6B6E80;">{{ c.popText }}</span>
+            </div>
+          </sc-for>
+          <div style="font-size:10px; font-weight:500; color:#9C9FAF;">出典: Open-Meteo</div>
+        </div>
+        </sc-if>
       </div>
       <div style="position:absolute; left:16px; top:336px; width:358px; height:64px; box-sizing:border-box; border-radius:100px; background:#fff; box-shadow:0 4px 4px rgba(0,0,0,.25); display:flex; align-items:center; gap:8px; padding:12px 16px;">
         <k-icon name="SearchNormal2Size20" size="20" style="color:#111527"></k-icon>
         <div style="width:1px; align-self:stretch; background:#D1D3DB;"></div>
         <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
-          <input placeholder="どこへ？（例：景福宮 / 参鶏湯 / 明洞）" onKeyDown="{{ onSearchKey }}" style="font-size:14px; font-weight:500; line-height:20px; color:#111527; border:0; outline:0; background:transparent; width:100%; padding:0; font-family:inherit;" />
-          <div onClick="{{ goSearch }}" style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:500; line-height:16px; color:#9C9FAF; cursor:pointer;">スポット<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>グルメ<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>エリア ・ Enterで検索</div>
+          <div style="font-size:14px; font-weight:500; line-height:20px; color:#4B4F63;">どこへ？</div>
+          <div style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:500; line-height:16px; color:#9C9FAF;">スポット<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>グルメ<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>エリア</div>
         </div>
       </div>
     </div>
@@ -138,7 +162,7 @@
     <div style="display:flex; flex-direction:column; gap:12px;">
       <div style="display:flex; align-items:baseline; justify-content:space-between; padding:0 16px;">
         <div style="font-size:20px; font-weight:700; color:#111527;">今日行けるところ</div>
-        <a href="help.html" style="font-size:12px; font-weight:600; color:#3F52B4;">休館日カレンダー</a>
+        <a href="calendar.html" style="font-size:12px; font-weight:600; color:#3F52B4;">休館日カレンダー</a>
       </div>
       <div style="display:flex; gap:8px; padding:0 16px; overflow-x:auto;">
         <sc-for list="{{ openings }}" as="o" hint-placeholder-count="4">
@@ -160,17 +184,17 @@
       <div style="display:flex; flex-direction:column; gap:16px;">
         <div style="display:flex; align-items:baseline; justify-content:space-between; padding:0 16px;">
           <div style="font-size:20px; font-weight:700; color:#111527;">ライブカメラ</div>
-          <a href="search.html" style="font-size:12px; font-weight:600; color:#3F52B4;">すべて見る</a>
+          <span style="font-size:11px; font-weight:500; color:#9C9FAF;">公式チャンネル</span>
         </div>
-        <div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; padding:0 16px;">
+        <div style="display:flex; gap:12px; padding:0 16px; overflow-x:auto;">
           <sc-for list="{{ cams }}" as="cam" hint-placeholder-count="2">
-            <div style="position:relative; height:165px; border-radius:16px; overflow:hidden; background:{{ cam.bg }};">
+            <a href="{{ cam.href }}" target="_blank" style="display:block; flex-shrink:0; width:220px; position:relative; height:165px; border-radius:16px; overflow:hidden; background:{{ cam.bg }}; text-decoration:none;">
               <span style="position:absolute; top:12px; left:12px; display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px; border-radius:8px; background:#fff; color:#4B4F63; font-size:11px; font-weight:600;"><span style="width:6px; height:6px; border-radius:50%; background:#B22459;"></span>LIVE</span>
               <div style="position:absolute; left:16px; bottom:16px; right:16px; display:flex; flex-direction:column;">
-                <div style="font-size:20px; font-weight:700; line-height:24px; color:#fff;">{{ cam.name }}</div>
-                <div style="font-size:16px; font-weight:400; line-height:24px; color:#fff;">{{ cam.crowd }}</div>
+                <div style="font-size:16px; font-weight:700; line-height:22px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ cam.name }}</div>
+                <div style="font-size:11px; font-weight:500; line-height:16px; color:#fff; opacity:.9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ cam.crowd }}</div>
               </div>
-            </div>
+            </a>
           </sc-for>
         </div>
       </div>
@@ -229,24 +253,46 @@ const OPEN = { dot: '#047857', open: '開館中', openFg: '#047857' };
 const SHUT = { dot: '#B22459', open: '本日休館', openFg: '#B22459' };
 const st = (s) => isClosedToday(s) ? SHUT : OPEN;
 const metaOf = (s) => [s.jp ? '日本語対応' : '', s.stay ? `約${s.stay}分` : '', s.fee && s.fee.length < 22 ? s.fee : '', s.area].filter(Boolean).slice(0,2).join(' · ');
+const WXTXT = (c) => c <= 2 ? '晴' : c === 3 ? '曇' : (c === 45 || c === 48) ? '霧' : ((c >= 71 && c <= 77) || c === 85 || c === 86) ? '雪' : '雨';
+const WEAR = (mx, pop) => { const w = mx >= 30 ? '日よけ・水分補給' : mx >= 20 ? '半袖＋薄手の上着' : mx >= 10 ? '上着必須' : 'コート・手袋'; return pop >= 50 ? '傘 · ' + w : w; };
+const CITY_LL = {'ソウル':[37.57,126.98],'釜山':[35.18,129.08],'江陵・束草':[37.75,128.88],'慶州':[35.86,129.22],'全州':[35.82,127.15],'麗水':[34.76,127.66],'大邱':[35.87,128.60],'大田':[36.35,127.38]};
+function wxFetch(lat, lng) {
+  const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia/Seoul&forecast_days=7`;
+  return fetch(u).then(r => r.json()).then(j => {
+    const d = j.daily;
+    return d.time.map((t, i) => {
+      const pd = t.split('-').map(Number), dt = new Date(pd[0], pd[1] - 1, pd[2]), mx = Math.round(d.temperature_2m_max[i]), mn = Math.round(d.temperature_2m_min[i]);
+      const pop = d.precipitation_probability_max[i] || 0;
+      return { date: t, label: (dt.getMonth() + 1) + '/' + dt.getDate() + '（' + DOW[dt.getDay()] + '）', sky: WXTXT(d.weathercode[i]), max: mx, min: mn, pop: pop, wear: WEAR(mx, pop), rain: pop >= 50 };
+    });
+  });
+}
 
 
 class Component extends DCLogic {
+  state = { wxOpen: false, wx: null, wxCity: [] };
+  wxLoad() {
+    if (this._wx) return; this._wx = 1;
+    wxFetch(37.57, 126.98).then(d => this.setState({ wx: d })).catch(() => {});
+    const cities = [...new Set(PLAN.ids().map(byId).filter(Boolean).map(x => x.city).filter(c => c && c !== 'ソウル' && CITY_LL[c]))].slice(0, 3);
+    cities.forEach(c => wxFetch(CITY_LL[c][0], CITY_LL[c][1]).then(d => this.setState({ wxCity: (this.state.wxCity || []).concat([{ city: c, sky: d[0].sky, temp: d[0].max + '° / ' + d[0].min + '°', popText: '降水 ' + d[0].pop + '%' }]) })).catch(() => {}));
+  }
   renderVals() {
+    this.wxLoad();
+    const wx = this.state.wx;
     const open = { dot: '#047857', subColor: '#6B6E80' };
     const closed = { dot: '#B22459', subColor: '#B22459' };
     return {
       holidayBanner: this.props.holidayBanner ?? true,
-      liveCamera: this.props.liveCamera ?? true,
+      liveCamera: SP.some(x => x.cam),
       areas: [['鍾路 · 光化門','景福宮エリア','キョンボックン'],['明洞','明洞','ミョンドン'],['北村 · 三清洞','北村','プクチョン'],['弘大','弘大','ホンデ']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: `${yomi} · ${list.length}件`, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }),
       regions: [['水原','水原','スウォン'],['南怡島・春川','南怡島','ナミソム'],['坡州','坡州','パジュ'],['仁川','仁川','インチョン'],['龍仁','龍仁','ヨンイン'],['江陵・束草','江陵','カンヌン'],['釜山','釜山','プサン'],['慶州','慶州','キョンジュ'],['全州','全州','チョンジュ'],['麗水','麗水','ヨス'],['大邱','大邱','テグ'],['大田','大田','テジョン']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); if (!list.length) return null; const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: yomi, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }).filter(Boolean),
-      onSearchKey: (e) => { if (e.key === 'Enter' && e.target.value.trim()) location.href = 'search.html?q=' + encodeURIComponent(e.target.value.trim()); }, goSearch: () => { location.href = 'search.html'; },
       hasEvents: !!(KG.events || []).length, events: (() => { const t = new Date(); const ymd = t.toISOString().slice(0, 10); const fmt = d => d ? (parseInt(d.slice(5, 7)) + '/' + parseInt(d.slice(8, 10))) : ''; return (KG.events || []).filter(e => (e.end || e.start) >= ymd).sort((a, b) => a.start < b.start ? -1 : 1).slice(0, 5).map(e => ({ when: fmt(e.start) + (e.end && e.end !== e.start ? String.fromCharCode(10) + '〜' + fmt(e.end) : ''), name: e.name, place: [e.city, e.place].filter(Boolean).join(' · '), href: e.url || '#' })); })(),
+      wxOpen: !!this.state.wxOpen, wxToggle: () => this.setState({ wxOpen: !this.state.wxOpen }), wxCaret: this.state.wxOpen ? ' ▲' : ' ▼',
+      wxNow: wx ? wx[0].max + '°' : '--°', wxWear: wx ? wx[0].wear : '天気を読み込み中',
+      wxDays: (wx || []).map(w => ({ ...w, temp: w.max + '° / ' + w.min + '°', popText: '降水 ' + w.pop + '%' })), wxCities: this.state.wxCity || [],
+      cams: SP.filter(x => x.cam).slice(0, 3).map(x => ({ name: x.name, crowd: x.camLabel || '公式ライブ映像', bg: shot(x.photo), href: x.cam })),
       openings: SP.filter(x => x.type === '名所' && x.hours).slice(0, 5).map(x => { const c = isClosedToday(x); return { name: x.name, hours: c ? '本日休館' : x.hours.split(/[ （(]/)[0].slice(0, 18), ...(c ? closed : open), href: 'spot.html?id=' + x.id }; }),
-      cams: [
-        { name: '明洞', crowd: 'やや混雑', bg: shot('Myeongdong_at_night.jpg') },
-        { name: '景福宮', crowd: '空いている', bg: shot('Gyeongbokgung(palace)_Geunjeongjeon(hall).jpg') },
-      ],
     };
   }
 }
