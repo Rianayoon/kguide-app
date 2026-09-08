@@ -34,10 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788857006"></script>
-<script src="./kicon.js?v=1788857006"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./auth.js?v=1788857006"></script>
+<script src="./data.js?v=1788859002"></script>
+<script src="./kicon.js?v=1788859002"></script>
 </head>
 <body>
 <x-dc>
@@ -55,18 +53,18 @@
   <div style="position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; gap:24px; padding-bottom:252px;">
 
     <div style="position:relative; flex-shrink:0; display:flex; flex-direction:column;">
-      <div style="position:relative; height:264px; flex-shrink:0; overflow:hidden; background:url('https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg') center / cover no-repeat;">
+      <div style="position:relative; height:264px; flex-shrink:0; overflow:hidden; background:{{ chero }};">
         <div style="position:absolute; left:0; right:0; top:0; height:40%; background:linear-gradient(180deg, rgba(17,21,41,0.40) 0%, rgba(17,21,41,0) 100%);"></div>
         <div style="position:absolute; left:16px; top:16px; width:48px; height:48px; border-radius:24px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); display:flex; align-items:center; justify-content:center;"><k-icon name="ArrowRightSize24" size="24" style="color:#111527; transform:scaleX(-1)"></k-icon></div>
         <div style="position:absolute; right:16px; top:16px; width:48px; height:48px; border-radius:24px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); display:flex; align-items:center; justify-content:center;"><k-icon name="HeartSize24" size="24" style="color:#B22459"></k-icon></div>
       </div>
       <div style="position:relative; margin:-78px 16px 16px; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:16px; display:flex; flex-direction:column; gap:10px;">
         <span style="align-self:flex-start; display:inline-flex; align-items:center; gap:4px; height:22px; padding:0 8px; border-radius:8px; background:#3F52B4; color:#fff; font-size:11px; font-weight:600;"><k-icon name="TickCircleSize12" size="12" style="color:#fff"></k-icon>ガイド確認済み</span>
-        <div style="font-size:20px; font-weight:700; line-height:1.35; color:#111527;">景福宮 → 北村 → 仁寺洞<br>半日コース</div>
+        <div style="font-size:20px; font-weight:700; line-height:1.35; color:#111527;">{{ cname }}<br>{{ csub }}</div>
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; font-weight:500; color:#6B6E80;">
-          <span>所要 <span style="font-family:Poppins,sans-serif; color:#111527;">4</span>時間</span>
+          <span>所要 <span style="font-family:Poppins,sans-serif; color:#111527;">{{ chours }}</span>時間</span>
           <span style="color:#D1D3DB;">·</span>
-          <span>徒歩 <span style="font-family:Poppins,sans-serif; color:#111527;">2.6km</span></span>
+          <span>徒歩 <span style="font-family:Poppins,sans-serif; color:#111527;">{{ ckm }}</span></span>
           <span style="color:#D1D3DB;">·</span>
           <span style="color:#3F52B4; font-weight:600;">日本語対応</span>
         </div>
@@ -118,7 +116,11 @@
           <div style="font-size:11px; font-weight:500; color:#4B4F63;">韓国政府公認ガイド · 通訳ボランティア<span style="font-family:Poppins,'Noto Sans JP',sans-serif;">5</span>年</div>
         </div>
       </div>
-      <div style="font-size:14px; font-weight:500; line-height:1.7; color:#111527;">景福宮は <span style="font-family:Poppins,'Noto Sans JP',sans-serif; font-weight:600;">10:00</span> の交代式に合わせて入るのがおすすめです。北村は坂道なので歩きやすい靴で。仁寺洞でお茶を飲んで終わると、ちょうど夕方になります。</div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <sc-for list="{{ ctipParas }}" as="pp" hint-placeholder-count="2">
+          <div style="font-size:14px; font-weight:500; line-height:1.75; color:#373B51;">{{ pp.t }}</div>
+        </sc-for>
+      </div>
     </div>
   </div>
 
@@ -149,6 +151,7 @@ const byId = (id) => SP.find(s => s.id === id);
 const bg = (u, w) => u ? `url('${u}') center / cover no-repeat` : 'linear-gradient(135deg,#E9ECF8,#D1D6EE)';
 const shot = (u) => `linear-gradient(180deg, rgba(17,21,41,0) 45%, rgba(17,21,41,0.8) 100%), ${bg(u)}`;
 const qid = () => new URLSearchParams(location.search).get('id');
+const para = (t) => { const s = String(t || '').trim(); if (!s) return []; const out = []; let cur = '', n = 0; for (let i = 0; i < s.length; i++) { cur += s[i]; if (s[i] === '\u3002') { n++; if (n >= 2) { out.push({ t: cur.trim() }); cur = ''; n = 0; } } } if (cur.trim()) { if (out.length && cur.trim().length < 40) out[out.length - 1].t += cur.trim(); else out.push({ t: cur.trim() }); } return out; };
 const DOW = ['日','月','火','水','木','金','土'];
 const KR_HOLI = new Set(['2026-01-01','2026-02-16','2026-02-17','2026-02-18','2026-03-01','2026-03-02','2026-05-05','2026-05-24','2026-05-25','2026-06-06','2026-08-15','2026-08-17','2026-09-24','2026-09-25','2026-09-26','2026-10-03','2026-10-05','2026-10-09','2026-12-25','2027-01-01','2027-02-06','2027-02-07','2027-02-08','2027-03-01','2027-05-05','2027-05-13','2027-06-06','2027-08-15','2027-08-16','2027-09-14','2027-09-15','2027-09-16','2027-10-03','2027-10-04','2027-10-09','2027-12-25']);
 const SEOL = {day: ['2026-02-17','2027-02-07'], run: ['2026-02-16','2026-02-17','2026-02-18','2027-02-06','2027-02-07','2027-02-08']};
@@ -199,7 +202,7 @@ function wxFetch(lat, lng) {
 class Component extends DCLogic {
   renderVals() {
     return {
-      planHref: 'plan.html?id=' + ((KG.courses.find(x => x.id === (qid() || 'C001')) || KG.courses[0]).id), stops: (() => { const c = KG.courses.find(x => x.id === (qid() || 'C001')) || KG.courses[0]; const ids = c.spots.split(','); const stays = String(c.stay).split(','); return ids.map((id, i) => { const sp = byId(id) || {}; const nx = byId(ids[i+1]); const d = nx ? Math.hypot((sp.lat - nx.lat) * 111, (sp.lng - nx.lng) * 88) : 0; return { n: i + 1, name: sp.name || id, stay: (stays[i] || '') + '分', note: [sp.rest ? '休: ' + sp.rest : '', sp.fee || ''].filter(Boolean).join(' · ').slice(0, 40), photo: bg(sp.photo), hasLeg: !!nx, dist: nx ? d.toFixed(1) + 'km' : '', walk: nx ? Math.max(1, Math.round(d / 0.08)) : '', href: 'spot.html?id=' + id }; }); })(),
+      ...(() => { const c = KG.courses.find(x => x.id === (qid() || 'C001')) || KG.courses[0]; const f = byId(c.spots.split(',')[0].trim()) || {}; document.title = c.name + ' | K-GUIDE'; return { cname: c.name, csub: c.sub || '', chero: bg(f.photo), chours: c.hours || '', ckm: (c.km || 0) + 'km', ctipParas: para(c.tip) }; })(), planHref: 'plan.html?id=' + ((KG.courses.find(x => x.id === (qid() || 'C001')) || KG.courses[0]).id), stops: (() => { const c = KG.courses.find(x => x.id === (qid() || 'C001')) || KG.courses[0]; const ids = c.spots.split(','); const stays = String(c.stay).split(','); return ids.map((id, i) => { const sp = byId(id) || {}; const nx = byId(ids[i+1]); const d = nx ? Math.hypot((sp.lat - nx.lat) * 111, (sp.lng - nx.lng) * 88) : 0; return { n: i + 1, name: sp.name || id, stay: (stays[i] || '') + '分', note: [sp.rest ? '休: ' + sp.rest : '', sp.fee || ''].filter(Boolean).join(' · ').slice(0, 40), photo: bg(sp.photo), hasLeg: !!nx, dist: nx ? d.toFixed(1) + 'km' : '', walk: nx ? Math.max(1, Math.round(d / 0.08)) : '', href: 'spot.html?id=' + id }; }); })(),
     };
   }
 }

@@ -34,10 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788857006"></script>
-<script src="./kicon.js?v=1788857006"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./auth.js?v=1788857006"></script>
+<script src="./data.js?v=1788859002"></script>
+<script src="./kicon.js?v=1788859002"></script>
 </head>
 <body>
 <x-dc>
@@ -76,14 +74,12 @@
     </div>
 
     <div style="display:flex; flex-direction:column; gap:12px;">
-      <div style="position:relative; height:180px; margin:0 16px; border-radius:16px; overflow:hidden; background:#F2F4FC;">
-        <div style="position:absolute; left:{{ mapLeft }}; top:{{ mapTop }}; width:512px; height:512px; display:grid; grid-template-columns:256px 256px; grid-template-rows:256px 256px;">
-          <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="4"><div style="background:url({{ t.url }}) center / 256px no-repeat;"></div></sc-for>
+      <div style="margin:0 16px; display:flex; flex-direction:column; gap:8px;">
+        <div style="position:relative; height:470px; border-radius:16px; overflow:hidden; background:#F2F4FC;">
+          <div id="kgmap" style="position:absolute; left:0; top:0; right:0; bottom:0;"></div>
+          <div id="kgmapfs" style="position:absolute; right:10px; top:10px; z-index:600; display:flex; align-items:center; justify-content:center; height:30px; padding:0 12px; border-radius:15px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.24); color:#3F52B4; font-size:12px; font-weight:600; cursor:pointer;">全画面</div>
         </div>
-        <sc-for list="{{ pins }}" as="p" hint-placeholder-count="4">
-          <div style="position:absolute; left:{{ p.x }}; top:{{ p.y }}; width:28px; height:28px; border-radius:50%; background:{{ p.color }}; color:#fff; font-family:Poppins,sans-serif; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(131,139,180,.12);">{{ p.n }}</div>
-        </sc-for>
-        <a href="{{ naverHref }}" target="_blank" style="position:absolute; left:16px; right:16px; bottom:14px; display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:16px; background:#fff; color:#3F52B4; font-size:14px; font-weight:600; box-shadow:0 2px 8px rgba(131,139,180,.12); text-decoration:none;"><k-icon name="LocationSize18" size="18" style="color:#3F52B4"></k-icon>NAVER地図で開く</a>
+        <a href="{{ naverHref }}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:16px; background:#fff; color:#3F52B4; font-size:14px; font-weight:600; box-shadow:0 2px 8px rgba(131,139,180,.12); text-decoration:none;"><k-icon name="LocationSize18" size="18" style="color:#3F52B4"></k-icon>NAVER地図で開く</a>
       </div>
       <a href="{{ editHref }}" style="margin:0 16px; display:flex; align-items:center; justify-content:center; gap:6px; height:48px; border-radius:16px; background:{{ editBg }}; color:{{ editFg }}; box-shadow:{{ editRing }}; font-size:16px; font-weight:600; letter-spacing:.02em; text-decoration:none;"><k-icon name="{{ editIcon }}" size="20" style="color:{{ editFg }}"></k-icon>{{ editLabel }}</a>
     </div>
@@ -164,6 +160,7 @@ const byId = (id) => SP.find(s => s.id === id);
 const bg = (u, w) => u ? `url('${u}') center / cover no-repeat` : 'linear-gradient(135deg,#E9ECF8,#D1D6EE)';
 const shot = (u) => `linear-gradient(180deg, rgba(17,21,41,0) 45%, rgba(17,21,41,0.8) 100%), ${bg(u)}`;
 const qid = () => new URLSearchParams(location.search).get('id');
+const para = (t) => { const s = String(t || '').trim(); if (!s) return []; const out = []; let cur = '', n = 0; for (let i = 0; i < s.length; i++) { cur += s[i]; if (s[i] === '\u3002') { n++; if (n >= 2) { out.push({ t: cur.trim() }); cur = ''; n = 0; } } } if (cur.trim()) { if (out.length && cur.trim().length < 40) out[out.length - 1].t += cur.trim(); else out.push({ t: cur.trim() }); } return out; };
 const DOW = ['日','月','火','水','木','金','土'];
 const KR_HOLI = new Set(['2026-01-01','2026-02-16','2026-02-17','2026-02-18','2026-03-01','2026-03-02','2026-05-05','2026-05-24','2026-05-25','2026-06-06','2026-08-15','2026-08-17','2026-09-24','2026-09-25','2026-09-26','2026-10-03','2026-10-05','2026-10-09','2026-12-25','2027-01-01','2027-02-06','2027-02-07','2027-02-08','2027-03-01','2027-05-05','2027-05-13','2027-06-06','2027-08-15','2027-08-16','2027-09-14','2027-09-15','2027-09-16','2027-10-03','2027-10-04','2027-10-09','2027-12-25']);
 const SEOL = {day: ['2026-02-17','2027-02-07'], run: ['2026-02-16','2026-02-17','2026-02-18','2027-02-06','2027-02-07','2027-02-08']};
@@ -252,6 +249,737 @@ class Component extends DCLogic {
   }
 }
 
+</script>
+<style>/* required styles */
+
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-tile-container,
+.leaflet-pane > svg,
+.leaflet-pane > canvas,
+.leaflet-zoom-box,
+.leaflet-image-layer,
+.leaflet-layer {
+	position: absolute;
+	left: 0;
+	top: 0;
+	}
+.leaflet-container {
+	overflow: hidden;
+	}
+.leaflet-tile,
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	-webkit-user-select: none;
+	   -moz-user-select: none;
+	        user-select: none;
+	  -webkit-user-drag: none;
+	}
+/* Prevents IE11 from highlighting tiles in blue */
+.leaflet-tile::selection {
+	background: transparent;
+}
+/* Safari renders non-retina tile on retina better with this, but Chrome is worse */
+.leaflet-safari .leaflet-tile {
+	image-rendering: -webkit-optimize-contrast;
+	}
+/* hack that prevents hw layers "stretching" when loading new tiles */
+.leaflet-safari .leaflet-tile-container {
+	width: 1600px;
+	height: 1600px;
+	-webkit-transform-origin: 0 0;
+	}
+.leaflet-marker-icon,
+.leaflet-marker-shadow {
+	display: block;
+	}
+/* .leaflet-container svg: reset svg max-width decleration shipped in Joomla! (joomla.org) 3.x */
+/* .leaflet-container img: map is broken in FF if you have max-width: 100% on tiles */
+.leaflet-container .leaflet-overlay-pane svg {
+	max-width: none !important;
+	max-height: none !important;
+	}
+.leaflet-container .leaflet-marker-pane img,
+.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,
+.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile {
+	max-width: none !important;
+	max-height: none !important;
+	width: auto;
+	padding: 0;
+	}
+
+.leaflet-container img.leaflet-tile {
+	/* See: https://bugs.chromium.org/p/chromium/issues/detail?id=600120 */
+	mix-blend-mode: plus-lighter;
+}
+
+.leaflet-container.leaflet-touch-zoom {
+	-ms-touch-action: pan-x pan-y;
+	touch-action: pan-x pan-y;
+	}
+.leaflet-container.leaflet-touch-drag {
+	-ms-touch-action: pinch-zoom;
+	/* Fallback for FF which doesn't support pinch-zoom */
+	touch-action: none;
+	touch-action: pinch-zoom;
+}
+.leaflet-container.leaflet-touch-drag.leaflet-touch-zoom {
+	-ms-touch-action: none;
+	touch-action: none;
+}
+.leaflet-container {
+	-webkit-tap-highlight-color: transparent;
+}
+.leaflet-container a {
+	-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);
+}
+.leaflet-tile {
+	filter: inherit;
+	visibility: hidden;
+	}
+.leaflet-tile-loaded {
+	visibility: inherit;
+	}
+.leaflet-zoom-box {
+	width: 0;
+	height: 0;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	z-index: 800;
+	}
+/* workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=888319 */
+.leaflet-overlay-pane svg {
+	-moz-user-select: none;
+	}
+
+.leaflet-pane         { z-index: 400; }
+
+.leaflet-tile-pane    { z-index: 200; }
+.leaflet-overlay-pane { z-index: 400; }
+.leaflet-shadow-pane  { z-index: 500; }
+.leaflet-marker-pane  { z-index: 600; }
+.leaflet-tooltip-pane   { z-index: 650; }
+.leaflet-popup-pane   { z-index: 700; }
+
+.leaflet-map-pane canvas { z-index: 100; }
+.leaflet-map-pane svg    { z-index: 200; }
+
+.leaflet-vml-shape {
+	width: 1px;
+	height: 1px;
+	}
+.lvml {
+	behavior: url(#default#VML);
+	display: inline-block;
+	position: absolute;
+	}
+
+
+/* control positioning */
+
+.leaflet-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+.leaflet-top,
+.leaflet-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.leaflet-top {
+	top: 0;
+	}
+.leaflet-right {
+	right: 0;
+	}
+.leaflet-bottom {
+	bottom: 0;
+	}
+.leaflet-left {
+	left: 0;
+	}
+.leaflet-control {
+	float: left;
+	clear: both;
+	}
+.leaflet-right .leaflet-control {
+	float: right;
+	}
+.leaflet-top .leaflet-control {
+	margin-top: 10px;
+	}
+.leaflet-bottom .leaflet-control {
+	margin-bottom: 10px;
+	}
+.leaflet-left .leaflet-control {
+	margin-left: 10px;
+	}
+.leaflet-right .leaflet-control {
+	margin-right: 10px;
+	}
+
+
+/* zoom and fade animations */
+
+.leaflet-fade-anim .leaflet-popup {
+	opacity: 0;
+	-webkit-transition: opacity 0.2s linear;
+	   -moz-transition: opacity 0.2s linear;
+	        transition: opacity 0.2s linear;
+	}
+.leaflet-fade-anim .leaflet-map-pane .leaflet-popup {
+	opacity: 1;
+	}
+.leaflet-zoom-animated {
+	-webkit-transform-origin: 0 0;
+	    -ms-transform-origin: 0 0;
+	        transform-origin: 0 0;
+	}
+svg.leaflet-zoom-animated {
+	will-change: transform;
+}
+
+.leaflet-zoom-anim .leaflet-zoom-animated {
+	-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);
+	   -moz-transition:    -moz-transform 0.25s cubic-bezier(0,0,0.25,1);
+	        transition:         transform 0.25s cubic-bezier(0,0,0.25,1);
+	}
+.leaflet-zoom-anim .leaflet-tile,
+.leaflet-pan-anim .leaflet-tile {
+	-webkit-transition: none;
+	   -moz-transition: none;
+	        transition: none;
+	}
+
+.leaflet-zoom-anim .leaflet-zoom-hide {
+	visibility: hidden;
+	}
+
+
+/* cursors */
+
+.leaflet-interactive {
+	cursor: pointer;
+	}
+.leaflet-grab {
+	cursor: -webkit-grab;
+	cursor:    -moz-grab;
+	cursor:         grab;
+	}
+.leaflet-crosshair,
+.leaflet-crosshair .leaflet-interactive {
+	cursor: crosshair;
+	}
+.leaflet-popup-pane,
+.leaflet-control {
+	cursor: auto;
+	}
+.leaflet-dragging .leaflet-grab,
+.leaflet-dragging .leaflet-grab .leaflet-interactive,
+.leaflet-dragging .leaflet-marker-draggable {
+	cursor: move;
+	cursor: -webkit-grabbing;
+	cursor:    -moz-grabbing;
+	cursor:         grabbing;
+	}
+
+/* marker & overlays interactivity */
+.leaflet-marker-icon,
+.leaflet-marker-shadow,
+.leaflet-image-layer,
+.leaflet-pane > svg path,
+.leaflet-tile-container {
+	pointer-events: none;
+	}
+
+.leaflet-marker-icon.leaflet-interactive,
+.leaflet-image-layer.leaflet-interactive,
+.leaflet-pane > svg path.leaflet-interactive,
+svg.leaflet-image-layer.leaflet-interactive path {
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+
+/* visual tweaks */
+
+.leaflet-container {
+	background: #ddd;
+	outline-offset: 1px;
+	}
+.leaflet-container a {
+	color: #0078A8;
+	}
+.leaflet-zoom-box {
+	border: 2px dotted #38f;
+	background: rgba(255,255,255,0.5);
+	}
+
+
+/* general typography */
+.leaflet-container {
+	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	}
+
+
+/* general toolbar styles */
+
+.leaflet-bar {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.65);
+	border-radius: 4px;
+	}
+.leaflet-bar a {
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+	width: 26px;
+	height: 26px;
+	line-height: 26px;
+	display: block;
+	text-align: center;
+	text-decoration: none;
+	color: black;
+	}
+.leaflet-bar a,
+.leaflet-control-layers-toggle {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	display: block;
+	}
+.leaflet-bar a:hover,
+.leaflet-bar a:focus {
+	background-color: #f4f4f4;
+	}
+.leaflet-bar a:first-child {
+	border-top-left-radius: 4px;
+	border-top-right-radius: 4px;
+	}
+.leaflet-bar a:last-child {
+	border-bottom-left-radius: 4px;
+	border-bottom-right-radius: 4px;
+	border-bottom: none;
+	}
+.leaflet-bar a.leaflet-disabled {
+	cursor: default;
+	background-color: #f4f4f4;
+	color: #bbb;
+	}
+
+.leaflet-touch .leaflet-bar a {
+	width: 30px;
+	height: 30px;
+	line-height: 30px;
+	}
+.leaflet-touch .leaflet-bar a:first-child {
+	border-top-left-radius: 2px;
+	border-top-right-radius: 2px;
+	}
+.leaflet-touch .leaflet-bar a:last-child {
+	border-bottom-left-radius: 2px;
+	border-bottom-right-radius: 2px;
+	}
+
+/* zoom control */
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+	font: bold 18px 'Lucida Console', Monaco, monospace;
+	text-indent: 1px;
+	}
+
+.leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out  {
+	font-size: 22px;
+	}
+
+
+/* layers control */
+
+.leaflet-control-layers {
+	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+	background: #fff;
+	border-radius: 5px;
+	}
+.leaflet-control-layers-toggle {
+	background-image: url(images/layers.png);
+	width: 36px;
+	height: 36px;
+	}
+.leaflet-retina .leaflet-control-layers-toggle {
+	background-image: url(images/layers-2x.png);
+	background-size: 26px 26px;
+	}
+.leaflet-touch .leaflet-control-layers-toggle {
+	width: 44px;
+	height: 44px;
+	}
+.leaflet-control-layers .leaflet-control-layers-list,
+.leaflet-control-layers-expanded .leaflet-control-layers-toggle {
+	display: none;
+	}
+.leaflet-control-layers-expanded .leaflet-control-layers-list {
+	display: block;
+	position: relative;
+	}
+.leaflet-control-layers-expanded {
+	padding: 6px 10px 6px 6px;
+	color: #333;
+	background: #fff;
+	}
+.leaflet-control-layers-scrollbar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 5px;
+	}
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 1px;
+	}
+.leaflet-control-layers label {
+	display: block;
+	font-size: 13px;
+	font-size: 1.08333em;
+	}
+.leaflet-control-layers-separator {
+	height: 0;
+	border-top: 1px solid #ddd;
+	margin: 5px -10px 5px -6px;
+	}
+
+/* Default icon URLs */
+.leaflet-default-icon-path { /* used only in path-guessing heuristic, see L.Icon.Default */
+	background-image: url(images/marker-icon.png);
+	}
+
+
+/* attribution and scale controls */
+
+.leaflet-container .leaflet-control-attribution {
+	background: #fff;
+	background: rgba(255, 255, 255, 0.8);
+	margin: 0;
+	}
+.leaflet-control-attribution,
+.leaflet-control-scale-line {
+	padding: 0 5px;
+	color: #333;
+	line-height: 1.4;
+	}
+.leaflet-control-attribution a {
+	text-decoration: none;
+	}
+.leaflet-control-attribution a:hover,
+.leaflet-control-attribution a:focus {
+	text-decoration: underline;
+	}
+.leaflet-attribution-flag {
+	display: inline !important;
+	vertical-align: baseline !important;
+	width: 1em;
+	height: 0.6669em;
+	}
+.leaflet-left .leaflet-control-scale {
+	margin-left: 5px;
+	}
+.leaflet-bottom .leaflet-control-scale {
+	margin-bottom: 5px;
+	}
+.leaflet-control-scale-line {
+	border: 2px solid #777;
+	border-top: none;
+	line-height: 1.1;
+	padding: 2px 5px 1px;
+	white-space: nowrap;
+	-moz-box-sizing: border-box;
+	     box-sizing: border-box;
+	background: rgba(255, 255, 255, 0.8);
+	text-shadow: 1px 1px #fff;
+	}
+.leaflet-control-scale-line:not(:first-child) {
+	border-top: 2px solid #777;
+	border-bottom: none;
+	margin-top: -2px;
+	}
+.leaflet-control-scale-line:not(:first-child):not(:last-child) {
+	border-bottom: 2px solid #777;
+	}
+
+.leaflet-touch .leaflet-control-attribution,
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	box-shadow: none;
+	}
+.leaflet-touch .leaflet-control-layers,
+.leaflet-touch .leaflet-bar {
+	border: 2px solid rgba(0,0,0,0.2);
+	background-clip: padding-box;
+	}
+
+
+/* popup */
+
+.leaflet-popup {
+	position: absolute;
+	text-align: center;
+	margin-bottom: 20px;
+	}
+.leaflet-popup-content-wrapper {
+	padding: 1px;
+	text-align: left;
+	border-radius: 12px;
+	}
+.leaflet-popup-content {
+	margin: 13px 24px 13px 20px;
+	line-height: 1.3;
+	font-size: 13px;
+	font-size: 1.08333em;
+	min-height: 1px;
+	}
+.leaflet-popup-content p {
+	margin: 17px 0;
+	margin: 1.3em 0;
+	}
+.leaflet-popup-tip-container {
+	width: 40px;
+	height: 20px;
+	position: absolute;
+	left: 50%;
+	margin-top: -1px;
+	margin-left: -20px;
+	overflow: hidden;
+	pointer-events: none;
+	}
+.leaflet-popup-tip {
+	width: 17px;
+	height: 17px;
+	padding: 1px;
+
+	margin: -10px auto 0;
+	pointer-events: auto;
+
+	-webkit-transform: rotate(45deg);
+	   -moz-transform: rotate(45deg);
+	    -ms-transform: rotate(45deg);
+	        transform: rotate(45deg);
+	}
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+	background: white;
+	color: #333;
+	box-shadow: 0 3px 14px rgba(0,0,0,0.4);
+	}
+.leaflet-container a.leaflet-popup-close-button {
+	position: absolute;
+	top: 0;
+	right: 0;
+	border: none;
+	text-align: center;
+	width: 24px;
+	height: 24px;
+	font: 16px/24px Tahoma, Verdana, sans-serif;
+	color: #757575;
+	text-decoration: none;
+	background: transparent;
+	}
+.leaflet-container a.leaflet-popup-close-button:hover,
+.leaflet-container a.leaflet-popup-close-button:focus {
+	color: #585858;
+	}
+.leaflet-popup-scrolled {
+	overflow: auto;
+	}
+
+.leaflet-oldie .leaflet-popup-content-wrapper {
+	-ms-zoom: 1;
+	}
+.leaflet-oldie .leaflet-popup-tip {
+	width: 24px;
+	margin: 0 auto;
+
+	-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";
+	filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);
+	}
+
+.leaflet-oldie .leaflet-control-zoom,
+.leaflet-oldie .leaflet-control-layers,
+.leaflet-oldie .leaflet-popup-content-wrapper,
+.leaflet-oldie .leaflet-popup-tip {
+	border: 1px solid #999;
+	}
+
+
+/* div icon */
+
+.leaflet-div-icon {
+	background: #fff;
+	border: 1px solid #666;
+	}
+
+
+/* Tooltip */
+/* Base styles for the element that has a tooltip */
+.leaflet-tooltip {
+	position: absolute;
+	padding: 6px;
+	background-color: #fff;
+	border: 1px solid #fff;
+	border-radius: 3px;
+	color: #222;
+	white-space: nowrap;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+	}
+.leaflet-tooltip.leaflet-interactive {
+	cursor: pointer;
+	pointer-events: auto;
+	}
+.leaflet-tooltip-top:before,
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	position: absolute;
+	pointer-events: none;
+	border: 6px solid transparent;
+	background: transparent;
+	content: "";
+	}
+
+/* Directions */
+
+.leaflet-tooltip-bottom {
+	margin-top: 6px;
+}
+.leaflet-tooltip-top {
+	margin-top: -6px;
+}
+.leaflet-tooltip-bottom:before,
+.leaflet-tooltip-top:before {
+	left: 50%;
+	margin-left: -6px;
+	}
+.leaflet-tooltip-top:before {
+	bottom: 0;
+	margin-bottom: -12px;
+	border-top-color: #fff;
+	}
+.leaflet-tooltip-bottom:before {
+	top: 0;
+	margin-top: -12px;
+	margin-left: -6px;
+	border-bottom-color: #fff;
+	}
+.leaflet-tooltip-left {
+	margin-left: -6px;
+}
+.leaflet-tooltip-right {
+	margin-left: 6px;
+}
+.leaflet-tooltip-left:before,
+.leaflet-tooltip-right:before {
+	top: 50%;
+	margin-top: -6px;
+	}
+.leaflet-tooltip-left:before {
+	right: 0;
+	margin-right: -12px;
+	border-left-color: #fff;
+	}
+.leaflet-tooltip-right:before {
+	left: 0;
+	margin-left: -12px;
+	border-right-color: #fff;
+	}
+
+/* Printing */
+
+@media print {
+	/* Prevent printers from removing background-images of controls. */
+	.leaflet-control {
+		-webkit-print-color-adjust: exact;
+		print-color-adjust: exact;
+		}
+	}
+</style>
+<script src="./leaflet.js?v=1788859002"></script>
+<script>
+(function(){
+  var map=null, host=null, wrap=null, ph=null, fs=false;
+  function SPS(){ return (window.KG&&window.KG.spots)||[]; }
+  function planIds(){
+    var KG=window.KG; if(!KG) return [];
+    var q=new URLSearchParams(location.search).get('id');
+    var p={}; try{ p=JSON.parse(localStorage.getItem('kg_plan')||'{}'); }catch(e){}
+    if(q && (KG.courses||[]).some(function(c){return c.id===q;})) p={course:q};
+    var ids=[];
+    if(p.course){ var c=(KG.courses||[]).filter(function(x){return x.id===p.course;})[0]; if(c) ids=String(c.spots).split(',').map(function(s){return s.trim();}).filter(Boolean); }
+    else ids=(p.spots||[]);
+    if(!ids.length){ var c0=(KG.courses||[])[0]; ids=c0?String(c0.spots).split(',').map(function(s){return s.trim();}).filter(Boolean):[]; }
+    return ids;
+  }
+  function hav(a,b){ var R=6371000, t=Math.PI/180, dLa=(b[0]-a[0])*t, dLn=(b[1]-a[1])*t;
+    var s=Math.sin(dLa/2)*Math.sin(dLa/2)+Math.cos(a[0]*t)*Math.cos(b[0]*t)*Math.sin(dLn/2)*Math.sin(dLn/2);
+    return 2*R*Math.asin(Math.min(1,Math.sqrt(s))); }
+  function pinIcon(n){ return L.divIcon({className:'', iconSize:[28,28], iconAnchor:[14,14],
+    html:'<div style="width:28px;height:28px;border-radius:50%;background:#3F52B4;color:#fff;font-family:Poppins,sans-serif;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(17,21,41,.30);">'+n+'</div>'}); }
+  function legIcon(txt,col){ return L.divIcon({className:'', iconSize:[0,0], iconAnchor:[0,0],
+    html:'<div style="transform:translate(-50%,-50%);display:inline-block;white-space:nowrap;padding:2px 7px;border-radius:9px;background:rgba(255,255,255,.92);box-shadow:0 1px 4px rgba(17,21,41,.18);color:'+col+';font-size:10px;font-weight:600;">'+txt+'</div>'}); }
+  function pick(){
+    var els=document.querySelectorAll('#kgmap'), out=null;
+    for(var i=0;i<els.length;i++){ if(els[i].closest('x-dc')) continue; var r=els[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=els[i]; }
+    return out;
+  }
+  function draw(){
+    var el=pick();
+    if(!el||!window.L||!window.KG) return;
+    if(el===host&&map) return;
+    if(map){ try{ map.remove(); }catch(e){} map=null; }
+    host=el; wrap=el.parentNode;
+    map=L.map(el,{zoomControl:true, attributionControl:true});
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:'&copy; OpenStreetMap'}).addTo(map);
+    var sp=planIds().map(function(id){ var f=SPS().filter(function(s){return s.id===id;}); return f[0]; }).filter(function(s){ return s&&s.lat&&s.lng; });
+    var pts=sp.map(function(s){ return [parseFloat(s.lat), parseFloat(s.lng)]; });
+    if(!pts.length){ map.setView([37.5665,126.9780],12); return; }
+    if(pts.length>1) L.polyline(pts,{color:'#3F52B4',weight:3,opacity:.8,dashArray:'6 7'}).addTo(map);
+    pts.forEach(function(pt,i){ L.marker(pt,{icon:pinIcon(i+1)}).addTo(map).bindPopup('<b>'+(sp[i].name||'')+'</b>'); });
+    for(var i=0;i<pts.length-1;i++){
+      var d=hav(pts[i],pts[i+1])*1.3, mid=[(pts[i][0]+pts[i+1][0])/2,(pts[i][1]+pts[i+1][1])/2], txt, col;
+      if(d>1500){ txt='地下鉄・バス · '+(d/1000).toFixed(1)+'km'; col='#B22459'; }
+      else { txt='徒歩 '+Math.max(1,Math.round(d/80))+'分 · '+(Math.round(d/50)*50)+'m'; col='#3F52B4'; }
+      L.marker(mid,{icon:legIcon(txt,col), interactive:false, zIndexOffset:-200}).addTo(map);
+    }
+    map.__kgb = L.latLngBounds(pts);
+    map.fitBounds(map.__kgb,{padding:[40,40], maxZoom:16});
+  }
+  document.addEventListener('click', function(e){
+    var b = e.target && e.target.closest && e.target.closest('#kgmapfs');
+    if(!b || !wrap) return;
+    var screen=document.querySelector('[data-screen-label]'); if(!screen) return;
+    if(!fs){
+      ph=document.createComment('kgmap'); wrap.parentNode.insertBefore(ph, wrap);
+      wrap.style.cssText='position:absolute; left:0; top:0; right:0; bottom:0; z-index:9000; border-radius:0; overflow:hidden; background:#F2F4FC;';
+      screen.appendChild(wrap); b.textContent='閉じる'; fs=true;
+    } else {
+      wrap.style.cssText='position:relative; height:470px; border-radius:16px; overflow:hidden; background:#F2F4FC;';
+      ph.parentNode.insertBefore(wrap, ph); ph.parentNode.removeChild(ph); ph=null;
+      b.textContent='全画面'; fs=false;
+    }
+    setTimeout(function(){ if(map){ map.invalidateSize(); if(map.__kgb) map.fitBounds(map.__kgb,{padding:[40,40], maxZoom:16}); } }, 60);
+  }, true);
+  setInterval(draw, 400);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', draw); else draw();
+})();
 </script>
 </body>
 </html>
