@@ -50,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788894038"></script>
-<script src="./kicon.js?v=1788894038"></script>
+<script src="./data.js?v=1788901046"></script>
+<script src="./kicon.js?v=1788901046"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -85,7 +85,7 @@
         <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; padding:4px 4px 4px 0;">
           <span style="align-self:flex-start; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:600;">出発地点</span>
           <div style="font-size:16px; font-weight:700; color:#111527; line-height:1.35;">明洞のホテル</div>
-          <div style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:500; color:#6B6E80;"><k-icon name="LocationSize14" size="14" style="color:#6B6E80"></k-icon>中区 明洞8길</div>
+          <div style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:500; color:#6B6E80;"><k-icon name="LocationSize14" size="14" style="color:#6B6E80"></k-icon>中区 明洞8キル</div>
         </div>
       </div>
       <div style="display:flex; align-items:center; justify-content:center; height:40px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:14px; font-weight:600;">泊まるところを変える</div>
@@ -185,7 +185,7 @@ const WM = {"Bukchon-ro_11-gil_street_with_hanok_houses_and_blue_sky_in_Bukchon_
 
 const KG = window.KG; const SP = KG.spots;
 const YOMI = {'明洞':'ミョンドン','鍾路 · 光化門':'チョンノ・クァンファムン','北村 · 三清洞':'プクチョン・サムチョンドン','東大門':'トンデムン','弘大':'ホンデ','江南':'カンナム','梨泰院':'イテウォン','聖水':'ソンス','蚕室':'チャムシル','汝矣島':'ヨイド','大学路 · 城北':'テハンノ・ソンブク','新村 · 西大門':'シンチョン・ソデムン','水原':'スウォン','仁川':'インチョン','坡州':'パジュ','仁川空港・永宗島':'インチョンクウコウ','龍仁':'ヨンイン','南怡島・春川':'ナミソム・チュンチョン','江陵・束草':'カンヌン・ソクチョ','釜山':'プサン','慶州':'キョンジュ','全州':'チョンジュ','麗水':'ヨス','大邱':'テグ','大田':'テジョン','済州':'チェジュ'};
-const SUB_AREAS = {'釜山':[['海雲台','ヘウンデ'],['広安里','クァンアルリ'],['南浦洞・チャガルチ','ナンポドン・チャガルチ'],['甘川・松島','カムチョン・ソンド'],['西面・田浦','ソミョン・チョンポ'],['機張','キジャン'],['影島','ヨンド'],['釜山駅・草梁','プサンヨク・チョリャン']],'済州':[['済州市・空港周辺','チェジュシ'],['東部','トンブ'],['西部','ソブ'],['南部','ナンブ']]};
+const SUB_AREAS = {'釜山':[['海雲台','ヘウンデ'],['広安里','クァンアルリ'],['南浦洞・チャガルチ','ナンポドン・チャガルチ'],['甘川・松島','カムチョン・ソンド'],['西面・田浦','ソミョン・チョンポ'],['機張','キジャン'],['影島','ヨンド'],['釜山駅・草梁','プサンヨク・チョリャン'],['その他','ソノタ']],'済州':[['済州市・空港周辺','チェジュシ'],['東部','トンブ'],['西部','ソブ'],['南部','ナンブ']]};
 const PLAN = { get() { try { return JSON.parse(localStorage.getItem('kg_plan') || '{}'); } catch (e) { return {}; } }, set(p) { try { localStorage.setItem('kg_plan', JSON.stringify(p)); } catch (e) {} }, addSpot(id) { const p = PLAN.get(); const l = (p.course ? (KG.courses.find(c => c.id === p.course) || { spots: '' }).spots.split(',').filter(Boolean) : (p.spots || [])); if (!l.includes(id)) l.push(id); PLAN.set({ spots: l }); return l.length; }, ids() { const p = PLAN.get(); if (p.course) { const c = KG.courses.find(x => x.id === p.course); if (c) return c.spots.split(',').map(x => x.trim()).filter(Boolean); } return (p.spots || []).filter(id => byId(id)); } };
 const FAV = { get() { try { return JSON.parse(localStorage.getItem('kg_fav') || '[]'); } catch (e) { return []; } }, has(id) { return FAV.get().includes(id); }, toggle(id) { const l = FAV.get(); const i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.unshift(id); try { localStorage.setItem('kg_fav', JSON.stringify(l)); } catch (e) {} return i < 0; } };
 const stopNav = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } };
@@ -954,7 +954,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 		}
 	}
 </style>
-<script src="./leaflet.js?v=1788894038"></script>
+<script src="./leaflet.js?v=1788901046"></script>
 <script>
 (function(){
   var map=null, host=null, wrap=null, ph=null, fs=false;
