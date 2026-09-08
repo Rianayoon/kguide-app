@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788859237"></script>
-<script src="./kicon.js?v=1788859237"></script>
+<script src="./data.js?v=1788867420"></script>
+<script src="./kicon.js?v=1788867420"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -122,7 +122,7 @@
     <div style="display:flex; flex-direction:column; gap:16px;">
       <div style="display:flex; align-items:baseline; justify-content:space-between; padding:0 16px;">
         <div style="font-size:20px; font-weight:700; color:#111527;">エリアで見る</div>
-        <a href="search.html" style="font-size:12px; font-weight:600; color:#3F52B4;">すべて見る</a>
+        <a href="search.html?mode=area" style="font-size:12px; font-weight:600; color:#3F52B4;">すべて見る</a>
       </div>
       <div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px; padding:0 16px;">
         <sc-for list="{{ areas }}" as="a" hint-placeholder-count="4">
@@ -136,7 +136,7 @@
       </div>
       <div style="display:flex; align-items:baseline; justify-content:space-between; padding:8px 16px 0;">
         <div style="font-size:16px; font-weight:700; color:#111527;">地方・近郊へ</div>
-        <a href="search.html?area=釜山" style="font-size:12px; font-weight:600; color:#3F52B4;">すべて見る</a>
+        <a href="search.html?mode=region" style="font-size:12px; font-weight:600; color:#3F52B4;">すべて見る</a>
       </div>
       <div style="display:flex; gap:8px; padding:0 16px; overflow-x:auto;">
         <sc-for list="{{ regions }}" as="r" hint-placeholder-count="4">
@@ -191,8 +191,8 @@
         </div>
         <div style="display:flex; gap:12px; padding:0 16px; overflow-x:auto;">
           <sc-for list="{{ cams }}" as="cam" hint-placeholder-count="2">
-            <a href="{{ cam.href }}" target="_blank" style="display:block; flex-shrink:0; width:220px; position:relative; height:165px; border-radius:16px; overflow:hidden; background:{{ cam.bg }}; text-decoration:none;">
-              <span style="position:absolute; top:12px; left:12px; display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px; border-radius:8px; background:#fff; color:#4B4F63; font-size:11px; font-weight:600;"><span style="width:6px; height:6px; border-radius:50%; background:#B22459;"></span>LIVE</span>
+            <a href="{{ cam.href }}" target="{{ cam.tgt }}" style="display:block; flex-shrink:0; width:220px; position:relative; height:165px; border-radius:16px; overflow:hidden; background:{{ cam.bg }}; text-decoration:none;">
+              <span style="position:absolute; top:12px; left:12px; display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px; border-radius:8px; background:#fff; color:#4B4F63; font-size:11px; font-weight:600;"><span style="width:6px; height:6px; border-radius:50%; background:#B22459;"></span>LIVE</span><span style="position:absolute; top:12px; right:12px; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:rgba(17,21,41,.55); color:#fff; font-size:11px; font-weight:600;">{{ cam.city }}</span>
               <div style="position:absolute; left:16px; bottom:16px; right:16px; display:flex; flex-direction:column;">
                 <div style="font-size:16px; font-weight:700; line-height:22px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ cam.name }}</div>
                 <div style="font-size:11px; font-weight:500; line-height:16px; color:#fff; opacity:.9; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ cam.crowd }}</div>
@@ -288,14 +288,14 @@ class Component extends DCLogic {
     const closed = { dot: '#B22459', subColor: '#B22459' };
     return {
       holidayBanner: this.props.holidayBanner ?? true,
-      liveCamera: SP.some(x => x.cam),
+      liveCamera: SP.some(x => x.cam) || !!(KG.camExtra || []).length,
       areas: [['鍾路 · 光化門','景福宮エリア','キョンボックン'],['明洞','明洞','ミョンドン'],['北村 · 三清洞','北村','プクチョン'],['弘大','弘大','ホンデ']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: `${yomi} · ${list.length}件`, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }),
       regions: [['水原','水原','スウォン'],['南怡島・春川','南怡島','ナミソム'],['坡州','坡州','パジュ'],['仁川','仁川','インチョン'],['龍仁','龍仁','ヨンイン'],['江陵・束草','江陵','カンヌン'],['釜山','釜山','プサン'],['慶州','慶州','キョンジュ'],['全州','全州','チョンジュ'],['麗水','麗水','ヨス'],['大邱','大邱','テグ'],['大田','大田','テジョン']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); if (!list.length) return null; const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: yomi, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }).filter(Boolean),
       hasEvents: !!(KG.events || []).length, events: (() => { const t = new Date(); const ymd = t.toISOString().slice(0, 10); const fmt = d => d ? (parseInt(d.slice(5, 7)) + '/' + parseInt(d.slice(8, 10))) : ''; return (KG.events || []).filter(e => (e.end || e.start) >= ymd).sort((a, b) => a.start < b.start ? -1 : 1).slice(0, 5).map(e => ({ when: fmt(e.start) + (e.end && e.end !== e.start ? String.fromCharCode(10) + '〜' + fmt(e.end) : ''), name: e.name, place: [e.city, e.place].filter(Boolean).join(' · '), href: e.url || '#' })); })(),
       wxOpen: !!this.state.wxOpen, wxToggle: () => this.setState({ wxOpen: !this.state.wxOpen }), wxCaret: this.state.wxOpen ? ' ▲' : ' ▼',
       wxNow: wx ? wx[0].max + '°' : '--°', wxWear: wx ? wx[0].wear : '天気を読み込み中',
       wxDays: (wx || []).map(w => ({ ...w, temp: w.max + '° / ' + w.min + '°', popText: '降水 ' + w.pop + '%' })), wxCities: this.state.wxCity || [],
-      cams: SP.filter(x => x.cam).slice(0, 3).map(x => ({ name: x.name, crowd: x.camLabel || '公式ライブ映像', bg: shot(x.photo), href: x.cam })),
+      cams: (KG.camOrder || []).map(id => { const x = byId(id); if (x) return { name: x.name, city: (x.city || '').split('・')[0], crowd: x.camLabel || '公式ライブ映像', bg: shot(x.photo), href: 'spot.html?id=' + x.id, tgt: '' }; const e = (KG.camExtra || []).find(c => c.id === id); return e ? { name: e.name, city: e.city, crowd: e.label, bg: shot(e.photo || ''), href: e.href, tgt: '_blank' } : null; }).filter(Boolean),
       openings: SP.filter(x => x.type === '名所' && x.hours).slice(0, 5).map(x => { const c = isClosedToday(x); return { name: x.name, hours: c ? '本日休館' : x.hours.split(/[ （(]/)[0].slice(0, 18), ...(c ? closed : open), href: 'spot.html?id=' + x.id }; }),
     };
   }

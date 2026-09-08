@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788859237"></script>
-<script src="./kicon.js?v=1788859237"></script>
+<script src="./data.js?v=1788867420"></script>
+<script src="./kicon.js?v=1788867420"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -62,6 +62,16 @@
       </div>
       <k-icon name="ArrowRightSize18" size="18" style="color:#9C9FAF"></k-icon>
     </div>
+    <sc-if value="{{ hasTabs }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex; gap:8px; overflow-x:auto; margin:0 -16px; padding:0 16px 2px;">
+      <sc-for list="{{ areaTabs }}" as="t" hint-placeholder-count="6">
+        <div onClick="{{ t.onClick }}" style="display:flex; flex-direction:column; align-items:center; gap:1px; flex-shrink:0; padding:7px 14px; border-radius:16px; background:{{ t.bg }}; color:{{ t.fg }}; cursor:pointer;">
+          <span style="font-size:13px; font-weight:700; white-space:nowrap;">{{ t.label }}</span>
+          <span style="font-size:10px; font-weight:500; opacity:.75; white-space:nowrap;">{{ t.sub }}</span>
+        </div>
+      </sc-for>
+    </div>
+    </sc-if>
     <div style="display:flex; gap:8px; overflow-x:auto;">
       <sc-for list="{{ filters }}" as="f" hint-placeholder-count="3">
         <div onClick="{{ f.onClick }}" style="display:inline-flex; align-items:center; gap:6px; height:38px; padding:0 16px; border-radius:38px; background:{{ f.bg }}; box-shadow:{{ f.ring }}; color:{{ f.fg }}; font-size:12px; font-weight:600; white-space:nowrap; flex-shrink:0; cursor:pointer;">
@@ -229,6 +239,9 @@ function wxFetch(lat, lng) {
   });
 }
 
+const SEOUL_TABS = [['鍾路 · 光化門','景福宮エリア','キョンボックン'],['明洞','明洞','ミョンドン'],['北村 · 三清洞','北村','プクチョン'],['弘大','弘大','ホンデ'],['江南','江南','カンナム'],['聖水','聖水','ソンス'],['梨泰院','梨泰院','イテウォン'],['東大門','東大門','トンデムン'],['蚕室','蚕室','チャムシル'],['汝矣島','汝矣島','ヨイド'],['大学路 · 城北','大学路','テハンノ'],['新村 · 西大門','新村','シンチョン']]; const REGION_TABS = [['水原','水原','スウォン'],['南怡島・春川','南怡島','ナミソム'],['仁川','仁川','インチョン'],['坡州','坡州','パジュ'],['龍仁','龍仁','ヨンイン'],['江陵・束草','江陵','カンヌン'],['釜山','釜山','プサン'],['慶州','慶州','キョンジュ'],['全州','全州','チョンジュ'],['麗水','麗水','ヨス'],['大邱','大邱','テグ'],['大田','大田','テジョン']];
+const SEOUL_AK = SEOUL_TABS.map(t => t[0]); const REGION_AK = REGION_TABS.map(t => t[0]);
+
 
 const OPEN = { dot: '#047857', open: '開館中', openFg: '#047857' };
 const SHUT = { dot: '#B22459', open: '本日休館', openFg: '#B22459' };
@@ -255,7 +268,7 @@ const ALL = SP.map(s => ({ ...s, hasKana: !!s.kana, hasAudio: !!(s.audio && s.au
     const favOf = (self, s) => ({ fav: (e) => { stopNav(e); FAV.toggle(s.id); self.setState({ favTick: Date.now() }); }, favStyle: FAV.has(s.id) ? 'color:#B22459' : 'color:#9C9FAF' });
 
 class Component extends DCLogic {
-  state = (() => { const u = new URLSearchParams(location.search); return { sheet: undefined, area: u.get('area') || '', genres: u.get('type') ? [u.get('type')] : [], budget: '', jpOnly: false, q: u.get('q') || '' }; })();
+  state = (() => { const u = new URLSearchParams(location.search); const a = u.get('area') || ''; const m = u.get('mode') || (a ? (SEOUL_AK.includes(a) ? 'area' : (REGION_AK.includes(a) ? 'region' : '')) : ''); return { sheet: undefined, area: a, mode: m, genres: u.get('type') ? [u.get('type')] : [], budget: '', jpOnly: false, q: u.get('q') || '' }; })();
 
   renderVals() {
     const on = { bg: '#3F52B4', fg: '#fff', ring: 'none', caret: 'color:#fff; transform:rotate(90deg)' };
@@ -275,9 +288,9 @@ class Component extends DCLogic {
     };
     const genreLabel = this.state.genres.length ? `ジャンル · ${this.state.genres.length}` : 'ジャンル';
 
-    const { area, genres, budget, jpOnly, q } = this.state; const qq = (q || '').trim().toLowerCase();
+    const { area, genres, budget, jpOnly, q } = this.state; const mode = this.state.mode || ''; const scope = mode === 'area' ? SEOUL_AK : mode === 'region' ? REGION_AK : null; const qq = (q || '').trim().toLowerCase();
     const filtered = this.props.noResult ? [] : ALL.filter(r =>
-      (!area || r.areaKey === area) &&
+      (area ? r.areaKey === area : (!scope || scope.includes(r.areaKey))) &&
       (!genres.length || genres.some(g => r.tags.some(t => t.includes(g)))) &&
       (!budget || r.band === budget) &&
       (!jpOnly || r.jp) &&
@@ -288,7 +301,7 @@ class Component extends DCLogic {
       sheetOpen: !!sheet,
       sheetTitle: sheet ? sheet.title : '',
       sheetHint: sheet ? sheet.hint : '',
-      resultCount: filtered.length, q: this.state.q, onQ: (e) => this.setState({ q: e.target.value }), title: qq ? `「${q.trim()}」の検索結果` : area ? `${area}のまわり` : genres.length ? genres[0] : 'すべてのスポット',
+      resultCount: filtered.length, q: this.state.q, onQ: (e) => this.setState({ q: e.target.value }), title: qq ? `「${q.trim()}」の検索結果` : area ? `${area}のまわり` : genres.length ? genres[0] : mode === 'area' ? 'ソウル' : mode === 'region' ? '地方・近郊' : 'すべてのスポット', hasTabs: !!scope, areaTabs: !scope ? [] : [['', mode === 'area' ? 'ソウル全体' : '地方・近郊', 'すべて']].concat((mode === 'area' ? SEOUL_TABS : REGION_TABS).filter(t => SP.some(x => x.areaKey === t[0]))).map(([k, label, yomi]) => { const n = k ? SP.filter(x => x.areaKey === k).length : SP.filter(x => scope.includes(x.areaKey)).length; const on = area === k; return { label: k ? label : 'すべて', sub: yomi + ' · ' + n + '件', bg: on ? '#3F52B4' : '#F2F4FC', fg: on ? '#fff' : '#4B4F63', onClick: () => this.setState({ area: k }) }; }),
       isNoResult: filtered.length === 0,
       clearAll: () => this.setState({ genres: [], budget: '', jpOnly: false, area: '' }),
       jpBg: this.state.jpOnly ? '#F2F4FC' : '#fff',
