@@ -101,50 +101,49 @@
 </head>
 <body>
 <div class="stage">
-<div class="sc" data-screen-label="ログイン">
-  <div class="hero">
-    <div class="img"></div><div class="vl"></div>
-    <div class="in">
-      <div class="ic"><k-icon name="UserSize24" size="40" style="color:#3F52B4"></k-icon></div>
-      <h1>ログイン</h1>
-      <p>見るだけならログインは不要です。<br>保存・ルート・見積もりだけログインが必要です。</p>
+<div class="sc" data-screen-label="パスワード再設定">
+  <div class="hd"><a class="bk" href="login.html"><k-icon name="ArrowRightSize24" size="24" style="color:#373B51;transform:rotate(180deg)"></k-icon></a>パスワード再設定</div>
+  <div class="bd">
+    <div class="card">
+      <h3>パスワードをお忘れですか</h3>
+      <div class="kv"><span style="color:#4B4F63">ご登録のメールアドレスに再設定リンクをお送りします。<br>가입하신 이메일로 비밀번호 재설정 링크를 보내드립니다.</span></div>
     </div>
-  </div>
-  <div class="sheet">
-    <div class="grip"><i></i></div>
-    <div class="in">
-      <div id="msg" class="msg"></div>
-      <label class="f"><span>メールアドレス</span><input id="em" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
-      <label class="f"><span>パスワード</span><input id="pw" type="password" autocomplete="current-password" placeholder="••••••••"></label>
-      <button class="btn" id="go">メールでログイン</button>
-      <div class="links"><a href="reset.html">パスワードを忘れた方</a></div>
-      <button class="btn off" disabled><k-icon name="MessagesSize24" size="20" style="color:#9C9FAF"></k-icon>LINEでログイン（準備中）</button>
-      <div class="links"><a href="signup.html">アカウント作成</a><span>·</span><a href="guide-apply.html">ガイドの方はこちら</a></div>
-      <div class="note">続けると <a href="#">利用規約</a> と <a href="#">プライバシーポリシー</a> に同意したことになります</div>
+    <div id="msg" class="msg"></div>
+    <div id="p1" style="display:flex;flex-direction:column;gap:14px">
+      <label class="f"><span>メールアドレス / 이메일</span><input id="em" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
+      <button class="btn" id="send">再設定メールを送る</button>
     </div>
+    <div id="p2" style="display:none;flex-direction:column;gap:14px">
+      <label class="f"><span>新しいパスワード / 새 비밀번호 <em>（6文字以上）</em></span><input id="np" type="password" autocomplete="new-password" placeholder="••••••••"></label>
+      <button class="btn" id="save">パスワードを変更</button>
+    </div>
+    <div class="links"><a href="login.html">ログインに戻る</a></div>
   </div>
 </div>
 <script>
 (function(){
-  var msg=document.getElementById('msg'), go=document.getElementById('go');
-  function say(t){ msg.textContent=t; msg.className='msg on'; }
-  function nextUrl(){ var q=new URLSearchParams(location.search); return q.get('next')||'my.html'; }
-  KGA.session().then(function(s){ if(s) location.replace(nextUrl()); });
-  go.onclick=async function(){
-    var em=document.getElementById('em').value.trim(), pw=document.getElementById('pw').value;
-    if(!em||!pw){ say('メールアドレスとパスワードを入力してください'); return; }
-    go.disabled=true; go.textContent='ログイン中…';
-    try{
-      await KGA.signIn(em,pw);
-      var p=await KGA.profile(true);
-      if(p&&p.role==='guide'&&p.status!=='approved'){ location.replace('guide-apply.html'); return; }
-      location.replace(nextUrl());
-    }catch(e){
-      say(/Invalid login/i.test(e.message||'')?'メールアドレスまたはパスワードが違います':(e.message||'ログインできませんでした'));
-      go.disabled=false; go.textContent='メールでログイン';
-    }
+  var msg=document.getElementById('msg');
+  function say(t){ msg.innerHTML=t; msg.className='msg on'; }
+  var recovery = /type=recovery/.test(location.hash) || /type=recovery/.test(location.search);
+  function toStep2(){ document.getElementById('p1').style.display='none'; document.getElementById('p2').style.display='flex'; }
+  if(recovery) toStep2();
+  KGA.sb.auth.onAuthStateChange(function(ev){ if(ev==='PASSWORD_RECOVERY') toStep2(); });
+
+  document.getElementById('send').onclick=async function(){
+    var b=this, em=document.getElementById('em').value.trim();
+    if(!em){ say('メールアドレスを入力してください / 이메일을 입력해 주세요'); return; }
+    b.disabled=true; b.textContent='送信中…';
+    try{ await KGA.sendReset(em); say('メールを送りました。リンクから新しいパスワードを設定してください。<br>메일을 보냈습니다. 링크를 눌러 새 비밀번호를 정해 주세요.'); }
+    catch(e){ say(e.message||'送信できませんでした'); }
+    b.disabled=false; b.textContent='再設定メールを送る';
   };
-  document.getElementById('pw').addEventListener('keydown',function(e){ if(e.key==='Enter') go.click(); });
+  document.getElementById('save').onclick=async function(){
+    var b=this, np=document.getElementById('np').value;
+    if(np.length<6){ say('6文字以上にしてください / 6자 이상으로 정해 주세요'); return; }
+    b.disabled=true; b.textContent='変更中…';
+    try{ await KGA.setPassword(np); say('変更しました。ログインしてください。<br>변경되었습니다. 다시 로그인해 주세요.'); setTimeout(function(){ location.replace('login.html'); },1500); }
+    catch(e){ say(e.message||'変更できませんでした'); b.disabled=false; b.textContent='パスワードを変更'; }
+  };
 })();
 </script>
 </div>

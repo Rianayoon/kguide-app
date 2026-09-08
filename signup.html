@@ -101,50 +101,43 @@
 </head>
 <body>
 <div class="stage">
-<div class="sc" data-screen-label="ログイン">
-  <div class="hero">
-    <div class="img"></div><div class="vl"></div>
-    <div class="in">
-      <div class="ic"><k-icon name="UserSize24" size="40" style="color:#3F52B4"></k-icon></div>
-      <h1>ログイン</h1>
-      <p>見るだけならログインは不要です。<br>保存・ルート・見積もりだけログインが必要です。</p>
+<div class="sc" data-screen-label="アカウント作成">
+  <div class="hd"><a class="bk" href="login.html"><k-icon name="ArrowRightSize24" size="24" style="color:#373B51;transform:rotate(180deg)"></k-icon></a>アカウント作成</div>
+  <div class="bd">
+    <div class="card">
+      <h3>旅行者アカウント</h3>
+      <div class="kv"><span style="color:#4B4F63">保存したスポットとルートが、機種を変えても残ります。見積もりの依頼にも使えます。</span></div>
     </div>
-  </div>
-  <div class="sheet">
-    <div class="grip"><i></i></div>
-    <div class="in">
-      <div id="msg" class="msg"></div>
-      <label class="f"><span>メールアドレス</span><input id="em" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
-      <label class="f"><span>パスワード</span><input id="pw" type="password" autocomplete="current-password" placeholder="••••••••"></label>
-      <button class="btn" id="go">メールでログイン</button>
-      <div class="links"><a href="reset.html">パスワードを忘れた方</a></div>
-      <button class="btn off" disabled><k-icon name="MessagesSize24" size="20" style="color:#9C9FAF"></k-icon>LINEでログイン（準備中）</button>
-      <div class="links"><a href="signup.html">アカウント作成</a><span>·</span><a href="guide-apply.html">ガイドの方はこちら</a></div>
-      <div class="note">続けると <a href="#">利用規約</a> と <a href="#">プライバシーポリシー</a> に同意したことになります</div>
-    </div>
+    <div id="msg" class="msg"></div>
+    <label class="f"><span>お名前（表示名）</span><input id="nm" type="text" autocomplete="nickname" placeholder="たろう"></label>
+    <label class="f"><span>メールアドレス</span><input id="em" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
+    <label class="f"><span>パスワード <em>（6文字以上）</em></span><input id="pw" type="password" autocomplete="new-password" placeholder="••••••••"></label>
+    <button class="btn" id="go">アカウントを作成</button>
+    <div class="links"><a href="login.html">すでにアカウントをお持ちの方</a></div>
+    <div class="links"><a href="guide-apply.html">ガイドの方はこちら</a></div>
   </div>
 </div>
 <script>
 (function(){
   var msg=document.getElementById('msg'), go=document.getElementById('go');
   function say(t){ msg.textContent=t; msg.className='msg on'; }
-  function nextUrl(){ var q=new URLSearchParams(location.search); return q.get('next')||'my.html'; }
-  KGA.session().then(function(s){ if(s) location.replace(nextUrl()); });
   go.onclick=async function(){
-    var em=document.getElementById('em').value.trim(), pw=document.getElementById('pw').value;
+    var nm=document.getElementById('nm').value.trim();
+    var em=document.getElementById('em').value.trim();
+    var pw=document.getElementById('pw').value;
     if(!em||!pw){ say('メールアドレスとパスワードを入力してください'); return; }
-    go.disabled=true; go.textContent='ログイン中…';
+    if(pw.length<6){ say('パスワードは6文字以上にしてください'); return; }
+    go.disabled=true; go.textContent='作成中…';
     try{
-      await KGA.signIn(em,pw);
-      var p=await KGA.profile(true);
-      if(p&&p.role==='guide'&&p.status!=='approved'){ location.replace('guide-apply.html'); return; }
-      location.replace(nextUrl());
+      await KGA.signUp(em,pw,{ display_name:nm, role:'traveler' });
+      if(nm){ var u=await KGA.user(); if(u) await KGA.sb.from('profiles').update({display_name:nm}).eq('id',u.id); }
+      await KGA.pull();
+      location.replace('my.html');
     }catch(e){
-      say(/Invalid login/i.test(e.message||'')?'メールアドレスまたはパスワードが違います':(e.message||'ログインできませんでした'));
-      go.disabled=false; go.textContent='メールでログイン';
+      say(/already/i.test(e.message||'')?'このメールアドレスはすでに登録されています':(e.message||'作成できませんでした'));
+      go.disabled=false; go.textContent='アカウントを作成';
     }
   };
-  document.getElementById('pw').addEventListener('keydown',function(e){ if(e.key==='Enter') go.click(); });
 })();
 </script>
 </div>

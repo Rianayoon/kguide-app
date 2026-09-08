@@ -101,50 +101,89 @@
 </head>
 <body>
 <div class="stage">
-<div class="sc" data-screen-label="ログイン">
-  <div class="hero">
-    <div class="img"></div><div class="vl"></div>
-    <div class="in">
-      <div class="ic"><k-icon name="UserSize24" size="40" style="color:#3F52B4"></k-icon></div>
-      <h1>ログイン</h1>
-      <p>見るだけならログインは不要です。<br>保存・ルート・見積もりだけログインが必要です。</p>
+<div class="sc" data-screen-label="管理">
+  <div class="hd"><a class="bk" href="my.html"><k-icon name="ArrowRightSize24" size="24" style="color:#373B51;transform:rotate(180deg)"></k-icon></a>가이드 신청 관리</div>
+  <div class="bd">
+    <div class="row">
+      <button class="btn flat sm" data-f="pending">심사 중</button>
+      <button class="btn flat sm" data-f="approved">승인</button>
+      <button class="btn flat sm" data-f="rejected">반려</button>
+      <button class="btn flat sm" data-f="all">전체</button>
     </div>
-  </div>
-  <div class="sheet">
-    <div class="grip"><i></i></div>
-    <div class="in">
-      <div id="msg" class="msg"></div>
-      <label class="f"><span>メールアドレス</span><input id="em" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
-      <label class="f"><span>パスワード</span><input id="pw" type="password" autocomplete="current-password" placeholder="••••••••"></label>
-      <button class="btn" id="go">メールでログイン</button>
-      <div class="links"><a href="reset.html">パスワードを忘れた方</a></div>
-      <button class="btn off" disabled><k-icon name="MessagesSize24" size="20" style="color:#9C9FAF"></k-icon>LINEでログイン（準備中）</button>
-      <div class="links"><a href="signup.html">アカウント作成</a><span>·</span><a href="guide-apply.html">ガイドの方はこちら</a></div>
-      <div class="note">続けると <a href="#">利用規約</a> と <a href="#">プライバシーポリシー</a> に同意したことになります</div>
-    </div>
+    <div id="msg" class="msg"></div>
+    <div id="list" style="display:flex;flex-direction:column;gap:12px"></div>
   </div>
 </div>
 <script>
 (function(){
-  var msg=document.getElementById('msg'), go=document.getElementById('go');
+  var msg=document.getElementById('msg'), list=document.getElementById('list'), filter='pending';
   function say(t){ msg.textContent=t; msg.className='msg on'; }
-  function nextUrl(){ var q=new URLSearchParams(location.search); return q.get('next')||'my.html'; }
-  KGA.session().then(function(s){ if(s) location.replace(nextUrl()); });
-  go.onclick=async function(){
-    var em=document.getElementById('em').value.trim(), pw=document.getElementById('pw').value;
-    if(!em||!pw){ say('メールアドレスとパスワードを入力してください'); return; }
-    go.disabled=true; go.textContent='ログイン中…';
-    try{
-      await KGA.signIn(em,pw);
-      var p=await KGA.profile(true);
-      if(p&&p.role==='guide'&&p.status!=='approved'){ location.replace('guide-apply.html'); return; }
-      location.replace(nextUrl());
-    }catch(e){
-      say(/Invalid login/i.test(e.message||'')?'メールアドレスまたはパスワードが違います':(e.message||'ログインできませんでした'));
-      go.disabled=false; go.textContent='メールでログイン';
+  function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  var LBL={pending:'심사 중',approved:'승인',rejected:'반려'};
+
+  document.querySelectorAll('[data-f]').forEach(function(b){
+    b.onclick=function(){ filter=b.getAttribute('data-f'); mark(); load(); };
+  });
+  function mark(){ document.querySelectorAll('[data-f]').forEach(function(b){ b.className='btn sm '+(b.getAttribute('data-f')===filter?'':'flat'); }); }
+
+  async function load(){
+    list.innerHTML='<div class="note">불러오는 중…</div>';
+    var q=KGA.sb.from('guide_applications').select('*').order('status',{ascending:true}).order('created_at',{ascending:false});
+    if(filter!=='all') q=q.eq('status',filter);
+    var r=await q;
+    if(r.error){ list.innerHTML=''; say(r.error.message); return; }
+    var rows=r.data||[];
+    var ids=rows.map(function(a){return a.user_id;});
+    var emails={};
+    if(ids.length){
+      var pr=await KGA.sb.from('profiles').select('id,email').in('id',ids);
+      (pr.data||[]).forEach(function(p){ emails[p.id]=p.email; });
     }
-  };
-  document.getElementById('pw').addEventListener('keydown',function(e){ if(e.key==='Enter') go.click(); });
+    if(!rows.length){ list.innerHTML='<div class="note">해당하는 신청이 없습니다.</div>'; return; }
+    list.innerHTML=rows.map(function(a){
+      return '<div class="card" data-id="'+a.id+'">'+
+        '<span class="badge '+(a.status==='approved'?'g':(a.status==='rejected'?'n':''))+'">'+LBL[a.status]+'</span>'+
+        '<h3>'+esc(a.name)+'</h3>'+
+        '<div class="kv"><b>자격증 번호</b><span>'+esc(a.license_no)+'</span></div>'+
+        '<div class="kv"><b>활동 지역</b><span>'+esc(a.areas)+'</span></div>'+
+        '<div class="kv"><b>이메일</b><span>'+esc(emails[a.user_id]||'')+'</span></div>'+
+        '<div class="kv"><b>신청일</b><span>'+(a.created_at||'').slice(0,10)+'</span></div>'+
+        '<div class="kv"><b>자기소개</b><span>'+esc(a.intro)+'</span></div>'+
+        (a.license_photo?'<button class="btn ghost sm" data-photo="'+esc(a.license_photo)+'">자격증 사진 보기</button>':'<div class="note">자격증 사진 없음</div>')+
+        '<label class="f"><span>메모</span><input class="note-in" type="text" value="'+esc(a.admin_note||'')+'" placeholder="반려 사유 등"></label>'+
+        '<div class="row"><button class="btn sm" data-act="approved">승인</button><button class="btn flat sm" data-act="rejected">반려</button></div>'+
+      '</div>';
+    }).join('');
+
+    list.querySelectorAll('[data-photo]').forEach(function(b){
+      b.onclick=async function(){
+        var r=await KGA.sb.storage.from('licenses').createSignedUrl(b.getAttribute('data-photo'),300);
+        if(r.error){ say(r.error.message); return; }
+        window.open(r.data.signedUrl,'_blank');
+      };
+    });
+    list.querySelectorAll('[data-act]').forEach(function(b){
+      b.onclick=async function(){
+        var card=b.closest('.card'), id=card.getAttribute('data-id'), st=b.getAttribute('data-act');
+        var note=card.querySelector('.note-in').value.trim();
+        b.disabled=true;
+        var row=rows.filter(function(x){return String(x.id)===String(id);})[0];
+        var u1=await KGA.sb.from('guide_applications').update({status:st,admin_note:note,reviewed_at:new Date().toISOString()}).eq('id',id);
+        if(u1.error){ say(u1.error.message); b.disabled=false; return; }
+        var u2=await KGA.sb.from('profiles').update({status:st}).eq('id',row.user_id);
+        if(u2.error){ say(u2.error.message); b.disabled=false; return; }
+        say((st==='approved'?'승인':'반려')+' 처리했습니다.');
+        load();
+      };
+    });
+  }
+
+  (async function(){
+    var p=await KGA.profile(true);
+    if(!p){ location.replace('login.html?next=admin.html'); return; }
+    if(p.role!=='admin'){ location.replace('home.html'); return; }
+    mark(); load();
+  })();
 })();
 </script>
 </div>

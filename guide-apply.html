@@ -101,50 +101,111 @@
 </head>
 <body>
 <div class="stage">
-<div class="sc" data-screen-label="ログイン">
-  <div class="hero">
-    <div class="img"></div><div class="vl"></div>
-    <div class="in">
-      <div class="ic"><k-icon name="UserSize24" size="40" style="color:#3F52B4"></k-icon></div>
-      <h1>ログイン</h1>
-      <p>見るだけならログインは不要です。<br>保存・ルート・見積もりだけログインが必要です。</p>
+<div class="sc" data-screen-label="ガイド申請">
+  <div class="hd"><a class="bk" href="login.html"><k-icon name="ArrowRightSize24" size="24" style="color:#373B51;transform:rotate(180deg)"></k-icon></a>가이드 신청</div>
+  <div class="bd" id="bd">
+    <div id="msg" class="msg"></div>
+
+    <div id="pane-form" style="display:none;flex-direction:column;gap:14px">
+      <div class="card">
+        <h3>한국 관광통역안내사 가이드 신청</h3>
+        <div class="kv"><span style="color:#4B4F63">자격증을 확인한 뒤 승인해 드립니다. 승인 전에는 가이드 화면에 들어갈 수 없습니다.</span></div>
+      </div>
+      <div id="acct" style="display:none;flex-direction:column;gap:14px">
+        <label class="f"><span>이메일 (로그인용)</span><input id="em" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
+        <label class="f"><span>비밀번호 <em>(6자 이상)</em></span><input id="pw" type="password" autocomplete="new-password" placeholder="••••••••"></label>
+      </div>
+      <label class="f"><span>이름</span><input id="nm" type="text" placeholder="홍길동"></label>
+      <label class="f"><span>자격증 번호</span><input id="ln" type="text" placeholder="예) 제12-3456호"></label>
+      <label class="f"><span>활동 지역</span><input id="ar" type="text" placeholder="예) 서울 · 경기"></label>
+      <label class="f"><span>자기소개</span><textarea id="io" placeholder="경력, 안내 가능한 언어, 자신 있는 코스 등"></textarea></label>
+      <label class="f"><span>자격증 사진 <em>(jpg · png, 10MB 이하)</em></span><input id="ph" type="file" accept="image/*"></label>
+      <button class="btn" id="go">신청서 제출</button>
+      <div class="links"><a href="login.html">이미 계정이 있으신 분</a></div>
     </div>
-  </div>
-  <div class="sheet">
-    <div class="grip"><i></i></div>
-    <div class="in">
-      <div id="msg" class="msg"></div>
-      <label class="f"><span>メールアドレス</span><input id="em" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
-      <label class="f"><span>パスワード</span><input id="pw" type="password" autocomplete="current-password" placeholder="••••••••"></label>
-      <button class="btn" id="go">メールでログイン</button>
-      <div class="links"><a href="reset.html">パスワードを忘れた方</a></div>
-      <button class="btn off" disabled><k-icon name="MessagesSize24" size="20" style="color:#9C9FAF"></k-icon>LINEでログイン（準備中）</button>
-      <div class="links"><a href="signup.html">アカウント作成</a><span>·</span><a href="guide-apply.html">ガイドの方はこちら</a></div>
-      <div class="note">続けると <a href="#">利用規約</a> と <a href="#">プライバシーポリシー</a> に同意したことになります</div>
+
+    <div id="pane-state" style="display:none;flex-direction:column;gap:14px">
+      <div class="card" style="align-items:center;text-align:center">
+        <div style="width:72px;height:72px;border-radius:36px;background:#F2F4FC;display:flex;align-items:center;justify-content:center;align-self:center"><k-icon id="sic" name="ClockSize24" size="36" style="color:#3F52B4"></k-icon></div>
+        <h3 id="stt" style="text-align:center"></h3>
+        <div class="kv"><span id="ssub" style="color:#4B4F63;text-align:center"></span></div>
+      </div>
+      <div class="card" id="sapp"></div>
+      <a class="btn ghost" href="my.html">마이페이지로</a>
+      <button class="btn flat" id="out">로그아웃</button>
     </div>
   </div>
 </div>
 <script>
 (function(){
   var msg=document.getElementById('msg'), go=document.getElementById('go');
+  var F=document.getElementById('pane-form'), S=document.getElementById('pane-state');
   function say(t){ msg.textContent=t; msg.className='msg on'; }
-  function nextUrl(){ var q=new URLSearchParams(location.search); return q.get('next')||'my.html'; }
-  KGA.session().then(function(s){ if(s) location.replace(nextUrl()); });
+  function show(el){ el.style.display='flex'; }
+
+  async function render(){
+    var u=await KGA.user();
+    if(!u){ document.getElementById('acct').style.display='flex'; show(F); return; }
+    var p=await KGA.profile(true);
+    if(!p||p.role!=='guide'){ show(F); return; }   // 여행자 계정으로 로그인한 상태 → 신청서만
+    var r=await KGA.sb.from('guide_applications').select('*').eq('user_id',u.id).order('id',{ascending:false}).limit(1);
+    var a=(r.data&&r.data[0])||null;
+    if(!a){ show(F); return; }
+    var st=a.status;
+    document.getElementById('stt').textContent = st==='approved' ? '승인 완료 / '+KG_TEXT.approvedJa
+      : st==='rejected' ? '승인되지 않았습니다' : '심사 중 / 審査中';
+    document.getElementById('ssub').innerHTML = st==='approved' ? '이제 '+KG_TEXT.guideKo+' 화면을 이용하실 수 있습니다.'
+      : st==='rejected' ? (a.admin_note? '사유: '+a.admin_note : '자세한 내용은 문의해 주세요.')
+      : KG_TEXT.pendingKo+'<br>'+KG_TEXT.pendingJa;
+    document.getElementById('sic').setAttribute('name', st==='approved'?'TickCircleSize24':(st==='rejected'?'InfoCircleSize24':'ClockSize24'));
+    document.getElementById('sapp').innerHTML =
+      '<div class="kv"><b>이름</b><span>'+esc(a.name)+'</span></div>'+
+      '<div class="kv"><b>자격증 번호</b><span>'+esc(a.license_no)+'</span></div>'+
+      '<div class="kv"><b>활동 지역</b><span>'+esc(a.areas)+'</span></div>'+
+      '<div class="kv"><b>신청일</b><span>'+(a.created_at||'').slice(0,10)+'</span></div>';
+    show(S);
+  }
+  function esc(s){ return (s==null?'':String(s)).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}); }
+
   go.onclick=async function(){
-    var em=document.getElementById('em').value.trim(), pw=document.getElementById('pw').value;
-    if(!em||!pw){ say('メールアドレスとパスワードを入力してください'); return; }
-    go.disabled=true; go.textContent='ログイン中…';
+    var nm=document.getElementById('nm').value.trim();
+    var ln=document.getElementById('ln').value.trim();
+    var ar=document.getElementById('ar').value.trim();
+    var io=document.getElementById('io').value.trim();
+    var file=document.getElementById('ph').files[0];
+    if(!nm||!ln){ say('이름과 자격증 번호를 입력해 주세요.'); return; }
+    go.disabled=true; go.textContent='제출 중…';
     try{
-      await KGA.signIn(em,pw);
-      var p=await KGA.profile(true);
-      if(p&&p.role==='guide'&&p.status!=='approved'){ location.replace('guide-apply.html'); return; }
-      location.replace(nextUrl());
+      var u=await KGA.user();
+      if(!u){
+        var em=document.getElementById('em').value.trim(), pw=document.getElementById('pw').value;
+        if(!em||pw.length<6){ throw new Error('이메일과 6자 이상의 비밀번호를 입력해 주세요.'); }
+        await KGA.signUp(em,pw,{ display_name:nm, role:'guide' });
+        u=await KGA.user();
+      }
+      var path=null;
+      if(file){
+        if(file.size>10*1024*1024) throw new Error('사진은 10MB 이하로 올려 주세요.');
+        var ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+        path=u.id+'/'+Date.now()+'.'+(ext||'jpg');
+        var up=await KGA.sb.storage.from('licenses').upload(path,file,{upsert:true});
+        if(up.error) throw up.error;
+      }
+      var ins=await KGA.sb.from('guide_applications').insert({
+        user_id:u.id, name:nm, license_no:ln, areas:ar, intro:io, license_photo:path, status:'pending'
+      });
+      if(ins.error) throw ins.error;
+      await KGA.sb.from('profiles').update({ role:'guide', status:'pending', display_name:nm }).eq('id',u.id);
+      KGA._profile=null;
+      F.style.display='none'; msg.className='msg';
+      await render();
     }catch(e){
-      say(/Invalid login/i.test(e.message||'')?'メールアドレスまたはパスワードが違います':(e.message||'ログインできませんでした'));
-      go.disabled=false; go.textContent='メールでログイン';
+      say(e.message||'제출하지 못했습니다.');
+      go.disabled=false; go.textContent='신청서 제출';
     }
   };
-  document.getElementById('pw').addEventListener('keydown',function(e){ if(e.key==='Enter') go.click(); });
+  document.getElementById('out').onclick=async function(){ await KGA.signOut(); location.replace('login.html'); };
+  render();
 })();
 </script>
 </div>
