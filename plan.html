@@ -50,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788878741"></script>
-<script src="./kicon.js?v=1788878741"></script>
+<script src="./data.js?v=1788882315"></script>
+<script src="./kicon.js?v=1788882315"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -92,14 +92,14 @@
     </div>
 
     <div style="display:flex; flex-direction:column; gap:12px;">
-      <div style="margin:0 16px; display:flex; flex-direction:column; gap:8px;">
+      <sc-if value="{{ hasStops }}" hint-placeholder-val="{{ true }}"><div style="margin:0 16px; display:flex; flex-direction:column; gap:8px;">
         <div style="position:relative; height:470px; border-radius:16px; overflow:hidden; background:#F2F4FC;">
           <div id="kgmap" style="position:absolute; left:0; top:0; right:0; bottom:0;"></div>
           <div id="kgmapfs" style="position:absolute; right:10px; top:10px; z-index:600; display:flex; align-items:center; justify-content:center; height:30px; padding:0 12px; border-radius:15px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.24); color:#3F52B4; font-size:12px; font-weight:600; cursor:pointer;">全画面</div>
         </div>
         <a href="{{ naverHref }}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:16px; background:#fff; color:#3F52B4; font-size:14px; font-weight:600; box-shadow:0 2px 8px rgba(131,139,180,.12); text-decoration:none;"><k-icon name="LocationSize18" size="18" style="color:#3F52B4"></k-icon>NAVER地図で開く</a>
-      </div>
-      <a href="{{ editHref }}" style="margin:0 16px; display:flex; align-items:center; justify-content:center; gap:6px; height:48px; border-radius:16px; background:{{ editBg }}; color:{{ editFg }}; box-shadow:{{ editRing }}; font-size:16px; font-weight:600; letter-spacing:.02em; text-decoration:none;"><k-icon name="{{ editIcon }}" size="20" style="color:{{ editFg }}"></k-icon>{{ editLabel }}</a>
+      </div></sc-if>
+      <sc-if value="{{ hasStops }}" hint-placeholder-val="{{ true }}"><div onClick="{{ editToggle }}" style="margin:0 16px; display:flex; align-items:center; justify-content:center; gap:6px; height:48px; border-radius:16px; background:{{ editBg }}; color:{{ editFg }}; box-shadow:{{ editRing }}; font-size:16px; font-weight:600; letter-spacing:.02em; cursor:pointer;"><k-icon name="{{ editIcon }}" size="20" style="color:{{ editFg }}"></k-icon>{{ editLabel }}</div></sc-if>
     </div>
 
     <div style="display:flex; flex-direction:column; gap:12px; padding:0 16px;">
@@ -126,14 +126,11 @@
                 <div style="font-size:11px; font-weight:600; color:#4B4F63;">{{ s.note }}</div>
               </div>
               <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
-                <div style="width:44px; height:44px; flex-shrink:0; display:flex; align-items:center; justify-content:center; cursor:grab;">
-                  <div style="display:grid; grid-template-columns:3px 3px; gap:4px;">
-                    <span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span><span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>
-                    <span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span><span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>
-                    <span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span><span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>
-                  </div>
+                <div style="display:flex; flex-direction:column; gap:4px; flex-shrink:0;">
+                  <div onClick="{{ s.onUp }}" style="width:32px; height:32px; border-radius:16px; background:#F2F4FC; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:{{ s.upOp }};"><k-icon name="ArrowRightSize20" size="18" style="color:#3F52B4; transform:rotate(-90deg)"></k-icon></div>
+                  <div onClick="{{ s.onDown }}" style="width:32px; height:32px; border-radius:16px; background:#F2F4FC; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:{{ s.downOp }};"><k-icon name="ArrowRightSize20" size="18" style="color:#3F52B4; transform:rotate(90deg)"></k-icon></div>
+                  <div onClick="{{ s.onRemove }}" style="width:32px; height:32px; border-radius:16px; background:#F2F4FC; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#B22459; font-size:15px; font-weight:700; line-height:1;">✕</div>
                 </div>
-                <div style="width:44px; height:44px; flex-shrink:0; display:flex; align-items:center; justify-content:center;"><div style="width:28px; height:28px; border-radius:14px; background:#F7F7FA; display:flex; align-items:center; justify-content:center;"><k-icon name="MinusSize20" size="20" style="color:#B22459"></k-icon></div></div>
               </sc-if>
               <sc-if value="{{ notEditing }}" hint-placeholder-val="{{ true }}">
                 <k-icon name="ArrowRightSize18" size="18" style="color:#9C9FAF"></k-icon>
@@ -148,6 +145,23 @@
           </div>
         </div>
       </sc-for>
+      <sc-if value="{{ editing }}" hint-placeholder-val="{{ false }}">
+        <a href="search.html" style="display:flex; align-items:center; justify-content:center; gap:6px; height:48px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:16px; font-weight:600; letter-spacing:.02em; text-decoration:none;"><k-icon name="AddSize20" size="20" style="color:#3F52B4"></k-icon>スポットを追加</a>
+        <div onClick="{{ clearAll }}" style="text-align:center; padding:10px 0; font-size:14px; font-weight:600; color:#B22459; cursor:pointer;">すべて削除</div>
+      </sc-if>
+      <sc-if value="{{ undoOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #D1D3DB; padding:14px 16px; display:flex; align-items:center; gap:12px;">
+          <div style="flex:1; font-size:12px; font-weight:500; color:#4B4F63;">ルートを削除しました</div>
+          <div onClick="{{ undo }}" style="font-size:14px; font-weight:600; color:#3F52B4; cursor:pointer;">元に戻す</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:32px 16px; display:flex; flex-direction:column; align-items:center; gap:12px;">
+          <k-icon name="RoutingSize24" size="32" style="color:#9C9FAF"></k-icon>
+          <div style="font-size:14px; font-weight:600; line-height:20px; color:#4B4F63; text-align:center;">スポットを追加して、今日のルートを作りましょう</div>
+          <a href="search.html" style="display:flex; align-items:center; justify-content:center; height:44px; padding:0 24px; border-radius:16px; background:#3F52B4; color:#fff; font-size:14px; font-weight:600; letter-spacing:.02em; text-decoration:none;">スポットを探す</a>
+        </div>
+      </sc-if>
     </div>
 
     <div style="display:flex; flex-direction:column; gap:8px; padding:0 16px;">
@@ -228,11 +242,11 @@ function wxFetch(lat, lng) {
 
 class Component extends DCLogic {
   renderVals() {
-    const editing = this.props.editing ?? false;
+    const editing = !!this.state.editing;
     return {
       editing,
       notEditing: !editing,
-      editHref: editing ? 'plan.html' : 'saved.html',
+      editToggle: () => { this.setState({ editing: !editing, undoOpen: false }); },
       editLabel: editing ? '完了' : 'ルートを決める',
       editIcon: editing ? 'TickCircleSize24' : 'RoutingSize24',
       editBg: editing ? '#fff' : '#3F52B4',
@@ -240,14 +254,20 @@ class Component extends DCLogic {
       editRing: editing ? 'inset 0 0 0 1px #3F52B4' : 'none',
       ...(() => {
         const qc = qid(); if (qc && KG.courses.find(c => c.id === qc)) PLAN.set({ course: qc });
-        let ids = PLAN.ids(); if (!ids.length) ids = (KG.courses[0] || { spots: '' }).spots.split(',');
-        const p = PLAN.get(); const course = p.course ? KG.courses.find(c => c.id === p.course) : null;
+        const p = PLAN.get(); let ids = PLAN.ids(); if (!ids.length && !p.course && !Array.isArray(p.spots)) ids = (KG.courses[0] || { spots: '' }).spots.split(',').map(x => x.trim()).filter(Boolean);
+        const course = p.course ? KG.courses.find(c => c.id === p.course) : null;
         const sp = ids.map(id => byId(id)).filter(Boolean);
+        const base = sp.map(x => x.id);
+        const apply = (arr) => { PLAN.set({ spots: arr }); this.setState({ t: Date.now() }); try { window.dispatchEvent(new Event('kgplan')); } catch (e) {} };
         const dist = (a, b) => (a && b && a.lat && b.lat) ? Math.hypot((a.lat - b.lat) * 111, (a.lng - b.lng) * 88) : 0;
         const stays = course ? String(course.stay).split(',') : [];
         let t = ((course && course.start) || '10:00').split(':').map(Number); let mins = t[0] * 60 + t[1]; let walkTotal = 0;
         const fmt = m => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
-        const stops = sp.map((x, i) => { const nx = sp[i + 1]; const d = dist(x, nx); const walk = nx ? Math.max(1, Math.round(d / 0.08)) : 0; const stay = parseInt(stays[i]) || parseInt(x.stay) || 60; const time = fmt(mins); mins += stay + walk; walkTotal += walk; const c = isClosedToday(x); return { n: i + 1, time, stay: stay + '分', name: x.name, note: [c ? '本日休館' : '', x.kana || '', x.rest ? '休: ' + x.rest.slice(0, 14) : ''].filter(Boolean).join(' · ').slice(0, 42), photo: bg(x.photo), hasLeg: !!nx, dist: nx ? d.toFixed(1) + 'km' : '', walk: nx ? walk : '', href: 'spot.html?id=' + x.id }; });
+        const stops = sp.map((x, i) => { const nx = sp[i + 1]; const d = dist(x, nx); const walk = nx ? Math.max(1, Math.round(d / 0.08)) : 0; const stay = parseInt(stays[i]) || parseInt(x.stay) || 60; const time = fmt(mins); mins += stay + walk; walkTotal += walk; const c = isClosedToday(x); return { n: i + 1, time, stay: stay + '分', name: x.name, note: [c ? '本日休館' : '', x.kana || '', x.rest ? '休: ' + x.rest.slice(0, 14) : ''].filter(Boolean).join(' · ').slice(0, 42), photo: bg(x.photo), hasLeg: !!nx, dist: nx ? d.toFixed(1) + 'km' : '', walk: nx ? walk : '', href: 'spot.html?id=' + x.id,
+          upOp: i === 0 ? '.3' : '1', downOp: i >= sp.length - 1 ? '.3' : '1',
+          onUp: (e) => { stopNav(e); if (i === 0) return; const a = base.slice(); const v = a[i - 1]; a[i - 1] = a[i]; a[i] = v; apply(a); },
+          onDown: (e) => { stopNav(e); if (i >= base.length - 1) return; const a = base.slice(); const v = a[i + 1]; a[i + 1] = a[i]; a[i] = v; apply(a); },
+          onRemove: (e) => { stopNav(e); const a = base.slice(); a.splice(i, 1); apply(a); } }; });
         // map tiles + pins
         const pts = sp.filter(x => x.lat && x.lng); const R = 256;
         const proj = (la, ln, z) => { const n = Math.pow(2, z); const xr = (parseFloat(ln) + 180) / 360 * n * R; const lr = parseFloat(la) * Math.PI / 180; const yr = (1 - Math.log(Math.tan(lr) + 1 / Math.cos(lr)) / Math.PI) / 2 * n * R; return [xr, yr]; };
@@ -261,7 +281,10 @@ class Component extends DCLogic {
           pins = P.map((q, i) => ({ n: i + 1, x: (left + q[0] - tx0 * R - 14) + 'px', y: (top + q[1] - ty0 * R - 14) + 'px', color: '#3F52B4' }));
         }
         const d = new Date(); const dow = '日月火水木金土'[d.getDay()];
-        return { stops, pins, tiles, mapLeft, mapTop, walkTotal, nStops: sp.length, dateLabel: (d.getMonth() + 1) + '月' + d.getDate() + '日（' + dow + '）', cityLabel: (sp[0] && sp[0].city) || 'ソウル', naverHref: 'https://map.naver.com/p/search/' + encodeURIComponent((sp[0] && (sp[0].ko || sp[0].name)) || 'ソウル') };
+        return { stops, pins, tiles, mapLeft, mapTop, walkTotal, nStops: sp.length,
+          hasStops: sp.length > 0, isEmpty: sp.length === 0, undoOpen: !!this.state.undoOpen,
+          clearAll: (e) => { stopNav(e); this._undo = base.slice(); PLAN.set({ spots: [] }); this.setState({ t: Date.now(), undoOpen: true }); try { window.dispatchEvent(new Event('kgplan')); } catch (er) {} clearTimeout(this._ut); this._ut = setTimeout(() => this.setState({ undoOpen: false }), 3000); },
+          undo: (e) => { stopNav(e); clearTimeout(this._ut); PLAN.set({ spots: (this._undo || []).slice() }); this.setState({ t: Date.now(), undoOpen: false }); try { window.dispatchEvent(new Event('kgplan')); } catch (er) {} }, dateLabel: (d.getMonth() + 1) + '月' + d.getDate() + '日（' + dow + '）', cityLabel: (sp[0] && sp[0].city) || 'ソウル', naverHref: 'https://map.naver.com/p/search/' + encodeURIComponent((sp[0] && (sp[0].ko || sp[0].name)) || 'ソウル') };
       })(),
     };
   }
@@ -930,7 +953,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
 		}
 	}
 </style>
-<script src="./leaflet.js?v=1788878741"></script>
+<script src="./leaflet.js?v=1788882315"></script>
 <script>
 (function(){
   var map=null, host=null, wrap=null, ph=null, fs=false;
@@ -943,7 +966,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     var ids=[];
     if(p.course){ var c=(KG.courses||[]).filter(function(x){return x.id===p.course;})[0]; if(c) ids=String(c.spots).split(',').map(function(s){return s.trim();}).filter(Boolean); }
     else ids=(p.spots||[]);
-    if(!ids.length){ var c0=(KG.courses||[])[0]; ids=c0?String(c0.spots).split(',').map(function(s){return s.trim();}).filter(Boolean):[]; }
+    if(!ids.length && !p.course && !Array.isArray(p.spots)){ var c0=(KG.courses||[])[0]; ids=c0?String(c0.spots).split(',').map(function(s){return s.trim();}).filter(Boolean):[]; }
     return ids;
   }
   function hav(a,b){ var R=6371000, t=Math.PI/180, dLa=(b[0]-a[0])*t, dLn=(b[1]-a[1])*t;
@@ -995,6 +1018,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
     }
     setTimeout(function(){ if(map){ map.invalidateSize(); if(map.__kgb) map.fitBounds(map.__kgb,{padding:[40,40], maxZoom:16}); } }, 60);
   }, true);
+  window.addEventListener('kgplan', function(){ if(map){ try{ map.remove(); }catch(e){} } map=null; host=null; draw(); });
   setInterval(draw, 400);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', draw); else draw();
 })();
