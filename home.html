@@ -34,8 +34,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788823203"></script>
-<script src="./kicon.js?v=1788823203"></script>
+<script src="./data.js?v=1788854087"></script>
+<script src="./kicon.js?v=1788854087"></script>
 </head>
 <body>
 <x-dc>
@@ -71,8 +71,8 @@
         <k-icon name="SearchNormal2Size20" size="20" style="color:#111527"></k-icon>
         <div style="width:1px; align-self:stretch; background:#D1D3DB;"></div>
         <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
-          <div style="font-size:14px; font-weight:500; line-height:20px; color:#4B4F63;">どこへ？</div>
-          <div style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:500; line-height:16px; color:#9C9FAF;">スポット<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>グルメ<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>エリア</div>
+          <input placeholder="どこへ？（例：景福宮 / 参鶏湯 / 明洞）" onKeyDown="{{ onSearchKey }}" style="font-size:14px; font-weight:500; line-height:20px; color:#111527; border:0; outline:0; background:transparent; width:100%; padding:0; font-family:inherit;" />
+          <div onClick="{{ goSearch }}" style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:500; line-height:16px; color:#9C9FAF; cursor:pointer;">スポット<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>グルメ<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>エリア ・ Enterで検索</div>
         </div>
       </div>
     </div>
@@ -235,6 +235,7 @@ class Component extends DCLogic {
       liveCamera: this.props.liveCamera ?? true,
       areas: [['鍾路 · 光化門','景福宮エリア','キョンボックン'],['明洞','明洞','ミョンドン'],['北村 · 三清洞','北村','プクチョン'],['弘大','弘大','ホンデ']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: `${yomi} · ${list.length}件`, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }),
       regions: [['水原','水原','スウォン'],['南怡島・春川','南怡島','ナミソム'],['坡州','坡州','パジュ'],['仁川','仁川','インチョン'],['龍仁','龍仁','ヨンイン'],['江陵・束草','江陵','カンヌン'],['釜山','釜山','プサン'],['慶州','慶州','キョンジュ'],['全州','全州','チョンジュ'],['麗水','麗水','ヨス'],['大邱','大邱','テグ'],['大田','大田','テジョン']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); if (!list.length) return null; const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: yomi, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }).filter(Boolean),
+      onSearchKey: (e) => { if (e.key === 'Enter' && e.target.value.trim()) location.href = 'search.html?q=' + encodeURIComponent(e.target.value.trim()); }, goSearch: () => { location.href = 'search.html'; },
       hasEvents: !!(KG.events || []).length, events: (() => { const t = new Date(); const ymd = t.toISOString().slice(0, 10); const fmt = d => d ? (parseInt(d.slice(5, 7)) + '/' + parseInt(d.slice(8, 10))) : ''; return (KG.events || []).filter(e => (e.end || e.start) >= ymd).sort((a, b) => a.start < b.start ? -1 : 1).slice(0, 5).map(e => ({ when: fmt(e.start) + (e.end && e.end !== e.start ? String.fromCharCode(10) + '〜' + fmt(e.end) : ''), name: e.name, place: [e.city, e.place].filter(Boolean).join(' · '), href: e.url || '#' })); })(),
       openings: SP.filter(x => x.type === '名所' && x.hours).slice(0, 5).map(x => { const c = isClosedToday(x); return { name: x.name, hours: c ? '本日休館' : x.hours.split(/[ （(]/)[0].slice(0, 18), ...(c ? closed : open), href: 'spot.html?id=' + x.id }; }),
       cams: [
