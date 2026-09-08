@@ -36,6 +36,8 @@
 <script src="https://kguide-rt.vercel.app/support.js"></script>
 <script src="./data.js?v=1788859237"></script>
 <script src="./kicon.js?v=1788859237"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./auth.js?v=1789000001"></script>
 </head>
 <body>
 <x-dc>
@@ -61,7 +63,8 @@
           <div style="width:32px; height:32px; border-radius:8px; background:#3F52B4; display:flex; align-items:center; justify-content:center; color:#fff; font-family:Poppins,sans-serif; font-weight:700; font-size:14px;">K</div>
           <div style="font-family:Poppins,sans-serif; font-weight:700; font-size:16px; color:#fff; letter-spacing:.02em; text-shadow:0 1px 4px rgba(17,21,41,.45);">K-GUIDE</div>
         </div>
-        <div style="display:flex; align-items:center; gap:6px; height:36px; padding:0 14px; border-radius:38px; background:#fff; font-size:12px; font-weight:600; color:#3F52B4;">日本語</div>
+        <div style="display:flex; align-items:center; gap:8px;"><a class="kg-lp" href="login.html" style="display:flex; align-items:center; gap:6px; height:36px; padding:0 14px; border-radius:38px; background:#3F52B4; color:#fff; font-size:12px; font-weight:600; text-decoration:none;">ログイン</a>
+        <div style="display:flex; align-items:center; gap:6px; height:36px; padding:0 14px; border-radius:38px; background:#fff; font-size:12px; font-weight:600; color:#3F52B4;">日本語</div></div>
       </div>
       <div style="position:absolute; right:16px; top:64px; z-index:6; display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
         <div onClick="{{ wxToggle }}" style="display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px; border-radius:38px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.16); font-size:11px; font-weight:600; color:#4B4F63; cursor:pointer; white-space:nowrap;">
@@ -298,6 +301,10 @@ class Component extends DCLogic {
   }
 }
 
+</script>
+<script>
+(function(){ function upd(){ if(!window.KGA) return; KGA.user().then(function(u){ if(!u) return; KGA.profile().then(function(p){ var nm=((p&&p.display_name)||u.email||'').split('@')[0]; document.querySelectorAll('a.kg-lp').forEach(function(a){ a.textContent=nm; a.href='my.html'; }); }); }); }
+  document.addEventListener('DOMContentLoaded', upd); setTimeout(upd,1500); })();
 </script>
 </body>
 </html>

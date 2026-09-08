@@ -6,139 +6,143 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#3F52B4">
 <title>K-GUIDE</title>
-<style>
-  html, body { margin:0; background:#F2F4FC; min-height:100%; }
-</style>
 <script>
 (function(){
   var W=390, H=844;
   function fit(){
-    var all=document.querySelectorAll('[data-screen-label]'), s=null;
-    for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
-    if(!s) return;
+    var s=document.querySelector('[data-screen-label]'); if(!s) return;
     var vw=window.innerWidth, vh=window.innerHeight;
     var stage=s.parentNode; if(!stage||stage===document.body){ return; }
     stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
     s.style.flexShrink='0'; s.style.transformOrigin='center center';
     var k;
-    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
-    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }  /* 패드·PC: 가운데에 폰 프레임 */
-    s.style.transform='scale('+k+')';
-    s.style.margin='0';
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }
+    s.style.transform='scale('+k+')'; s.style.margin='0';
   }
-  var mo=new MutationObserver(function(){ fit(); });
-  document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
+  var KB=false;
+  document.addEventListener('focusin', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) KB=true; });
+  document.addEventListener('focusout', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){ KB=false; setTimeout(fit,50); } });
+  var _fit=fit; fit=function(){ if(KB) return; _fit(); };
+  document.addEventListener('DOMContentLoaded', fit);
   window.addEventListener('resize', fit);
   window.addEventListener('orientationchange', fit);
 })();
 </script>
-
-<script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788859237"></script>
-<script src="./kicon.js?v=1788859237"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#F2F4FC;min-height:100%}
+  body{font-family:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;color:#111527}
+  a{color:#3F52B4;text-decoration:none}
+  ::-webkit-scrollbar{display:none}
+  .sc{position:relative;width:390px;height:844px;margin:0 auto;background:#fff;overflow:hidden;display:flex;flex-direction:column}
+  .hd{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;font-size:16px;font-weight:600;line-height:24px;color:#373B51}
+  .hd a.bk{position:absolute;left:8px;top:8px;width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center}
+  .bd{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 16px 40px;display:flex;flex-direction:column;gap:16px}
+  .hero{position:relative;flex-shrink:0;height:260px;overflow:hidden}
+  .hero .img{position:absolute;inset:0;background:url('https://tong.visitkorea.or.kr/cms/resource_photo/62/4061962_image2_1.jpg') center / cover no-repeat}
+  .hero .vl{position:absolute;inset:0;background:linear-gradient(180deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,1) 104%)}
+  .hero .in{position:absolute;left:16px;right:16px;top:56px;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .hero .ic{width:88px;height:88px;border-radius:44px;background:#F2F4FC;display:flex;align-items:center;justify-content:center}
+  .hero h1{margin:0;font-size:20px;font-weight:700;text-align:center;color:#111527}
+  .hero p{margin:0;font-size:14px;font-weight:500;line-height:1.7;text-align:center;color:#4B4F63}
+  .sheet{position:relative;flex-shrink:0;border-radius:32px 32px 0 0;background:#fff;box-shadow:0 8px 32px rgba(131,139,180,.16);display:flex;flex-direction:column;flex:1;min-height:0}
+  .sheet .grip{height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sheet .grip i{width:40px;height:4px;border-radius:100px;background:#D1D3DB;display:block}
+  .sheet .in{padding:0 16px 34px;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
+  label.f{display:flex;flex-direction:column;gap:6px}
+  label.f>span{font-size:12px;font-weight:600;line-height:16px;color:#4B4F63}
+  label.f>span em{font-style:normal;color:#9C9FAF;font-weight:500}
+  .f input,.f textarea{width:100%;height:48px;border:0;box-shadow:inset 0 0 0 1px #E1E3EC;border-radius:14px;background:#fff;padding:0 14px;font-size:15px;font-family:inherit;color:#111527;outline:none}
+  .f input:focus,.f textarea:focus{box-shadow:inset 0 0 0 2px #3F52B4}
+  .f textarea{height:96px;padding:12px 14px;line-height:1.6;resize:none}
+  .f input[type=file]{padding:12px 14px;height:auto;font-size:13px;color:#4B4F63}
+  .btn{width:100%;height:48px;border:0;border-radius:16px;background:#3F52B4;color:#fff;font-size:16px;font-weight:600;letter-spacing:.02em;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-decoration:none}
+  .btn:active{background:#323D76}
+  .btn.ghost{background:#fff;color:#3F52B4;box-shadow:inset 0 0 0 1px #3F52B4}
+  .btn.flat{background:#F2F4FC;color:#3F52B4}
+  .btn.off{background:#F2F4FC;color:#9C9FAF;cursor:default}
+  .btn.sm{height:40px;font-size:14px;border-radius:12px}
+  .btn[disabled]{opacity:.55;cursor:default}
+  .msg{display:none;font-size:13px;font-weight:600;line-height:1.6;border-radius:12px;padding:10px 12px;background:#F2F4FC;color:#323D76}
+  .msg.on{display:block}
+  .row{display:flex;gap:8px}
+  .row>*{flex:1}
+  .links{display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;font-weight:600;color:#3F52B4}
+  .links span{color:#D1D3DB}
+  .note{font-size:11px;font-weight:500;line-height:1.6;text-align:center;color:#6B6E80}
+  .card{border-radius:16px;background:#F7F7FA;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+  .card h3{margin:0;font-size:15px;font-weight:700;color:#111527}
+  .kv{display:flex;gap:8px;font-size:13px;line-height:1.6}
+  .kv b{flex:0 0 82px;font-weight:600;color:#6B6E80}
+  .kv span{flex:1;min-width:0;color:#373B51;word-break:break-all}
+  .badge{align-self:flex-start;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;background:#F2F4FC;color:#3F52B4}
+  .badge.g{background:#3F52B4;color:#fff}
+  .badge.n{background:#EDEDF2;color:#6B6E80}
+  .menu{display:flex;flex-direction:column;gap:12px}
+  .menu a{min-height:60px;border-radius:16px;background:#F7F7FA;padding:8px 16px;display:flex;align-items:center;gap:16px}
+  .menu a .ic{width:40px;height:40px;flex-shrink:0;border-radius:20px;background:#F2F4FC;display:flex;align-items:center;justify-content:center}
+  .menu a .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+  .menu a .tx b{font-size:14px;font-weight:600;line-height:20px;color:#373B51}
+  .menu a .tx i{font-style:normal;font-size:12px;line-height:16px;color:#4B4F63}
+  .menu a .vl{font-size:14px;font-weight:600;color:#3F52B4;white-space:nowrap}
+  .nav{position:absolute;left:0;right:0;bottom:0;height:98px;border-radius:16px 16px 0 0;background:#fff;box-shadow:0 8px 32px rgba(131,139,180,.16);display:grid;grid-template-columns:repeat(5,1fr);align-items:start;padding:6px 12px 0}
+  .nav a{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .nav a div{width:38px;height:38px;border-radius:48px;display:flex;align-items:center;justify-content:center}
+  .nav a span{font-size:10px;font-weight:600;letter-spacing:.02em;color:#6B6E80}
+  .nav a.on div{background:#F2F4FC}
+  .nav a.on span{color:#3F52B4}
+  .sp{height:4px}
+</style>
+<script src="./kicon.js?v=1789000001"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./auth.js?v=1789000001"></script>
 </head>
 <body>
-<x-dc>
-<helmet>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap">
-  <style>
-    body { margin:0; background:#FAFAFA; font-family:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#111527; }
-    a { color:#3F52B4; text-decoration:none; } a:hover { color:#323D76; }
-    ::-webkit-scrollbar { display:none; }
-  </style>
-  
-</helmet>
-<div data-screen-label="ログイン" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
-
-  <div style="position:relative; flex:1; min-height:0; overflow:hidden;">
-    <div style="position:absolute; inset:0; background:url('https://tong.visitkorea.or.kr/cms/resource_photo/62/4061962_image2_1.jpg') center / cover no-repeat;"></div>
-    <div style="position:absolute; inset:0; background:linear-gradient(180deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,1) 104%);"></div>
-    <div style="position:absolute; left:16px; right:16px; top:88px; display:flex; flex-direction:column; align-items:center; gap:12px;">
-      <div style="width:88px; height:88px; border-radius:44px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="{{ heroIcon }}" size="40" style="color:#3F52B4"></k-icon></div>
-      <div style="font-size:20px; font-weight:700; text-align:center; color:#111527;">{{ heroTitle }}</div>
-      <div style="font-size:14px; font-weight:500; line-height:1.7; text-align:center; color:#4B4F63;">{{ heroSub }}</div>
+<div class="stage">
+<div class="sc" data-screen-label="ログイン">
+  <div class="hd"><a class="bk" href="home.html"><k-icon name="ArrowRightSize24" size="24" style="color:#373B51;transform:rotate(180deg)"></k-icon></a>ログイン</div>
+  <div class="bd">
+    <div class="card">
+      <h3>ログイン</h3>
+      <div class="kv"><span style="color:#4B4F63">見るだけならログインは不要です。保存したスポット・ルート・見積もりの依頼にログインが必要です。</span></div>
     </div>
+    <div id="msg" class="msg"></div>
+    <label class="f"><span>メールアドレス</span><input id="em" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
+    <label class="f"><span>パスワード</span><input id="pw" type="password" autocomplete="current-password" placeholder="••••••••"></label>
+    <button class="btn" id="go">ログイン</button>
+    <div class="links"><a href="reset.html">パスワードを忘れた方</a></div>
+    <div style="display:flex;align-items:center;gap:10px;color:#9C9FAF;font-size:11px"><span style="flex:1;height:1px;background:#E1E3EC"></span>はじめての方<span style="flex:1;height:1px;background:#E1E3EC"></span></div>
+    <a class="btn ghost" href="signup.html">新規登録（無料）</a>
+    <button class="btn off" disabled><k-icon name="MessagesSize24" size="20" style="color:#9C9FAF"></k-icon>LINEでログイン（準備中）</button>
+    <div class="links"><a href="guide-apply.html">ガイドの方はこちら</a></div>
+    <div class="note">続けると <a href="#">利用規約</a> と <a href="#">プライバシーポリシー</a> に同意したことになります</div>
   </div>
-
-  <sc-if value="{{ isFormSheet }}" hint-placeholder-val="{{ true }}">
-    <div style="position:relative; flex-shrink:0; border-radius:32px 32px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:flex; flex-direction:column;">
-      <div style="height:32px; display:flex; align-items:center; justify-content:center;"><div style="width:40px; height:4px; border-radius:100px; background:#D1D3DB;"></div></div>
-      <div style="padding:0 16px 34px; display:flex; flex-direction:column; gap:16px;">
-        <sc-for list="{{ perks }}" as="p" hint-placeholder-count="3">
-          <div style="min-height:60px; box-sizing:border-box; border-radius:16px; background:#F7F7FA; padding:8px 16px; display:flex; align-items:center; gap:8px;">
-            <div style="width:40px; height:40px; flex-shrink:0; border-radius:20px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="{{ p.icon }}" size="24" style="color:#3F52B4"></k-icon></div>
-            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
-              <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">{{ p.title }}</div>
-              <div style="font-size:12px; font-weight:400; line-height:16px; color:#4B4F63;">{{ p.sub }}</div>
-            </div>
-          </div>
-        </sc-for>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
-            <div style="height:48px; border-radius:16px; background:#323D76; overflow:hidden; display:flex; align-items:center; justify-content:center;"><img src="./assets/button-loading.png" alt="" style="width:62px; height:18px; object-fit:cover; object-position:50% 50%;"></div>
-          </sc-if>
-          <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
-            <div onClick="{{ login }}" style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; letter-spacing:.02em; cursor:pointer;"><k-icon name="MessagesSize24" size="20" style="color:#fff"></k-icon>LINEでログイン</div>
-            <a href="search.html" style="display:flex; align-items:center; justify-content:center; height:48px; border-radius:16px; background:#fff; color:#3F52B4; font-size:14px; font-weight:600; text-decoration:none;">あとで</a>
-          </sc-if>
-        </div>
-        <div style="font-size:11px; font-weight:500; line-height:1.6; text-align:center; color:#6B6E80;">続けると <a href="#">利用規約</a> と <a href="#">プライバシーポリシー</a> に同意したことになります</div>
-      </div>
-    </div>
-  </sc-if>
-
-  <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
-    <div style="position:relative; flex-shrink:0; border-radius:32px 32px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:flex; flex-direction:column;">
-      <div style="height:32px; display:flex; align-items:center; justify-content:center;"><div style="width:40px; height:4px; border-radius:100px; background:#D1D3DB;"></div></div>
-      <div style="padding:0 16px 34px; display:flex; flex-direction:column; gap:16px;">
-        <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
-          <div style="width:72px; height:72px; border-radius:36px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="TickCircleSize24" size="36" style="color:#3F52B4"></k-icon></div>
-          <div style="font-size:20px; font-weight:700; text-align:center; color:#111527;">「景福宮」を保存しました</div>
-          <div style="font-size:14px; font-weight:500; line-height:1.6; text-align:center; color:#4B4F63;">マイページの「保存したスポット」から見られます</div>
-        </div>
-        <div style="min-height:60px; box-sizing:border-box; border-radius:16px; background:#F7F7FA; padding:8px 16px; display:flex; align-items:center; gap:8px;">
-          <div style="width:40px; height:40px; flex-shrink:0; border-radius:20px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="24" style="color:#3F52B4"></k-icon></div>
-          <div style="flex:1; display:flex; flex-direction:column; gap:4px;">
-            <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">たろう さん でログイン中</div>
-            <div style="font-size:12px; font-weight:400; line-height:16px; color:#4B4F63;">LINE アカウント連携済み</div>
-          </div>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:8px;">
-          <a href="my.html" style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; letter-spacing:.02em; text-decoration:none;"><k-icon name="HeartSize24" size="20" style="color:#fff"></k-icon>保存したスポットを見る</a>
-          <a href="search.html" style="display:flex; align-items:center; justify-content:center; height:48px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:16px; font-weight:600; letter-spacing:.02em; text-decoration:none;">さがすに戻る</a>
-        </div>
-      </div>
-    </div>
-  </sc-if>
 </div>
-</x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
-class Component extends DCLogic {
-  state = { step: 'login' };
-  componentWillUnmount() { clearTimeout(this.t); }
-
-  renderVals() {
-    const done = this.state.step === 'done';
-    return {
-      isLogin: this.state.step === 'login',
-      isLoading: this.state.step === 'loading',
-      isDone: done,
-      isFormSheet: !done,
-      heroIcon: done ? 'TickCircleSize24' : 'HeartSize24',
-      heroTitle: done ? 'ログインしました' : '保存するにはログイン',
-      heroSub: done ? 'たろう さん · 保存とルートが使えます' : '見るだけならログインは不要です。保存・ルート・見積もりだけログインが必要です。',
-      login: () => {
-        this.setState({ step: 'loading' });
-        this.t = setTimeout(() => this.setState({ step: 'done' }), 1200);
-      },
-      perks: [
-        { icon: 'HeartSize24', title: 'スポットを保存', sub: '気になる場所をあとで見返せます' },
-        { icon: 'RoutingSize24', title: 'ルートを保存', sub: '順番を決めたプランが残ります' },
-        { icon: 'MessagesSize24', title: '見積もりを依頼', sub: 'ガイドから LINE で返信が届きます' },
-      ],
-    };
-  }
-}
+<script>
+(function(){
+  var msg=document.getElementById('msg'), go=document.getElementById('go');
+  function say(t){ msg.textContent=t; msg.className='msg on'; }
+  function nextUrl(){ var q=new URLSearchParams(location.search); return q.get('next')||'my.html'; }
+  KGA.session().then(function(s){ if(s) location.replace(nextUrl()); });
+  go.onclick=async function(){
+    var em=document.getElementById('em').value.trim(), pw=document.getElementById('pw').value;
+    if(!em||!pw){ say('メールアドレスとパスワードを入力してください'); return; }
+    go.disabled=true; go.textContent='ログイン中…';
+    try{
+      await KGA.signIn(em,pw);
+      var p=await KGA.profile(true);
+      if(p&&p.role==='guide'&&p.status!=='approved'){ location.replace('guide-apply.html'); return; }
+      location.replace(nextUrl());
+    }catch(e){
+      say(/Invalid login/i.test(e.message||'')?'メールアドレスまたはパスワードが違います':(e.message||'ログインできませんでした'));
+      go.disabled=false; go.textContent='ログイン';
+    }
+  };
+  document.getElementById('pw').addEventListener('keydown',function(e){ if(e.key==='Enter') go.click(); });
+})();
 </script>
+</div>
 </body>
 </html>
