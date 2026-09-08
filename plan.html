@@ -50,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788901046"></script>
-<script src="./kicon.js?v=1788901046"></script>
+<script src="./data.js?v=1788907740"></script>
+<script src="./kicon.js?v=1788907740"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -93,9 +93,10 @@
 
     <div style="display:flex; flex-direction:column; gap:12px;">
       <sc-if value="{{ hasStops }}" hint-placeholder-val="{{ true }}"><div style="margin:0 16px; display:flex; flex-direction:column; gap:8px;">
-        <div style="position:relative; height:470px; border-radius:16px; overflow:hidden; background:#F2F4FC;">
+        <div id="kgmapbox" style="position:relative; height:230px; border-radius:16px; overflow:hidden; background:#F2F4FC;">
           <div id="kgmap" style="position:absolute; left:0; top:0; right:0; bottom:0;"></div>
-          <div id="kgmapfs" style="position:absolute; right:10px; top:10px; z-index:600; display:flex; align-items:center; justify-content:center; height:30px; padding:0 12px; border-radius:15px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.24); color:#3F52B4; font-size:12px; font-weight:600; cursor:pointer;">全画面</div>
+          <div id="kgmaphint" style="position:absolute; left:50%; bottom:20px; transform:translateX(-50%); z-index:600; pointer-events:none; display:flex; align-items:center; justify-content:center; height:28px; padding:0 14px; border-radius:14px; background:rgba(255,255,255,.88); box-shadow:0 2px 8px rgba(131,139,180,.20); color:#4B4F63; font-size:12px; font-weight:600; white-space:nowrap;">地図をタップして操作</div>
+          <div id="kgmapfs" style="position:absolute; right:10px; top:10px; z-index:601; display:flex; align-items:center; justify-content:center; height:30px; padding:0 12px; border-radius:15px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.24); color:#3F52B4; font-size:12px; font-weight:600; cursor:pointer;">全画面</div>
         </div>
         <a href="{{ naverHref }}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:16px; background:#fff; color:#3F52B4; font-size:14px; font-weight:600; box-shadow:0 2px 8px rgba(131,139,180,.12); text-decoration:none;"><k-icon name="LocationSize18" size="18" style="color:#3F52B4"></k-icon>NAVER地図で開く</a>
       </div></sc-if>
@@ -954,10 +955,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
 		}
 	}
 </style>
-<script src="./leaflet.js?v=1788901046"></script>
+<script src="./leaflet.js?v=1788907740"></script>
 <script>
 (function(){
   var map=null, host=null, wrap=null, ph=null, fs=false;
+  var act=false, actT=null, tsx=0, tsy=0, tst=0, moved=false;
   function SPS(){ return (window.KG&&window.KG.spots)||[]; }
   function planIds(){
     var KG=window.KG; if(!KG) return [];
@@ -982,13 +984,56 @@ svg.leaflet-image-layer.leaflet-interactive path {
     for(var i=0;i<els.length;i++){ if(els[i].closest('x-dc')) continue; var r=els[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=els[i]; }
     return out;
   }
+  function hintEl(){ var e=document.querySelectorAll('#kgmaphint'), o=null; for(var i=0;i<e.length;i++){ if(e[i].closest('x-dc')) continue; o=e[i]; } return o; }
+  function paint(){
+    if(wrap && !fs) wrap.style.boxShadow = act ? 'inset 0 0 0 2px #3F52B4' : 'none';
+    var h=hintEl(); if(h) h.style.display = (act||fs) ? 'none' : 'flex';
+    if(host) host.style.touchAction = act ? 'none' : 'auto';
+  }
+  function bump(){ clearTimeout(actT); actT=setTimeout(function(){ setAct(false); }, 10000); }
+  function setAct(v){
+    v=!!v;
+    if(act===v){ if(v) bump(); return; }
+    act=v;
+    if(map){ try{
+      if(v){ map.dragging.enable(); map.touchZoom.enable(); map.scrollWheelZoom.enable(); }
+      else { map.dragging.disable(); map.touchZoom.disable(); map.scrollWheelZoom.disable(); }
+    }catch(e){} }
+    paint();
+    if(v) bump(); else { clearTimeout(actT); actT=null; }
+  }
+  function inMap(t){ return !!(t && t.closest && t.closest('#kgmap')); }
+  document.addEventListener('touchstart', function(e){
+    if(inMap(e.target)){
+      if(e.touches && e.touches.length>=2){ setAct(true); return; }
+      var t=e.touches&&e.touches[0]; if(t){ tsx=t.clientX; tsy=t.clientY; }
+      tst=Date.now(); moved=false;
+      if(act) bump();
+    } else if(!(e.target&&e.target.closest&&e.target.closest('#kgmapfs'))) setAct(false);
+  }, true);
+  document.addEventListener('touchmove', function(e){
+    if(!inMap(e.target)) return;
+    if(e.touches && e.touches.length>=2){ setAct(true); return; }
+    var t=e.touches&&e.touches[0]; if(!t) return;
+    if(Math.abs(t.clientX-tsx)>10 || Math.abs(t.clientY-tsy)>10) moved=true;
+    if(act) bump();
+  }, true);
+  document.addEventListener('touchend', function(e){
+    if(!inMap(e.target)) return;
+    if(!moved && Date.now()-tst<600) setAct(true);
+  }, true);
+  document.addEventListener('mousedown', function(e){
+    if(inMap(e.target)){ if(act) bump(); else setAct(true); }
+    else if(!(e.target&&e.target.closest&&e.target.closest('#kgmapfs'))) setAct(false);
+  }, true);
   function draw(){
     var el=pick();
     if(!el||!window.L||!window.KG) return;
     if(el===host&&map) return;
     if(map){ try{ map.remove(); }catch(e){} map=null; }
     host=el; wrap=el.parentNode;
-    map=L.map(el,{zoomControl:true, attributionControl:true});
+    map=L.map(el,{zoomControl:true, attributionControl:true, dragging:false, touchZoom:false, scrollWheelZoom:false, tap:false});
+    act=false; clearTimeout(actT); actT=null; paint();
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:'&copy; OpenStreetMap'}).addTo(map);
     var sp=planIds().map(function(id){ var f=SPS().filter(function(s){return s.id===id;}); return f[0]; }).filter(function(s){ return s&&s.lat&&s.lng; });
     var pts=sp.map(function(s){ return [parseFloat(s.lat), parseFloat(s.lng)]; });
@@ -1012,10 +1057,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
       ph=document.createComment('kgmap'); wrap.parentNode.insertBefore(ph, wrap);
       wrap.style.cssText='position:absolute; left:0; top:0; right:0; bottom:0; z-index:9000; border-radius:0; overflow:hidden; background:#F2F4FC;';
       screen.appendChild(wrap); b.textContent='閉じる'; fs=true;
+      setAct(true); paint();
     } else {
-      wrap.style.cssText='position:relative; height:470px; border-radius:16px; overflow:hidden; background:#F2F4FC;';
+      fs=false;
+      wrap.style.cssText='position:relative; height:230px; border-radius:16px; overflow:hidden; background:#F2F4FC;';
       ph.parentNode.insertBefore(wrap, ph); ph.parentNode.removeChild(ph); ph=null;
-      b.textContent='全画面'; fs=false;
+      b.textContent='全画面';
+      setAct(false); paint();
     }
     setTimeout(function(){ if(map){ map.invalidateSize(); if(map.__kgb) map.fitBounds(map.__kgb,{padding:[40,40], maxZoom:16}); } }, 60);
   }, true);
