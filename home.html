@@ -12,7 +12,23 @@
 <script>
 (function(){
   var W=390, H=844;
+  var KB=0, NAV=null;
+  function navEl(){
+    if(NAV && NAV.isConnected) return NAV;
+    var d=document.getElementsByTagName('div');
+    for(var i=0;i<d.length;i++){ var st=(d[i].getAttribute('style')||'').replace(/\s+/g,'');
+      if(st.indexOf('height:98px')>=0 && st.indexOf('bottom:0')>=0){ NAV=d[i]; return NAV; } }
+    return null;
+  }
+  function navHide(on){
+    var n=navEl(); if(n){ if(on){ if(n.__d===undefined) n.__d=n.style.display; n.style.display='none'; } else if(n.__d!==undefined){ n.style.display=n.__d; } }
+    var b=document.getElementById('kgline'); if(b) b.style.visibility = on ? 'hidden' : '';
+  }
+  function isField(t){ return t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable); }
+  document.addEventListener('focusin', function(e){ if(!isField(e.target)) return; KB=1; navHide(1); });
+  document.addEventListener('focusout', function(e){ if(!isField(e.target)) return; KB=0; setTimeout(function(){ if(!KB){ navHide(0); fit(); } }, 150); });
   function fit(){
+    if(KB) return;
     var all=document.querySelectorAll('[data-screen-label]'), s=null;
     for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
     if(!s) return;
@@ -34,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788867420"></script>
-<script src="./kicon.js?v=1788867420"></script>
+<script src="./data.js?v=1788872092"></script>
+<script src="./kicon.js?v=1788872092"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -103,8 +119,8 @@
         <k-icon name="SearchNormal2Size20" size="20" style="color:#111527"></k-icon>
         <div style="width:1px; align-self:stretch; background:#D1D3DB;"></div>
         <div style="display:flex; flex-direction:column; gap:4px; flex:1;">
-          <div style="font-size:14px; font-weight:500; line-height:20px; color:#4B4F63;">どこへ？</div>
-          <div style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:500; line-height:16px; color:#9C9FAF;">スポット<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>グルメ<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>エリア</div>
+          <input id="kgq" placeholder="どこへ？（例：景福宮 / 参鶏湯 / 明洞）" onKeyDown="{{ onSearchKey }}" style="font-size:14px; font-weight:500; line-height:20px; color:#111527; border:0; outline:0; background:transparent; padding:0; width:100%; box-sizing:border-box; font-family:inherit;" />
+          <div onClick="{{ goSearch }}" style="display:flex; align-items:center; gap:4px; font-size:12px; font-weight:500; line-height:16px; color:#9C9FAF; cursor:pointer;">スポット<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>グルメ<span style="width:3px; height:3px; border-radius:50%; background:#9C9FAF;"></span>エリア</div>
         </div>
       </div>
     </div>
@@ -140,7 +156,7 @@
       </div>
       <div style="display:flex; gap:8px; padding:0 16px; overflow-x:auto;">
         <sc-for list="{{ regions }}" as="r" hint-placeholder-count="4">
-          <a href="{{ r.href }}" style="flex-shrink:0; width:120px; height:80px; border-radius:16px; overflow:hidden; background:{{ r.bg }}; position:relative; text-decoration:none;"><div style="position:absolute; left:10px; bottom:8px; font-size:14px; font-weight:700; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.5);">{{ r.name }}</div><div style="position:absolute; right:10px; bottom:9px; font-size:11px; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.5);">{{ r.sub }}</div></a>
+          <a href="{{ r.href }}" style="flex-shrink:0; width:120px; height:80px; border-radius:16px; overflow:hidden; background:{{ r.bg }}; position:relative; text-decoration:none;"><div style="position:absolute; left:10px; right:10px; bottom:8px; display:flex; flex-direction:column; gap:1px;"><div style="font-size:10px; font-weight:500; color:#fff; opacity:.9; text-shadow:0 1px 4px rgba(0,0,0,.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.sub }}</div><div style="font-size:14px; font-weight:700; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.5); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.name }}</div></div></a>
         </sc-for>
       </div>
     </div>
@@ -217,7 +233,7 @@
 
 
 const KG = window.KG; const SP = KG.spots;
-const YOMI = {'明洞':'ミョンドン','鍾路 · 光化門':'チョンノ・クァンファムン','北村 · 三清洞':'プクチョン・サムチョンドン','東大門':'トンデムン','弘大':'ホンデ','江南':'カンナム','梨泰院':'イテウォン','聖水':'ソンス','蚕室':'チャムシル','汝矣島':'ヨイド','大学路 · 城北':'テハンノ・ソンブク','新村 · 西大門':'シンチョン・ソデムン','水原':'スウォン','仁川':'インチョン','坡州':'パジュ','龍仁':'ヨンイン','南怡島・春川':'ナミソム・チュンチョン','江陵・束草':'カンヌン・ソクチョ','釜山':'プサン','慶州':'キョンジュ','全州':'チョンジュ','麗水':'ヨス','大邱':'テグ','大田':'テジョン'};
+const YOMI = {'明洞':'ミョンドン','鍾路 · 光化門':'チョンノ・クァンファムン','北村 · 三清洞':'プクチョン・サムチョンドン','東大門':'トンデムン','弘大':'ホンデ','江南':'カンナム','梨泰院':'イテウォン','聖水':'ソンス','蚕室':'チャムシル','汝矣島':'ヨイド','大学路 · 城北':'テハンノ・ソンブク','新村 · 西大門':'シンチョン・ソデムン','水原':'スウォン','仁川':'インチョン','坡州':'パジュ','仁川空港・永宗島':'インチョンクウコウ','龍仁':'ヨンイン','南怡島・春川':'ナミソム・チュンチョン','江陵・束草':'カンヌン・ソクチョ','釜山':'プサン','慶州':'キョンジュ','全州':'チョンジュ','麗水':'ヨス','大邱':'テグ','大田':'テジョン'};
 const PLAN = { get() { try { return JSON.parse(localStorage.getItem('kg_plan') || '{}'); } catch (e) { return {}; } }, set(p) { try { localStorage.setItem('kg_plan', JSON.stringify(p)); } catch (e) {} }, addSpot(id) { const p = PLAN.get(); const l = (p.course ? (KG.courses.find(c => c.id === p.course) || { spots: '' }).spots.split(',').filter(Boolean) : (p.spots || [])); if (!l.includes(id)) l.push(id); PLAN.set({ spots: l }); return l.length; }, ids() { const p = PLAN.get(); if (p.course) { const c = KG.courses.find(x => x.id === p.course); if (c) return c.spots.split(',').map(x => x.trim()).filter(Boolean); } return (p.spots || []).filter(id => byId(id)); } };
 const FAV = { get() { try { return JSON.parse(localStorage.getItem('kg_fav') || '[]'); } catch (e) { return []; } }, has(id) { return FAV.get().includes(id); }, toggle(id) { const l = FAV.get(); const i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.unshift(id); try { localStorage.setItem('kg_fav', JSON.stringify(l)); } catch (e) {} return i < 0; } };
 const stopNav = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } };
@@ -290,8 +306,10 @@ class Component extends DCLogic {
       holidayBanner: this.props.holidayBanner ?? true,
       liveCamera: SP.some(x => x.cam) || !!(KG.camExtra || []).length,
       areas: [['鍾路 · 光化門','景福宮エリア','キョンボックン'],['明洞','明洞','ミョンドン'],['北村 · 三清洞','北村','プクチョン'],['弘大','弘大','ホンデ']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: `${yomi} · ${list.length}件`, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }),
-      regions: [['水原','水原','スウォン'],['南怡島・春川','南怡島','ナミソム'],['坡州','坡州','パジュ'],['仁川','仁川','インチョン'],['龍仁','龍仁','ヨンイン'],['江陵・束草','江陵','カンヌン'],['釜山','釜山','プサン'],['慶州','慶州','キョンジュ'],['全州','全州','チョンジュ'],['麗水','麗水','ヨス'],['大邱','大邱','テグ'],['大田','大田','テジョン']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); if (!list.length) return null; const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: yomi, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }).filter(Boolean),
+      regions: [['仁川空港・永宗島','仁川空港','インチョンクウコウ'],['水原','水原','スウォン'],['南怡島・春川','南怡島','ナミソム'],['坡州','坡州','パジュ'],['仁川','仁川','インチョン'],['龍仁','龍仁','ヨンイン'],['江陵・束草','江陵','カンヌン'],['釜山','釜山','プサン'],['慶州','慶州','キョンジュ'],['全州','全州','チョンジュ'],['麗水','麗水','ヨス'],['大邱','大邱','テグ'],['大田','大田','テジョン']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); if (!list.length) return null; const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: yomi, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }).filter(Boolean),
       hasEvents: !!(KG.events || []).length, events: (() => { const t = new Date(); const ymd = t.toISOString().slice(0, 10); const fmt = d => d ? (parseInt(d.slice(5, 7)) + '/' + parseInt(d.slice(8, 10))) : ''; return (KG.events || []).filter(e => (e.end || e.start) >= ymd).sort((a, b) => a.start < b.start ? -1 : 1).slice(0, 5).map(e => ({ when: fmt(e.start) + (e.end && e.end !== e.start ? String.fromCharCode(10) + '〜' + fmt(e.end) : ''), name: e.name, place: [e.city, e.place].filter(Boolean).join(' · '), href: e.url || '#' })); })(),
+      onSearchKey: (e) => { if (e.key === 'Enter' && e.target.value.trim()) location.href = 'search.html?q=' + encodeURIComponent(e.target.value.trim()); },
+      goSearch: () => { location.href = 'search.html'; },
       wxOpen: !!this.state.wxOpen, wxToggle: () => this.setState({ wxOpen: !this.state.wxOpen }), wxCaret: this.state.wxOpen ? ' ▲' : ' ▼',
       wxNow: wx ? wx[0].max + '°' : '--°', wxWear: wx ? wx[0].wear : '天気を読み込み中',
       wxDays: (wx || []).map(w => ({ ...w, temp: w.max + '° / ' + w.min + '°', popText: '降水 ' + w.pop + '%' })), wxCities: this.state.wxCity || [],
@@ -303,8 +321,38 @@ class Component extends DCLogic {
 
 </script>
 <script>
+(function(){ function go(){ var i=document.getElementById('kgq'); if(!i||i.__kgq) return; i.__kgq=1; i.addEventListener('keydown', function(e){ if(e.key==='Enter'){ var v=(i.value||'').trim(); if(v) location.href='search.html?q='+encodeURIComponent(v); } }); }
+  setInterval(go,700); go(); document.addEventListener('DOMContentLoaded', go); })();
+</script>
+<script>
 (function(){ function upd(){ if(!window.KGA) return; KGA.user().then(function(u){ if(!u) return; KGA.profile().then(function(p){ var nm=((p&&p.display_name)||u.email||'').split('@')[0]; document.querySelectorAll('a.kg-lp').forEach(function(a){ a.textContent=nm; a.href='my.html'; }); }); }); }
   document.addEventListener('DOMContentLoaded', upd); setTimeout(upd,1500); })();
+</script>
+<script>
+(function(){
+  var U='https://line.me/R/ti/p/@897fvigb'; if(!U) return;
+  var b=document.createElement('a'); b.href=U; b.target='_blank'; b.rel='noopener'; b.id='kgline';
+  b.textContent='LINEで相談';
+  b.style.cssText='position:absolute; right:16px; bottom:114px; z-index:700; display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 18px; border-radius:22px; background:#06C755; color:#fff; font-size:14px; font-weight:600; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
+  function place(s){
+    var sr=s.getBoundingClientRect(), top=sr.bottom;
+    Array.prototype.forEach.call(s.children, function(c){
+      if(c===b) return;
+      var st=getComputedStyle(c); if(st.position!=='absolute'&&st.position!=='fixed') return;
+      var r=c.getBoundingClientRect();
+      if(r.height>0 && r.height<260 && r.bottom>sr.bottom-260 && r.bottom<=sr.bottom+2) top=Math.min(top, r.top);
+    });
+    b.style.bottom = Math.round(Math.max(16, sr.bottom-top+16)) + 'px';
+  }
+  function screenEl(){ var a=document.querySelectorAll('[data-screen-label]'), out=null;
+    for(var i=0;i<a.length;i++){ if(a[i].closest('x-dc')) continue; var r=a[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=a[i]; }
+    return out; }
+  function mount(){ var s=screenEl(); if(!s) return; if(b.parentNode!==s) s.appendChild(b); place(s); }
+  setInterval(mount, 700);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', function(){
+    b.style.display = (window.visualViewport.height < window.innerHeight*0.75) ? 'none' : 'inline-flex'; }); }
+})();
 </script>
 </body>
 </html>

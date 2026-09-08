@@ -12,7 +12,23 @@
 <script>
 (function(){
   var W=390, H=844;
+  var KB=0, NAV=null;
+  function navEl(){
+    if(NAV && NAV.isConnected) return NAV;
+    var d=document.getElementsByTagName('div');
+    for(var i=0;i<d.length;i++){ var st=(d[i].getAttribute('style')||'').replace(/\s+/g,'');
+      if(st.indexOf('height:98px')>=0 && st.indexOf('bottom:0')>=0){ NAV=d[i]; return NAV; } }
+    return null;
+  }
+  function navHide(on){
+    var n=navEl(); if(n){ if(on){ if(n.__d===undefined) n.__d=n.style.display; n.style.display='none'; } else if(n.__d!==undefined){ n.style.display=n.__d; } }
+    var b=document.getElementById('kgline'); if(b) b.style.visibility = on ? 'hidden' : '';
+  }
+  function isField(t){ return t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable); }
+  document.addEventListener('focusin', function(e){ if(!isField(e.target)) return; KB=1; navHide(1); });
+  document.addEventListener('focusout', function(e){ if(!isField(e.target)) return; KB=0; setTimeout(function(){ if(!KB){ navHide(0); fit(); } }, 150); });
   function fit(){
+    if(KB) return;
     var all=document.querySelectorAll('[data-screen-label]'), s=null;
     for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
     if(!s) return;
@@ -34,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788867420"></script>
-<script src="./kicon.js?v=1788867420"></script>
+<script src="./data.js?v=1788872092"></script>
+<script src="./kicon.js?v=1788872092"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -90,7 +106,7 @@
             <div style="width:40px; height:40px; flex-shrink:0; border-radius:20px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="{{ i.icon }}" size="24" style="color:#3F52B4"></k-icon></div>
             <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
               <div style="font-size:12px; font-weight:400; line-height:16px; color:#4B4F63;">{{ i.label }}</div>
-              <div style="font-size:14px; font-weight:600; line-height:22px; color:#373B51; white-space:pre-line;">{{ i.value }}</div>
+              <sc-if value="{{ i.noHref }}" hint-placeholder-val="{{ true }}"><div style="font-size:14px; font-weight:600; line-height:22px; color:#373B51; white-space:pre-line;">{{ i.value }}</div></sc-if><sc-if value="{{ i.href }}" hint-placeholder-val="{{ false }}"><a href="{{ i.href }}" target="_blank" style="font-size:14px; font-weight:600; line-height:22px; color:#3F52B4; text-decoration:none; word-break:break-all;">{{ i.value }}</a></sc-if>
               <sc-if value="{{ i.ko }}" hint-placeholder-val="{{ false }}">
                 <div style="font-size:12px; font-weight:500; line-height:16px; color:#6B6E80;">{{ i.ko }}</div>
               </sc-if>
@@ -98,9 +114,6 @@
           </div>
         </div>
       </sc-for>
-      <sc-if value="{{ hasOfficial }}" hint-placeholder-val="{{ false }}">
-        <a href="{{ official }}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:6px; height:44px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #D1D3DB; color:#3F52B4; font-size:13px; font-weight:600; text-decoration:none;"><k-icon name="InfoCircleSize20" size="18" style="color:#3F52B4"></k-icon>公式サイトを見る</a>
-      </sc-if>
       <sc-if value="{{ hasAudio }}" hint-placeholder-val="{{ false }}">
         <div style="border-radius:16px; background:#F7F7FA; overflow:hidden;">
           <div onClick="{{ audioToggle }}" style="display:flex; align-items:center; gap:12px; padding:12px 16px; cursor:pointer;">
@@ -180,7 +193,10 @@
             <div style="height:110px; border-radius:16px; background:{{ n.photo }};"></div>
             <div style="display:flex; flex-direction:column; gap:2px;">
               <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">{{ n.name }}</div>
-              <div style="font-size:12px; font-weight:500; color:#6B6E80;">徒歩 <span style="font-family:Poppins,sans-serif;">{{ n.walk }}</span>分</div>
+              <div style="font-size:12px; font-weight:500; color:#6B6E80;">徒歩 <span style="font-family:Poppins,sans-serif;">{{ n.walk }}</span>分{{ n.subTxt }}</div>
+              <sc-if value="{{ n.kind }}" hint-placeholder-val="{{ true }}">
+                <span style="align-self:flex-start; display:inline-flex; align-items:center; height:20px; padding:0 6px; border-radius:8px; background:#EEF0F7; color:#4B4F63; font-size:10px; font-weight:600;">{{ n.kind }}</span>
+              </sc-if>
               <sc-if value="{{ n.hasAudio }}" hint-placeholder-val="{{ false }}">
                 <span style="align-self:flex-start; display:inline-flex; align-items:center; height:20px; padding:0 6px; border-radius:8px; background:#F7F7FA; color:#4B4F63; font-size:10px; font-weight:600;">♪ 日本語音声</span>
               </sc-if>
@@ -207,7 +223,7 @@
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
 
 const KG = window.KG; const SP = KG.spots;
-const YOMI = {'明洞':'ミョンドン','鍾路 · 光化門':'チョンノ・クァンファムン','北村 · 三清洞':'プクチョン・サムチョンドン','東大門':'トンデムン','弘大':'ホンデ','江南':'カンナム','梨泰院':'イテウォン','聖水':'ソンス','蚕室':'チャムシル','汝矣島':'ヨイド','大学路 · 城北':'テハンノ・ソンブク','新村 · 西大門':'シンチョン・ソデムン','水原':'スウォン','仁川':'インチョン','坡州':'パジュ','龍仁':'ヨンイン','南怡島・春川':'ナミソム・チュンチョン','江陵・束草':'カンヌン・ソクチョ','釜山':'プサン','慶州':'キョンジュ','全州':'チョンジュ','麗水':'ヨス','大邱':'テグ','大田':'テジョン'};
+const YOMI = {'明洞':'ミョンドン','鍾路 · 光化門':'チョンノ・クァンファムン','北村 · 三清洞':'プクチョン・サムチョンドン','東大門':'トンデムン','弘大':'ホンデ','江南':'カンナム','梨泰院':'イテウォン','聖水':'ソンス','蚕室':'チャムシル','汝矣島':'ヨイド','大学路 · 城北':'テハンノ・ソンブク','新村 · 西大門':'シンチョン・ソデムン','水原':'スウォン','仁川':'インチョン','坡州':'パジュ','仁川空港・永宗島':'インチョンクウコウ','龍仁':'ヨンイン','南怡島・春川':'ナミソム・チュンチョン','江陵・束草':'カンヌン・ソクチョ','釜山':'プサン','慶州':'キョンジュ','全州':'チョンジュ','麗水':'ヨス','大邱':'テグ','大田':'テジョン'};
 const PLAN = { get() { try { return JSON.parse(localStorage.getItem('kg_plan') || '{}'); } catch (e) { return {}; } }, set(p) { try { localStorage.setItem('kg_plan', JSON.stringify(p)); } catch (e) {} }, addSpot(id) { const p = PLAN.get(); const l = (p.course ? (KG.courses.find(c => c.id === p.course) || { spots: '' }).spots.split(',').filter(Boolean) : (p.spots || [])); if (!l.includes(id)) l.push(id); PLAN.set({ spots: l }); return l.length; }, ids() { const p = PLAN.get(); if (p.course) { const c = KG.courses.find(x => x.id === p.course); if (c) return c.spots.split(',').map(x => x.trim()).filter(Boolean); } return (p.spots || []).filter(id => byId(id)); } };
 const FAV = { get() { try { return JSON.parse(localStorage.getItem('kg_fav') || '[]'); } catch (e) { return []; } }, has(id) { return FAV.get().includes(id); }, toggle(id) { const l = FAV.get(); const i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.unshift(id); try { localStorage.setItem('kg_fav', JSON.stringify(l)); } catch (e) {} return i < 0; } };
 const stopNav = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } };
@@ -270,6 +286,7 @@ class Component extends DCLogic {
     const stt = st(s);
     const info = [];
     const fmt = (v) => String(v || '').replace(/\s*※\s*/g, '\n※').replace(/\s*\/\s*/g, '\n').replace(/）、\s*/g, '）\n').replace(/\s*\/ \s*/g, '\n').replace(/^\n+|\n+$/g, '');
+    if (s.highlight) info.push({ icon: 'SunSize24', label: 'ハイライト', value: fmt(s.highlight), ko: '', noHref: true });
     if (s.hours) info.push({ icon: 'ClockSize24', label: '営業時間', value: fmt(s.hours), ko: '' });
     if (s.rest) info.push({ icon: 'InfoCircleSize24', label: '休館日', value: fmt(s.rest), ko: '' });
     if (s.fee) info.push({ icon: 'TicketDiscountSize24', label: '料金', value: fmt(s.fee), ko: '' });
@@ -277,7 +294,9 @@ class Component extends DCLogic {
     if (s.sig) info.push({ icon: 'TickCircleSize24', label: '名物', value: fmt(s.sig), ko: '' });
     if (s.addr) info.push({ icon: 'LocationSize24', label: '住所', value: s.addr, ko: s.addrKo || '' });
     if (s.tel) info.push({ icon: 'CallSize24', label: '電話', value: s.tel, ko: '' });
-    const nearby = (s.nearby || []).map(id => byId(id)).filter(Boolean).map(n => ({ name: n.name, walk: (s.walk || {})[n.id] || '', hasAudio: !!(n.audio && n.audio.length), photo: bg(n.photo), href: 'spot.html?id=' + n.id }));
+    if (s.official) { let officialLabel = s.official; try { officialLabel = new URL(s.official).hostname.replace(/^www\./, ''); } catch (e) {} info.push({ icon: 'InfoCircleSize24', label: '公式サイト', value: officialLabel, ko: '', href: s.official }); }
+    info.forEach(r => { r.noHref = !r.href; r.href = r.href || ''; });
+    const nearby = (s.nearby || []).map(id => byId(id)).filter(Boolean).map(n => ({ name: n.name, walk: (s.walk || {})[n.id] || '', kind: n.type || '', sub: n.genre || n.area || '', subTxt: (n.genre || n.area) ? ' · ' + (n.genre || n.area) : '', hasAudio: !!(n.audio && n.audio.length), photo: bg(n.photo), href: 'spot.html?id=' + n.id }));
     document.title = s.name + ' | K-GUIDE';
     const gal = [s.photo].concat(s.gallery || []).filter(Boolean);
     window.__KGPHOTOS = gal;
@@ -334,6 +353,32 @@ class Component extends DCLogic {
     if(!t) return; e.preventDefault(); e.stopPropagation();
     open(parseInt(t.getAttribute('data-kgphoto'),10)||0);
   }, true);
+})();
+</script>
+<script>
+(function(){
+  var U='https://line.me/R/ti/p/@897fvigb'; if(!U) return;
+  var b=document.createElement('a'); b.href=U; b.target='_blank'; b.rel='noopener'; b.id='kgline';
+  b.textContent='LINEで相談';
+  b.style.cssText='position:absolute; right:16px; bottom:114px; z-index:700; display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 18px; border-radius:22px; background:#06C755; color:#fff; font-size:14px; font-weight:600; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
+  function place(s){
+    var sr=s.getBoundingClientRect(), top=sr.bottom;
+    Array.prototype.forEach.call(s.children, function(c){
+      if(c===b) return;
+      var st=getComputedStyle(c); if(st.position!=='absolute'&&st.position!=='fixed') return;
+      var r=c.getBoundingClientRect();
+      if(r.height>0 && r.height<260 && r.bottom>sr.bottom-260 && r.bottom<=sr.bottom+2) top=Math.min(top, r.top);
+    });
+    b.style.bottom = Math.round(Math.max(16, sr.bottom-top+16)) + 'px';
+  }
+  function screenEl(){ var a=document.querySelectorAll('[data-screen-label]'), out=null;
+    for(var i=0;i<a.length;i++){ if(a[i].closest('x-dc')) continue; var r=a[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=a[i]; }
+    return out; }
+  function mount(){ var s=screenEl(); if(!s) return; if(b.parentNode!==s) s.appendChild(b); place(s); }
+  setInterval(mount, 700);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', function(){
+    b.style.display = (window.visualViewport.height < window.innerHeight*0.75) ? 'none' : 'inline-flex'; }); }
 })();
 </script>
 </body>

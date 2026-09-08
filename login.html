@@ -144,5 +144,31 @@
 })();
 </script>
 </div>
+<script>
+(function(){
+  var U='https://line.me/R/ti/p/@897fvigb'; if(!U) return;
+  var b=document.createElement('a'); b.href=U; b.target='_blank'; b.rel='noopener'; b.id='kgline';
+  b.textContent='LINEで相談';
+  b.style.cssText='position:absolute; right:16px; bottom:114px; z-index:700; display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 18px; border-radius:22px; background:#06C755; color:#fff; font-size:14px; font-weight:600; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
+  function place(s){
+    var sr=s.getBoundingClientRect(), top=sr.bottom;
+    Array.prototype.forEach.call(s.children, function(c){
+      if(c===b) return;
+      var st=getComputedStyle(c); if(st.position!=='absolute'&&st.position!=='fixed') return;
+      var r=c.getBoundingClientRect();
+      if(r.height>0 && r.height<260 && r.bottom>sr.bottom-260 && r.bottom<=sr.bottom+2) top=Math.min(top, r.top);
+    });
+    b.style.bottom = Math.round(Math.max(16, sr.bottom-top+16)) + 'px';
+  }
+  function screenEl(){ var a=document.querySelectorAll('[data-screen-label]'), out=null;
+    for(var i=0;i<a.length;i++){ if(a[i].closest('x-dc')) continue; var r=a[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=a[i]; }
+    return out; }
+  function mount(){ var s=screenEl(); if(!s) return; if(b.parentNode!==s) s.appendChild(b); place(s); }
+  setInterval(mount, 700);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', function(){
+    b.style.display = (window.visualViewport.height < window.innerHeight*0.75) ? 'none' : 'inline-flex'; }); }
+})();
+</script>
 </body>
 </html>

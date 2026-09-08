@@ -12,7 +12,23 @@
 <script>
 (function(){
   var W=390, H=844;
+  var KB=0, NAV=null;
+  function navEl(){
+    if(NAV && NAV.isConnected) return NAV;
+    var d=document.getElementsByTagName('div');
+    for(var i=0;i<d.length;i++){ var st=(d[i].getAttribute('style')||'').replace(/\s+/g,'');
+      if(st.indexOf('height:98px')>=0 && st.indexOf('bottom:0')>=0){ NAV=d[i]; return NAV; } }
+    return null;
+  }
+  function navHide(on){
+    var n=navEl(); if(n){ if(on){ if(n.__d===undefined) n.__d=n.style.display; n.style.display='none'; } else if(n.__d!==undefined){ n.style.display=n.__d; } }
+    var b=document.getElementById('kgline'); if(b) b.style.visibility = on ? 'hidden' : '';
+  }
+  function isField(t){ return t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable); }
+  document.addEventListener('focusin', function(e){ if(!isField(e.target)) return; KB=1; navHide(1); });
+  document.addEventListener('focusout', function(e){ if(!isField(e.target)) return; KB=0; setTimeout(function(){ if(!KB){ navHide(0); fit(); } }, 150); });
   function fit(){
+    if(KB) return;
     var all=document.querySelectorAll('[data-screen-label]'), s=null;
     for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
     if(!s) return;
@@ -34,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788867420"></script>
-<script src="./kicon.js?v=1788867420"></script>
+<script src="./data.js?v=1788872092"></script>
+<script src="./kicon.js?v=1788872092"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -101,7 +117,7 @@
   </div>
 
   <div style="position:absolute; left:0; right:0; bottom:0; padding:12px 16px 20px; box-sizing:border-box; background:#fff; box-shadow:0 -8px 24px rgba(131,139,180,.10); display:flex; flex-direction:column; gap:6px;">
-    <a href="help.html" style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; letter-spacing:.02em; text-decoration:none;"><k-icon name="MessagesSize24" size="20" style="color:#fff"></k-icon>LINEで相談する</a>
+    <a href="https://line.me/R/ti/p/@897fvigb" target="_blank" rel="noopener" style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:16px; background:#06C755; color:#fff; font-size:16px; font-weight:600; letter-spacing:.02em; text-decoration:none;"><k-icon name="MessagesSize24" size="20" style="color:#fff"></k-icon>LINEで相談する</a>
     <div style="text-align:center; font-size:11px; font-weight:500; color:#6B6E80;">日本語で <span style="font-family:Poppins,'Noto Sans JP',sans-serif; font-weight:600;">24</span>時間以内に返信します</div>
   </div>
 </div>
@@ -119,6 +135,32 @@ class Component extends DCLogic {
     };
   }
 }
+</script>
+<script>
+(function(){
+  var U='https://line.me/R/ti/p/@897fvigb'; if(!U) return;
+  var b=document.createElement('a'); b.href=U; b.target='_blank'; b.rel='noopener'; b.id='kgline';
+  b.textContent='LINEで相談';
+  b.style.cssText='position:absolute; right:16px; bottom:114px; z-index:700; display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 18px; border-radius:22px; background:#06C755; color:#fff; font-size:14px; font-weight:600; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
+  function place(s){
+    var sr=s.getBoundingClientRect(), top=sr.bottom;
+    Array.prototype.forEach.call(s.children, function(c){
+      if(c===b) return;
+      var st=getComputedStyle(c); if(st.position!=='absolute'&&st.position!=='fixed') return;
+      var r=c.getBoundingClientRect();
+      if(r.height>0 && r.height<260 && r.bottom>sr.bottom-260 && r.bottom<=sr.bottom+2) top=Math.min(top, r.top);
+    });
+    b.style.bottom = Math.round(Math.max(16, sr.bottom-top+16)) + 'px';
+  }
+  function screenEl(){ var a=document.querySelectorAll('[data-screen-label]'), out=null;
+    for(var i=0;i<a.length;i++){ if(a[i].closest('x-dc')) continue; var r=a[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=a[i]; }
+    return out; }
+  function mount(){ var s=screenEl(); if(!s) return; if(b.parentNode!==s) s.appendChild(b); place(s); }
+  setInterval(mount, 700);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', function(){
+    b.style.display = (window.visualViewport.height < window.innerHeight*0.75) ? 'none' : 'inline-flex'; }); }
+})();
 </script>
 </body>
 </html>
