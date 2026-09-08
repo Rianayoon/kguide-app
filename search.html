@@ -50,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788878741"></script>
-<script src="./kicon.js?v=1788878741"></script>
+<script src="./data.js?v=1788894038"></script>
+<script src="./kicon.js?v=1788894038"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -84,6 +84,16 @@
         <div onClick="{{ t.onClick }}" style="display:flex; flex-direction:column; align-items:center; gap:1px; flex-shrink:0; padding:7px 14px; border-radius:16px; background:{{ t.bg }}; color:{{ t.fg }}; cursor:pointer;">
           <span style="font-size:13px; font-weight:700; white-space:nowrap;">{{ t.label }}</span>
           <span style="font-size:10px; font-weight:500; opacity:.75; white-space:nowrap;">{{ t.sub }}</span>
+        </div>
+      </sc-for>
+    </div>
+    </sc-if>
+    <sc-if value="{{ hasSub }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex; gap:6px; overflow-x:auto; margin:0 -16px; padding:0 16px 2px;">
+      <sc-for list="{{ subTabs }}" as="t" hint-placeholder-count="4">
+        <div onClick="{{ t.onClick }}" style="display:flex; align-items:center; gap:4px; flex-shrink:0; padding:6px 12px; border-radius:16px; background:{{ t.bg }}; box-shadow:{{ t.ring }}; color:{{ t.fg }}; cursor:pointer;">
+          <span style="font-size:12px; font-weight:600; white-space:nowrap;">{{ t.label }}</span>
+          <span style="font-size:10px; font-weight:500; opacity:.7; font-family:Poppins,sans-serif;">{{ t.n }}</span>
         </div>
       </sc-for>
     </div>
@@ -205,7 +215,8 @@
 
 
 const KG = window.KG; const SP = KG.spots;
-const YOMI = {'明洞':'ミョンドン','鍾路 · 光化門':'チョンノ・クァンファムン','北村 · 三清洞':'プクチョン・サムチョンドン','東大門':'トンデムン','弘大':'ホンデ','江南':'カンナム','梨泰院':'イテウォン','聖水':'ソンス','蚕室':'チャムシル','汝矣島':'ヨイド','大学路 · 城北':'テハンノ・ソンブク','新村 · 西大門':'シンチョン・ソデムン','水原':'スウォン','仁川':'インチョン','坡州':'パジュ','仁川空港・永宗島':'インチョンクウコウ','龍仁':'ヨンイン','南怡島・春川':'ナミソム・チュンチョン','江陵・束草':'カンヌン・ソクチョ','釜山':'プサン','慶州':'キョンジュ','全州':'チョンジュ','麗水':'ヨス','大邱':'テグ','大田':'テジョン'};
+const YOMI = {'明洞':'ミョンドン','鍾路 · 光化門':'チョンノ・クァンファムン','北村 · 三清洞':'プクチョン・サムチョンドン','東大門':'トンデムン','弘大':'ホンデ','江南':'カンナム','梨泰院':'イテウォン','聖水':'ソンス','蚕室':'チャムシル','汝矣島':'ヨイド','大学路 · 城北':'テハンノ・ソンブク','新村 · 西大門':'シンチョン・ソデムン','水原':'スウォン','仁川':'インチョン','坡州':'パジュ','仁川空港・永宗島':'インチョンクウコウ','龍仁':'ヨンイン','南怡島・春川':'ナミソム・チュンチョン','江陵・束草':'カンヌン・ソクチョ','釜山':'プサン','慶州':'キョンジュ','全州':'チョンジュ','麗水':'ヨス','大邱':'テグ','大田':'テジョン','済州':'チェジュ'};
+const SUB_AREAS = {'釜山':[['海雲台','ヘウンデ'],['広安里','クァンアルリ'],['南浦洞・チャガルチ','ナンポドン・チャガルチ'],['甘川・松島','カムチョン・ソンド'],['西面・田浦','ソミョン・チョンポ'],['機張','キジャン'],['影島','ヨンド'],['釜山駅・草梁','プサンヨク・チョリャン']],'済州':[['済州市・空港周辺','チェジュシ'],['東部','トンブ'],['西部','ソブ'],['南部','ナンブ']]};
 const PLAN = { get() { try { return JSON.parse(localStorage.getItem('kg_plan') || '{}'); } catch (e) { return {}; } }, set(p) { try { localStorage.setItem('kg_plan', JSON.stringify(p)); } catch (e) {} }, addSpot(id) { const p = PLAN.get(); const l = (p.course ? (KG.courses.find(c => c.id === p.course) || { spots: '' }).spots.split(',').filter(Boolean) : (p.spots || [])); if (!l.includes(id)) l.push(id); PLAN.set({ spots: l }); return l.length; }, ids() { const p = PLAN.get(); if (p.course) { const c = KG.courses.find(x => x.id === p.course); if (c) return c.spots.split(',').map(x => x.trim()).filter(Boolean); } return (p.spots || []).filter(id => byId(id)); } };
 const FAV = { get() { try { return JSON.parse(localStorage.getItem('kg_fav') || '[]'); } catch (e) { return []; } }, has(id) { return FAV.get().includes(id); }, toggle(id) { const l = FAV.get(); const i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.unshift(id); try { localStorage.setItem('kg_fav', JSON.stringify(l)); } catch (e) {} return i < 0; } };
 const stopNav = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } };
@@ -245,7 +256,7 @@ const st = (s) => isClosedToday(s) ? SHUT : OPEN;
 const metaOf = (s) => [s.jp ? '日本語対応' : '', s.stay ? `約${s.stay}分` : '', s.fee && s.fee.length < 22 ? s.fee : '', s.area].filter(Boolean).slice(0,2).join(' · ');
 const WXTXT = (c) => c <= 2 ? '晴' : c === 3 ? '曇' : (c === 45 || c === 48) ? '霧' : ((c >= 71 && c <= 77) || c === 85 || c === 86) ? '雪' : '雨';
 const WEAR = (mx, pop) => { const w = mx >= 30 ? '日よけ・水分補給' : mx >= 20 ? '半袖＋薄手の上着' : mx >= 10 ? '上着必須' : 'コート・手袋'; return pop >= 50 ? '傘 · ' + w : w; };
-const CITY_LL = {'ソウル':[37.57,126.98],'釜山':[35.18,129.08],'江陵・束草':[37.75,128.88],'慶州':[35.86,129.22],'全州':[35.82,127.15],'麗水':[34.76,127.66],'大邱':[35.87,128.60],'大田':[36.35,127.38]};
+const CITY_LL = {'ソウル':[37.57,126.98],'釜山':[35.18,129.08],'江陵・束草':[37.75,128.88],'慶州':[35.86,129.22],'全州':[35.82,127.15],'麗水':[34.76,127.66],'大邱':[35.87,128.60],'大田':[36.35,127.38],'済州':[33.51,126.53]};
 function wxFetch(lat, lng) {
   const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia/Seoul&forecast_days=7`;
   return fetch(u).then(r => r.json()).then(j => {
@@ -258,7 +269,7 @@ function wxFetch(lat, lng) {
   });
 }
 
-const SEOUL_TABS = [['鍾路 · 光化門','景福宮エリア','キョンボックン'],['明洞','明洞','ミョンドン'],['北村 · 三清洞','北村','プクチョン'],['弘大','弘大','ホンデ'],['江南','江南','カンナム'],['聖水','聖水','ソンス'],['梨泰院','梨泰院','イテウォン'],['東大門','東大門','トンデムン'],['蚕室','蚕室','チャムシル'],['汝矣島','汝矣島','ヨイド'],['大学路 · 城北','大学路','テハンノ'],['新村 · 西大門','新村','シンチョン']]; const REGION_TABS = [['仁川空港・永宗島','仁川空港','インチョンクウコウ'],['水原','水原','スウォン'],['南怡島・春川','南怡島','ナミソム'],['仁川','仁川','インチョン'],['坡州','坡州','パジュ'],['龍仁','龍仁','ヨンイン'],['江陵・束草','江陵','カンヌン'],['釜山','釜山','プサン'],['慶州','慶州','キョンジュ'],['全州','全州','チョンジュ'],['麗水','麗水','ヨス'],['大邱','大邱','テグ'],['大田','大田','テジョン']];
+const SEOUL_TABS = [['鍾路 · 光化門','景福宮エリア','キョンボックン'],['明洞','明洞','ミョンドン'],['北村 · 三清洞','北村','プクチョン'],['弘大','弘大','ホンデ'],['江南','江南','カンナム'],['聖水','聖水','ソンス'],['梨泰院','梨泰院','イテウォン'],['東大門','東大門','トンデムン'],['蚕室','蚕室','チャムシル'],['汝矣島','汝矣島','ヨイド'],['大学路 · 城北','大学路','テハンノ'],['新村 · 西大門','新村','シンチョン']]; const REGION_TABS = [['仁川空港・永宗島','仁川空港','インチョンクウコウ'],['水原','水原','スウォン'],['南怡島・春川','南怡島','ナミソム'],['仁川','仁川','インチョン'],['坡州','坡州','パジュ'],['龍仁','龍仁','ヨンイン'],['江陵・束草','江陵','カンヌン'],['釜山','釜山','プサン'],['済州','済州','チェジュ'],['慶州','慶州','キョンジュ'],['全州','全州','チョンジュ'],['麗水','麗水','ヨス'],['大邱','大邱','テグ'],['大田','大田','テジョン']];
 const SEOUL_AK = SEOUL_TABS.map(t => t[0]); const REGION_AK = REGION_TABS.map(t => t[0]);
 
 
@@ -268,7 +279,7 @@ const SHUT = { dot: '#B22459', open: '本日休館', openFg: '#B22459' };
 const SHEETS = {
   area: {
     title: 'エリア', hint: '1つ選べます', multi: false,
-    groups: [{ title: 'ソウル', options: ['明洞', '鍾路 · 光化門', '北村 · 三清洞', '東大門', '弘大', '江南', '梨泰院', '聖水', '蚕室', '汝矣島', '大学路 · 城北', '新村 · 西大門'] }, { title: 'ソウル近郊（日帰り）', options: ['仁川空港・永宗島', '水原', '仁川', '坡州', '龍仁', '南怡島・春川', '江陵・束草'] }, { title: '地方（1泊〜）', options: ['釜山', '慶州', '全州', '麗水', '大邱', '大田'] }],
+    groups: [{ title: 'ソウル', options: ['明洞', '鍾路 · 光化門', '北村 · 三清洞', '東大門', '弘大', '江南', '梨泰院', '聖水', '蚕室', '汝矣島', '大学路 · 城北', '新村 · 西大門'] }, { title: 'ソウル近郊（日帰り）', options: ['仁川空港・永宗島', '水原', '仁川', '坡州', '龍仁', '南怡島・春川', '江陵・束草'] }, { title: '地方（1泊〜）', options: ['釜山', '済州', '慶州', '全州', '麗水', '大邱', '大田'] }],
   },
   genre: {
     title: 'ジャンル', hint: 'いくつでも選べます', multi: true,
@@ -287,7 +298,7 @@ const ALL = SP.map(s => ({ ...s, hasKana: !!s.kana, hasAudio: !!(s.audio && s.au
     const favOf = (self, s) => ({ fav: (e) => { stopNav(e); FAV.toggle(s.id); self.setState({ favTick: Date.now() }); }, favStyle: FAV.has(s.id) ? 'color:#B22459' : 'color:#9C9FAF' });
 
 class Component extends DCLogic {
-  state = (() => { const u = new URLSearchParams(location.search); const a = u.get('area') || ''; const m = u.get('mode') || (a ? (SEOUL_AK.includes(a) ? 'area' : (REGION_AK.includes(a) ? 'region' : '')) : ''); return { sheet: undefined, area: a, mode: m, genres: u.get('type') ? [u.get('type')] : [], budget: '', jpOnly: false, q: u.get('q') || '' }; })();
+  state = (() => { const u = new URLSearchParams(location.search); const a = u.get('area') || ''; const m = u.get('mode') || (a ? (SEOUL_AK.includes(a) ? 'area' : (REGION_AK.includes(a) ? 'region' : '')) : ''); return { sheet: undefined, area: a, sub: '', mode: m, genres: u.get('type') ? [u.get('type')] : [], budget: '', jpOnly: false, q: u.get('q') || '' }; })();
 
   renderVals() {
     const on = { bg: '#3F52B4', fg: '#fff', ring: 'none', caret: 'color:#fff; transform:rotate(90deg)' };
@@ -307,9 +318,9 @@ class Component extends DCLogic {
     };
     const genreLabel = this.state.genres.length ? `ジャンル · ${this.state.genres.length}` : 'ジャンル';
 
-    const { area, genres, budget, jpOnly, q } = this.state; const mode = this.state.mode || ''; const scope = mode === 'area' ? SEOUL_AK : mode === 'region' ? REGION_AK : null; const qq = (q || '').trim().toLowerCase();
+    const { area, genres, budget, jpOnly, q } = this.state; const sub = this.state.sub || ''; const mode = this.state.mode || ''; const scope = mode === 'area' ? SEOUL_AK : mode === 'region' ? REGION_AK : null; const qq = (q || '').trim().toLowerCase();
     const filtered = this.props.noResult ? [] : ALL.filter(r =>
-      (area ? r.areaKey === area : (!scope || scope.includes(r.areaKey))) &&
+      (area ? r.areaKey === area : (!scope || scope.includes(r.areaKey))) && (!sub || r.area === sub) &&
       (!genres.length || genres.some(g => r.tags.some(t => t.includes(g)))) &&
       (!budget || r.band === budget) &&
       (!jpOnly || r.jp) &&
@@ -320,7 +331,7 @@ class Component extends DCLogic {
       sheetOpen: !!sheet,
       sheetTitle: sheet ? sheet.title : '',
       sheetHint: sheet ? sheet.hint : '',
-      resultCount: filtered.length, q: this.state.q, onQ: (e) => this.setState({ q: e.target.value }), title: qq ? `「${q.trim()}」の検索結果` : area ? `${area}のまわり` : genres.length ? genres[0] : mode === 'area' ? 'ソウル' : mode === 'region' ? '地方・近郊' : 'すべてのスポット', hasTabs: !!scope, areaTabs: !scope ? [] : [['', mode === 'area' ? 'ソウル全体' : '地方・近郊', 'すべて']].concat((mode === 'area' ? SEOUL_TABS : REGION_TABS).filter(t => SP.some(x => x.areaKey === t[0]))).map(([k, label, yomi]) => { const n = k ? SP.filter(x => x.areaKey === k).length : SP.filter(x => scope.includes(x.areaKey)).length; const on = area === k; return { label: k ? label : 'すべて', sub: yomi + ' · ' + n + '件', bg: on ? '#3F52B4' : '#F2F4FC', fg: on ? '#fff' : '#4B4F63', onClick: () => this.setState({ area: k }) }; }),
+      resultCount: filtered.length, q: this.state.q, onQ: (e) => this.setState({ q: e.target.value }), title: qq ? `「${q.trim()}」の検索結果` : area ? `${area}のまわり` : genres.length ? genres[0] : mode === 'area' ? 'ソウル' : mode === 'region' ? '地方・近郊' : 'すべてのスポット', hasTabs: !!scope, areaTabs: !scope ? [] : [['', mode === 'area' ? 'ソウル全体' : '地方・近郊', 'すべて']].concat((mode === 'area' ? SEOUL_TABS : REGION_TABS).filter(t => SP.some(x => x.areaKey === t[0]))).map(([k, label, yomi]) => { const n = k ? SP.filter(x => x.areaKey === k).length : SP.filter(x => scope.includes(x.areaKey)).length; const on = area === k; return { label: k ? label : 'すべて', sub: yomi + ' · ' + n + '件', bg: on ? '#3F52B4' : '#F2F4FC', fg: on ? '#fff' : '#4B4F63', onClick: () => this.setState({ area: k, sub: '' }) }; }), hasSub: !!(area && SUB_AREAS[area]), subTabs: !(area && SUB_AREAS[area]) ? [] : [['', 'すべて']].concat(SUB_AREAS[area]).map(([k]) => { const n = k ? SP.filter(x => x.areaKey === area && x.area === k).length : SP.filter(x => x.areaKey === area).length; const on = sub === k; return { label: k || 'すべて', n: n, bg: on ? '#3F52B4' : '#fff', fg: on ? '#fff' : '#4B4F63', ring: on ? 'none' : 'inset 0 0 0 1px #D1D3DB', onClick: () => this.setState({ sub: k }) }; }).filter(t => t.n > 0),
       isNoResult: filtered.length === 0,
       clearAll: () => this.setState({ genres: [], budget: '', jpOnly: false, area: '' }),
       jpBg: this.state.jpOnly ? '#F2F4FC' : '#fff',

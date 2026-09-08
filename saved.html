@@ -50,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788878741"></script>
-<script src="./kicon.js?v=1788878741"></script>
+<script src="./data.js?v=1788894038"></script>
+<script src="./kicon.js?v=1788894038"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -147,7 +147,8 @@
 
 
 const KG = window.KG; const SP = KG.spots;
-const YOMI = {'明洞':'ミョンドン','鍾路 · 光化門':'チョンノ・クァンファムン','北村 · 三清洞':'プクチョン・サムチョンドン','東大門':'トンデムン','弘大':'ホンデ','江南':'カンナム','梨泰院':'イテウォン','聖水':'ソンス','蚕室':'チャムシル','汝矣島':'ヨイド','大学路 · 城北':'テハンノ・ソンブク','新村 · 西大門':'シンチョン・ソデムン','水原':'スウォン','仁川':'インチョン','坡州':'パジュ','仁川空港・永宗島':'インチョンクウコウ','龍仁':'ヨンイン','南怡島・春川':'ナミソム・チュンチョン','江陵・束草':'カンヌン・ソクチョ','釜山':'プサン','慶州':'キョンジュ','全州':'チョンジュ','麗水':'ヨス','大邱':'テグ','大田':'テジョン'};
+const YOMI = {'明洞':'ミョンドン','鍾路 · 光化門':'チョンノ・クァンファムン','北村 · 三清洞':'プクチョン・サムチョンドン','東大門':'トンデムン','弘大':'ホンデ','江南':'カンナム','梨泰院':'イテウォン','聖水':'ソンス','蚕室':'チャムシル','汝矣島':'ヨイド','大学路 · 城北':'テハンノ・ソンブク','新村 · 西大門':'シンチョン・ソデムン','水原':'スウォン','仁川':'インチョン','坡州':'パジュ','仁川空港・永宗島':'インチョンクウコウ','龍仁':'ヨンイン','南怡島・春川':'ナミソム・チュンチョン','江陵・束草':'カンヌン・ソクチョ','釜山':'プサン','慶州':'キョンジュ','全州':'チョンジュ','麗水':'ヨス','大邱':'テグ','大田':'テジョン','済州':'チェジュ'};
+const SUB_AREAS = {'釜山':[['海雲台','ヘウンデ'],['広安里','クァンアルリ'],['南浦洞・チャガルチ','ナンポドン・チャガルチ'],['甘川・松島','カムチョン・ソンド'],['西面・田浦','ソミョン・チョンポ'],['機張','キジャン'],['影島','ヨンド'],['釜山駅・草梁','プサンヨク・チョリャン']],'済州':[['済州市・空港周辺','チェジュシ'],['東部','トンブ'],['西部','ソブ'],['南部','ナンブ']]};
 const PLAN = { get() { try { return JSON.parse(localStorage.getItem('kg_plan') || '{}'); } catch (e) { return {}; } }, set(p) { try { localStorage.setItem('kg_plan', JSON.stringify(p)); } catch (e) {} }, addSpot(id) { const p = PLAN.get(); const l = (p.course ? (KG.courses.find(c => c.id === p.course) || { spots: '' }).spots.split(',').filter(Boolean) : (p.spots || [])); if (!l.includes(id)) l.push(id); PLAN.set({ spots: l }); return l.length; }, ids() { const p = PLAN.get(); if (p.course) { const c = KG.courses.find(x => x.id === p.course); if (c) return c.spots.split(',').map(x => x.trim()).filter(Boolean); } return (p.spots || []).filter(id => byId(id)); } };
 const FAV = { get() { try { return JSON.parse(localStorage.getItem('kg_fav') || '[]'); } catch (e) { return []; } }, has(id) { return FAV.get().includes(id); }, toggle(id) { const l = FAV.get(); const i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.unshift(id); try { localStorage.setItem('kg_fav', JSON.stringify(l)); } catch (e) {} return i < 0; } };
 const stopNav = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } };
@@ -187,7 +188,7 @@ const st = (s) => isClosedToday(s) ? SHUT : OPEN;
 const metaOf = (s) => [s.jp ? '日本語対応' : '', s.stay ? `約${s.stay}分` : '', s.fee && s.fee.length < 22 ? s.fee : '', s.area].filter(Boolean).slice(0,2).join(' · ');
 const WXTXT = (c) => c <= 2 ? '晴' : c === 3 ? '曇' : (c === 45 || c === 48) ? '霧' : ((c >= 71 && c <= 77) || c === 85 || c === 86) ? '雪' : '雨';
 const WEAR = (mx, pop) => { const w = mx >= 30 ? '日よけ・水分補給' : mx >= 20 ? '半袖＋薄手の上着' : mx >= 10 ? '上着必須' : 'コート・手袋'; return pop >= 50 ? '傘 · ' + w : w; };
-const CITY_LL = {'ソウル':[37.57,126.98],'釜山':[35.18,129.08],'江陵・束草':[37.75,128.88],'慶州':[35.86,129.22],'全州':[35.82,127.15],'麗水':[34.76,127.66],'大邱':[35.87,128.60],'大田':[36.35,127.38]};
+const CITY_LL = {'ソウル':[37.57,126.98],'釜山':[35.18,129.08],'江陵・束草':[37.75,128.88],'慶州':[35.86,129.22],'全州':[35.82,127.15],'麗水':[34.76,127.66],'大邱':[35.87,128.60],'大田':[36.35,127.38],'済州':[33.51,126.53]};
 function wxFetch(lat, lng) {
   const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia/Seoul&forecast_days=7`;
   return fetch(u).then(r => r.json()).then(j => {
@@ -211,7 +212,7 @@ class Component extends DCLogic {
     const empty = this.props.emptyState ?? false;
     const tab = this.state.tab;
     const spots = empty ? [] : FAV.get().map(id => byId(id)).filter(Boolean).map(x => ({ name: x.name, area: x.area, ...st(x), meta: metaOf(x), photo: bg(x.photo), href: 'spot.html?id=' + x.id, unfav: (e) => { stopNav(e); FAV.toggle(x.id); this.setState({ t: Date.now() }); } }));
-    const routes = empty ? [] : (KG.courses || []).map(c => { const ids = String(c.spots || c.spot_ids || '').split(',').map(x => x.trim()).filter(Boolean); const first = byId(ids[0]); return { name: c.name, date: c.sub || '', spots: ids.length, hours: c.hours || '', quoted: false, photo: bg(first ? first.photo : ''), href: 'course.html?id=' + c.id }; });
+    const routes = empty ? [] : (KG.courses || []).map(c => { const ids = String(c.spots || c.spot_ids || '').split(',').map(x => x.trim()).filter(Boolean); const first = byId(ids[0]); return { name: c.name, date: [c.city || '', c.sub || ''].filter(Boolean).join(' · '), spots: ids.length, hours: c.hours || '', quoted: false, photo: bg(first ? first.photo : ''), href: 'course.html?id=' + c.id }; });
     const on = { bg: '#3F52B4', fg: '#fff', ring: 'none' };
     const off = { bg: '#fff', fg: '#4B4F63', ring: 'inset 0 0 0 1px #D1D3DB' };
     const list = tab === 'spots' ? spots : routes;
