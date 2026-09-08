@@ -50,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788872092"></script>
-<script src="./kicon.js?v=1788872092"></script>
+<script src="./data.js?v=1788878741"></script>
+<script src="./kicon.js?v=1788878741"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -362,8 +362,9 @@ class Component extends DCLogic {
 (function(){
   var U='https://line.me/R/ti/p/@897fvigb'; if(!U) return;
   var b=document.createElement('a'); b.href=U; b.target='_blank'; b.rel='noopener'; b.id='kgline';
-  b.textContent='LINEで相談';
-  b.style.cssText='position:absolute; right:16px; bottom:114px; z-index:700; display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 18px; border-radius:22px; background:#06C755; color:#fff; font-size:14px; font-weight:600; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
+  b.setAttribute('aria-label','LINEで相談');
+  b.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.6-.7L3 21l1.8-4.2A8.4 8.4 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5z"/></svg><span style="font-size:9px;font-weight:700;letter-spacing:.5px;line-height:1;margin-top:1px">LINE</span>';
+  b.style.cssText='position:absolute; right:16px; bottom:114px; z-index:700; display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#06C755; color:#fff; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
   function place(s){
     var sr=s.getBoundingClientRect(), top=sr.bottom;
     Array.prototype.forEach.call(s.children, function(c){
