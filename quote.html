@@ -26,6 +26,11 @@
     s.style.transform='scale('+k+')';
     s.style.margin='0';
   }
+  var KB=false, NAV=null;
+  function navEl(){ var a=document.querySelectorAll('[data-screen-label] div'); for(var i=0;i<a.length;i++){ var st=a[i].getAttribute('style')||''; if(st.indexOf('bottom:0')>-1&&st.indexOf('height:98px')>-1) return a[i]; } return null; }
+  document.addEventListener('focusin', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){ KB=true; NAV=navEl(); if(NAV) NAV.style.display='none'; } });
+  document.addEventListener('focusout', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){ KB=false; if(NAV) NAV.style.display=''; setTimeout(fit,50); } });
+  var _fit=fit; fit=function(){ if(KB) return; _fit(); };
   var mo=new MutationObserver(function(){ fit(); });
   document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
   window.addEventListener('resize', fit);
@@ -34,8 +39,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788821846"></script>
-<script src="./kicon.js?v=1788821846"></script>
+<script src="./data.js?v=1788854511"></script>
+<script src="./kicon.js?v=1788854511"></script>
 </head>
 <body>
 <x-dc>

@@ -26,6 +26,11 @@
     s.style.transform='scale('+k+')';
     s.style.margin='0';
   }
+  var KB=false, NAV=null;
+  function navEl(){ var a=document.querySelectorAll('[data-screen-label] div'); for(var i=0;i<a.length;i++){ var st=a[i].getAttribute('style')||''; if(st.indexOf('bottom:0')>-1&&st.indexOf('height:98px')>-1) return a[i]; } return null; }
+  document.addEventListener('focusin', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){ KB=true; NAV=navEl(); if(NAV) NAV.style.display='none'; } });
+  document.addEventListener('focusout', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){ KB=false; if(NAV) NAV.style.display=''; setTimeout(fit,50); } });
+  var _fit=fit; fit=function(){ if(KB) return; _fit(); };
   var mo=new MutationObserver(function(){ fit(); });
   document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
   window.addEventListener('resize', fit);
@@ -34,8 +39,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788854087"></script>
-<script src="./kicon.js?v=1788854087"></script>
+<script src="./data.js?v=1788854511"></script>
+<script src="./kicon.js?v=1788854511"></script>
 </head>
 <body>
 <x-dc>
@@ -152,10 +157,10 @@
       <div style="display:flex; gap:12px; padding:0 16px; overflow-x:auto;">
         <sc-for list="{{ nearby }}" as="n" hint-placeholder-count="3">
           <a href="{{ n.href }}" style="flex-shrink:0; width:150px; display:flex; flex-direction:column; gap:8px; text-decoration:none;">
-            <div style="height:110px; border-radius:16px; background:{{ n.photo }};"></div>
+            <div style="position:relative; height:110px; border-radius:16px; background:{{ n.photo }};"><span style="position:absolute; left:8px; top:8px; font-size:11px; font-weight:600; line-height:20px; padding:0 8px; border-radius:8px; background:rgba(255,255,255,.92); color:#3F52B4;">{{ n.kind }}</span></div>
             <div style="display:flex; flex-direction:column; gap:2px;">
-              <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">{{ n.name }}</div>
-              <div style="font-size:12px; font-weight:500; color:#6B6E80;">徒歩 <span style="font-family:Poppins,sans-serif;">{{ n.walk }}</span>分</div>
+              <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ n.name }}</div>
+              <div style="font-size:12px; font-weight:500; color:#6B6E80;">徒歩 <span style="font-family:Poppins,sans-serif;">{{ n.walk }}</span>分 · {{ n.sub }}</div>
             </div>
           </a>
         </sc-for>
@@ -235,7 +240,7 @@ class Component extends DCLogic {
     if (s.sig) info.push({ icon: 'TickCircleSize24', label: '名物', value: fmt(s.sig), ko: '' });
     if (s.addr) info.push({ icon: 'LocationSize24', label: '住所', value: s.addr, ko: s.addrKo || '' });
     if (s.tel) info.push({ icon: 'CallSize24', label: '電話', value: s.tel, ko: '' });
-    const nearby = (s.nearby || []).map(id => byId(id)).filter(Boolean).map(n => ({ name: n.name, walk: (s.walk || {})[n.id] || '', photo: bg(n.photo), href: 'spot.html?id=' + n.id }));
+    const nearby = (s.nearby || []).map(id => byId(id)).filter(Boolean).map(n => ({ name: n.name, kind: n.type || '', sub: n.genre || n.area || '', walk: (s.walk || {})[n.id] || '', photo: bg(n.photo), href: 'spot.html?id=' + n.id }));
     document.title = s.name + ' | K-GUIDE';
     return {
       name: s.name, ko: s.ko || '', hero: bg(s.photo), dot: stt.dot, open: stt.open, openFg: stt.openFg,
