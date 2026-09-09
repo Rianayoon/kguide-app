@@ -50,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788913224"></script>
-<script src="./kicon.js?v=1788913224"></script>
+<script src="./data.js?v=1788922072"></script>
+<script src="./kicon.js?v=1788922072"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -87,7 +87,7 @@
           <span style="color:#D1D3DB;">·</span>
           <span style="font-size:12px; font-weight:500; color:#6B6E80;">{{ areaText }}</span>
         </div>
-        <sc-if value="{{ verified }}" hint-placeholder-val="{{ true }}"><span style="align-self:flex-start; display:inline-flex; align-items:center; gap:4px; height:22px; padding:0 8px; border-radius:8px; background:#3F52B4; color:#fff; font-size:11px; font-weight:600;"><k-icon name="TickCircleSize12" size="12" style="color:#fff"></k-icon>ガイド確認済み</span></sc-if><sc-if value="{{ hasSrc }}" hint-placeholder-val="{{ false }}"><span style="align-self:flex-start; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:600;">{{ src }}</span></sc-if><sc-if value="{{ photoCredit }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px; color:#9C9FAF;">{{ photoCredit }}</span></sc-if>
+        <sc-if value="{{ verified }}" hint-placeholder-val="{{ true }}"><span style="align-self:flex-start; display:inline-flex; align-items:center; gap:4px; height:22px; padding:0 8px; border-radius:8px; background:#3F52B4; color:#fff; font-size:11px; font-weight:600;"><k-icon name="TickCircleSize12" size="12" style="color:#fff"></k-icon>ガイド確認済み</span></sc-if><sc-if value="{{ hasSrc }}" hint-placeholder-val="{{ false }}"><span style="align-self:flex-start; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:600;">{{ src }}</span></sc-if><sc-if value="{{ isLocal }}" hint-placeholder-val="{{ false }}"><span style="align-self:flex-start; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#FCF2F6; color:#B22459; font-size:11px; font-weight:600;">地元で人気</span></sc-if><sc-if value="{{ photoCredit }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px; color:#9C9FAF;">{{ photoCredit }}</span></sc-if>
       </div>
     </div>
 
@@ -299,6 +299,7 @@ class Component extends DCLogic {
     if (s.sig) info.push({ icon: 'TickCircleSize24', label: '名物', value: fmt(s.sig), ko: '' });
     if (s.addr) info.push({ icon: 'LocationSize24', label: '住所', value: s.addr, ko: (s.addrKo && s.addrKo !== s.addr) ? s.addrKo : '' });
     if (s.tel) info.push({ icon: 'CallSize24', label: '電話', value: s.tel, ko: '' });
+    if (s.localWhy && (s.tags || []).indexOf('韓国人に人気') >= 0) info.push({ icon: 'HeartSize24', label: '地元人気の理由', value: fmt(s.localWhy), ko: '' });
     if (s.official) { let officialLabel = s.official; try { officialLabel = new URL(s.official).hostname.replace(/^www\./, ''); } catch (e) {} info.push({ icon: 'InfoCircleSize24', label: '公式サイト', value: officialLabel, ko: '', href: s.official }); }
     info.forEach(r => { r.noHref = !r.href; r.href = r.href || ''; });
     const nearby = (s.nearby || []).map(id => byId(id)).filter(Boolean).map(n => ({ name: n.name, walk: (s.walk || {})[n.id] || '', kind: n.type || '', sub: n.genre || n.area || '', subTxt: (n.genre || n.area) ? ' · ' + (n.genre || n.area) : '', hasAudio: !!(n.audio && n.audio.length), photo: bg(n.photo), href: 'spot.html?id=' + n.id }));
@@ -310,7 +311,7 @@ class Component extends DCLogic {
       thumbs: gal.map((u, i) => ({ i: i, bg: bg(u), ring: i === 0 ? 'inset 0 0 0 2px #3F52B4' : 'inset 0 0 0 1px #E9ECF8' })),
       tipParas: para(s.tip), overviewParas: para(s.overview),
       name: s.name, ko: (s.ko && s.ko !== s.name) ? s.ko : '', hero: bg(s.photo), dot: stt.dot, open: stt.open, openFg: stt.openFg,
-      areaText: [s.city && s.city !== 'ソウル' ? s.city : '', s.area, s.type].filter(Boolean).join(' · '), kana: s.kana || '', hasKana: !!s.kana, addLabel: PLAN.ids().includes(s.id) ? 'ルートに追加済み → プランを見る' : 'ルートに追加', addRoute: () => { if (!PLAN.ids().includes(s.id)) PLAN.addSpot(s.id); location.href = 'plan.html'; }, verified: !!s.verified, hasSrc: !!s.src, src: s.src || '', photoCredit: /visitkorea/.test(s.photo) ? '写真：韓国観光公社（公共ヌリ）' : /unsplash/.test(s.photo) ? '写真：Unsplash' : /pexels/.test(s.photo) ? '写真：Pexels' : '',
+      areaText: [s.city && s.city !== 'ソウル' ? s.city : '', s.area, s.type].filter(Boolean).join(' · '), kana: s.kana || '', hasKana: !!s.kana, addLabel: PLAN.ids().includes(s.id) ? 'ルートに追加済み → プランを見る' : 'ルートに追加', addRoute: () => { if (!PLAN.ids().includes(s.id)) PLAN.addSpot(s.id); location.href = 'plan.html'; }, verified: !!s.verified, isLocal: (s.tags || []).indexOf('韓国人に人気') >= 0, hasSrc: !!s.src, src: s.src || '', photoCredit: /visitkorea/.test(s.photo) ? '写真：韓国観光公社（公共ヌリ）' : /unsplash/.test(s.photo) ? '写真：Unsplash' : /pexels/.test(s.photo) ? '写真：Pexels' : '',
       info, nearby, naver: s.naver || ('https://map.naver.com/p/search/' + encodeURIComponent(s.ko || s.name)),
       hasTip: !!s.tip, tip: s.tip || '', hasDrama: !!s.drama, drama: s.drama || '', scene: s.scene || '', visit: s.visit || '', hasOverview: !!s.overview, overview: s.overview || '',
       hasAudio: !!(s.audio && s.audio.length), audioTitle: '音声ガイド（' + (s.audio || []).length + '話）· 日本語', audioOpen: !!this.state.audioOpen, audioCaret: this.state.audioOpen ? '閉じる ▲' : '開く ▼', audioToggle: () => this.setState({ audioOpen: !this.state.audioOpen }), hasCam: !!s.cam, cam: s.cam || '', camLabel: s.camLabel || '', audio: (s.audio || []).map(a => { const on = this.state.playing === a.url; const min = a.sec ? Math.round(a.sec / 60) + '分' : ''; return { ...a, onClick: () => this.toggle(a.url), mark: on ? '■' : '▶', bg: on ? '#F2F4FC' : '#F7F7FA', sub: on ? '再生中 · ' + min : min }; }),

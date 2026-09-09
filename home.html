@@ -50,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788913224"></script>
-<script src="./kicon.js?v=1788913224"></script>
+<script src="./data.js?v=1788922072"></script>
+<script src="./kicon.js?v=1788922072"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -125,6 +125,14 @@
       </div>
     </div>
 
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin:12px 16px 0; padding:10px 10px; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12);">
+      <a href="guide.html" style="flex:1; display:flex; align-items:center; justify-content:center; gap:5px; color:#4B4F63; font-size:11px; font-weight:600; text-decoration:none; white-space:nowrap;"><k-icon name="TickCircleSize14" size="14" style="color:#3F52B4"></k-icon>ガイド確認済み</a>
+      <span style="width:1px; height:14px; background:#E9ECF8; flex-shrink:0;"></span>
+      <a href="{{ lineHref }}" target="_blank" style="flex:1; display:flex; align-items:center; justify-content:center; gap:5px; color:#4B4F63; font-size:11px; font-weight:600; text-decoration:none; white-space:nowrap;"><k-icon name="MessagesSize18" size="14" style="color:#3F52B4"></k-icon>LINEで相談</a>
+      <span style="width:1px; height:14px; background:#E9ECF8; flex-shrink:0;"></span>
+      <a href="calendar.html" style="flex:1; display:flex; align-items:center; justify-content:center; gap:5px; color:#4B4F63; font-size:11px; font-weight:600; text-decoration:none; white-space:nowrap;"><k-icon name="ClockSize14" size="14" style="color:#3F52B4"></k-icon>休館日カレンダー</a>
+    </div>
+
     <a href="course.html?id=C001" style="display:block; position:relative; height:200px; flex-shrink:0; overflow:hidden; background:url('https://tong.visitkorea.or.kr/cms/resource/97/3487597_image2_1.jpg') center / cover no-repeat;">
       <div style="position:absolute; left:0; right:0; bottom:0; height:52%; background:linear-gradient(180deg, rgba(17,21,41,0) 0%, rgba(17,21,41,0.72) 42%, rgba(17,21,41,0.94) 100%);"></div>
       <span style="position:absolute; left:16px; top:16px; display:inline-flex; align-items:center; gap:4px; height:22px; padding:0 8px; border-radius:8px; background:#3F52B4; color:#fff; font-size:11px; font-weight:600;"><k-icon name="TickCircleSize12" size="12" style="color:#fff"></k-icon>ガイド確認済み</span>
@@ -161,6 +169,18 @@
       </div>
     </div>
 
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; align-items:baseline; justify-content:space-between; padding:0 16px;">
+        <div style="font-size:20px; font-weight:700; color:#111527;">料理から探す</div>
+      </div>
+      <div style="display:flex; gap:8px; padding:0 16px 2px; overflow-x:auto;">
+        <sc-for list="{{ dishes }}" as="dh" hint-placeholder-count="6">
+          <a href="{{ dh.href }}" style="display:inline-flex; align-items:center; gap:5px; flex-shrink:0; height:34px; padding:0 14px; border-radius:38px; background:#fff; box-shadow:inset 0 0 0 1px #D1D3DB; color:#4B4F63; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap;">{{ dh.label }}<span style="font-family:Poppins,sans-serif; font-size:10px; font-weight:500; opacity:.75;">{{ dh.n }}</span></a>
+        </sc-for>
+        <a href="{{ localHref }}" style="display:inline-flex; align-items:center; gap:5px; flex-shrink:0; height:34px; padding:0 14px; border-radius:38px; background:#FCF2F6; color:#B22459; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap;">韓国人に人気<span style="font-family:Poppins,sans-serif; font-size:10px; font-weight:500; opacity:.75;">{{ localCount }}</span></a>
+      </div>
+    </div>
+
     <sc-if value="{{ hasEvents }}" hint-placeholder-val="{{ false }}">
     <div style="display:flex; flex-direction:column; gap:12px;">
       <div style="display:flex; align-items:baseline; justify-content:space-between; padding:0 16px;">
@@ -170,13 +190,32 @@
         <sc-for list="{{ events }}" as="e" hint-placeholder-count="3">
           <a href="{{ e.href }}" target="_blank" style="display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); text-decoration:none;">
             <div style="flex-shrink:0; width:52px; text-align:center; font-family:Poppins,sans-serif; font-size:11px; font-weight:600; line-height:1.3; color:#3F52B4; background:#F2F4FC; border-radius:10px; padding:6px 0; white-space:pre-line;">{{ e.when }}</div>
-            <div style="flex:1; min-width:0;"><div style="font-size:14px; font-weight:600; color:#111527; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ e.name }}</div><div style="font-size:11px; color:#6B6E80; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ e.place }}</div></div>
+            <div style="flex:1; min-width:0;"><div style="display:flex; align-items:center; gap:6px;"><sc-if value="{{ e.isPopup }}" hint-placeholder-val="{{ false }}"><span style="flex-shrink:0; display:inline-flex; align-items:center; height:18px; padding:0 6px; border-radius:6px; background:#FCF2F6; color:#B22459; font-family:Poppins,sans-serif; font-size:9px; font-weight:700; letter-spacing:.04em;">POP-UP</span></sc-if><div style="font-size:14px; font-weight:600; color:#111527; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ e.name }}</div></div><div style="font-size:11px; color:#6B6E80; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ e.place }}</div></div>
             <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
           </a>
         </sc-for>
       </div>
     </div>
     </sc-if>
+
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; align-items:baseline; justify-content:space-between; padding:0 16px;">
+        <div style="font-size:20px; font-weight:700; color:#111527;">みんなのお気に入り</div>
+        <a href="{{ localHref }}" style="font-size:12px; font-weight:600; color:#3F52B4;">すべて見る</a>
+      </div>
+      <div style="display:flex; gap:12px; padding:0 16px 2px; overflow-x:auto;">
+        <sc-for list="{{ ranks }}" as="rk" hint-placeholder-count="4">
+          <a href="{{ rk.href }}" style="flex-shrink:0; width:134px; display:flex; flex-direction:column; gap:6px; text-decoration:none;">
+            <div style="position:relative; height:100px; border-radius:16px; overflow:hidden; background:{{ rk.bg }};">
+              <span style="position:absolute; left:8px; top:8px; width:22px; height:22px; border-radius:11px; background:#111527; color:#fff; font-family:Poppins,sans-serif; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center;">{{ rk.no }}</span>
+              <sc-if value="{{ rk.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute; right:8px; top:8px; display:inline-flex; align-items:center; height:20px; padding:0 7px; border-radius:8px; background:#FCF2F6; color:#B22459; font-size:10px; font-weight:600; white-space:nowrap;">地元で人気</span></sc-if>
+            </div>
+            <div style="font-size:13px; font-weight:600; color:#111527; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ rk.name }}</div>
+            <div style="font-size:11px; font-weight:500; color:#9C9FAF; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:-4px;">{{ rk.sub }}</div>
+          </a>
+        </sc-for>
+      </div>
+    </div>
 
     <div style="display:flex; flex-direction:column; gap:12px;">
       <div style="display:flex; align-items:baseline; justify-content:space-between; padding:0 16px;">
@@ -293,6 +332,10 @@ function wxFetch(lat, lng) {
   });
 }
 
+const DISH_KEYS = ["サムギョプサル", "カンジャンケジャン", "チキン", "粥", "ピンス", "参鶏湯", "タッカンマリ", "カルビ", "タッカルビ", "冷麺", "ポッサム", "ホルモン"];
+const RANK_SEED = ["L031", "G025", "S143", "S151", "S024", "L032", "S016", "G011", "L033", "L034"];
+const LINE_URL = "https://line.me/R/ti/p/@897fvigb";
+
 
 class Component extends DCLogic {
   state = { wxOpen: false, wx: null, wxCity: [] };
@@ -302,8 +345,9 @@ class Component extends DCLogic {
     const cities = [...new Set(PLAN.ids().map(byId).filter(Boolean).map(x => x.city).filter(c => c && c !== 'ソウル' && CITY_LL[c]))].slice(0, 3);
     cities.forEach(c => wxFetch(CITY_LL[c][0], CITY_LL[c][1]).then(d => this.setState({ wxCity: (this.state.wxCity || []).concat([{ city: c, sky: d[0].sky, temp: d[0].max + '° / ' + d[0].min + '°', popText: '降水 ' + d[0].pop + '%' }]) })).catch(() => {}));
   }
+  favLoad() { if (this._fv) return; this._fv = 1; try { if (!window.KGA || !KGA.sb) return; KGA.sb.from('fav_counts').select('spot_id,count').order('count', { ascending: false }).limit(10).then(function (r) { var d = r && r.data; if (d && d.length >= 5) this.setState({ favRanks: d.map(function (x) { return x.spot_id; }) }); }.bind(this)); } catch (e) {} }
   renderVals() {
-    this.wxLoad();
+    this.wxLoad(); this.favLoad();
     const wx = this.state.wx;
     const open = { dot: '#047857', subColor: '#6B6E80' };
     const closed = { dot: '#B22459', subColor: '#B22459' };
@@ -312,7 +356,10 @@ class Component extends DCLogic {
       liveCamera: SP.some(x => x.cam) || !!(KG.camExtra || []).length,
       areas: [['鍾路 · 光化門','景福宮エリア','キョンボックン'],['明洞','明洞','ミョンドン'],['北村 · 三清洞','北村','プクチョン'],['弘大','弘大','ホンデ']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: (yomi ? yomi + ' · ' : '') + list.length + '件', bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }),
       regions: [['仁川空港・永宗島','仁川空港','インチョンクウコウ'],['釜山','釜山','プサン'],['済州','済州','チェジュ'],['水原','水原','スウォン'],['南怡島・春川','南怡島','ナミソム'],['坡州','坡州','パジュ'],['仁川','仁川','インチョン'],['龍仁','龍仁','ヨンイン'],['江陵・束草','江陵','カンヌン'],['慶州','慶州','キョンジュ'],['全州','全州','チョンジュ'],['麗水','麗水','ヨス'],['大邱','大邱','テグ'],['大田','大田','テジョン']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); if (!list.length) return null; const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: yomi, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }).filter(Boolean),
-      hasEvents: !!(KG.events || []).length, events: (() => { const t = new Date(); const ymd = t.toISOString().slice(0, 10); const fmt = d => d ? (parseInt(d.slice(5, 7)) + '/' + parseInt(d.slice(8, 10))) : ''; return (KG.events || []).filter(e => (e.end || e.start) >= ymd).sort((a, b) => a.start < b.start ? -1 : 1).slice(0, 5).map(e => ({ when: fmt(e.start) + (e.end && e.end !== e.start ? String.fromCharCode(10) + '〜' + fmt(e.end) : ''), name: e.name, place: [e.city, e.place].filter(Boolean).join(' · '), href: e.url || '#' })); })(),
+      hasEvents: !!(KG.events || []).length, events: (() => { const t = new Date(); const ymd = t.toISOString().slice(0, 10); const fmt = d => d ? (parseInt(d.slice(5, 7)) + '/' + parseInt(d.slice(8, 10))) : ''; return (KG.events || []).filter(e => (e.end || e.start) >= ymd).sort((a, b) => a.start < b.start ? -1 : 1).slice(0, 5).map(e => ({ when: fmt(e.start) + (e.end && e.end !== e.start ? String.fromCharCode(10) + '〜' + fmt(e.end) : ''), name: e.name, place: [e.city, e.place].filter(Boolean).join(' · '), href: e.url || '#', isPopup: e.kind === 'popup' })); })(),
+      dishes: DISH_KEYS.map(k => ({ label: k, n: SP.filter(x => x.dish === k).length, href: 'search.html?genre=' + encodeURIComponent(k) })).filter(dd => dd.n > 0),
+      localCount: SP.filter(x => (x.tags || []).indexOf('韓国人に人気') >= 0).length, localHref: 'search.html?local=1', lineHref: LINE_URL,
+      ranks: ((this.state.favRanks && this.state.favRanks.length >= 5) ? this.state.favRanks : RANK_SEED).map(byId).filter(Boolean).slice(0, 10).map((x, i) => ({ no: i + 1, name: x.name, sub: [x.area, x.genre].filter(Boolean).join(' · '), bg: shot(x.photo), href: 'spot.html?id=' + x.id, hasBadge: (x.tags || []).indexOf('韓国人に人気') >= 0 })),
       onSearchKey: (e) => { if (e.key === 'Enter' && e.target.value.trim()) location.href = 'search.html?q=' + encodeURIComponent(e.target.value.trim()); },
       goSearch: () => { location.href = 'search.html'; },
       wxOpen: !!this.state.wxOpen, wxToggle: () => this.setState({ wxOpen: !this.state.wxOpen }), wxCaret: this.state.wxOpen ? ' ▲' : ' ▼',
