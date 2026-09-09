@@ -50,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788901046"></script>
-<script src="./kicon.js?v=1788901046"></script>
+<script src="./data.js?v=1788912386"></script>
+<script src="./kicon.js?v=1788912386"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -80,7 +80,7 @@
           <div style="font-family:Poppins,sans-serif; font-weight:700; font-size:16px; color:#fff; letter-spacing:.02em; text-shadow:0 1px 4px rgba(17,21,41,.45);">K-GUIDE</div>
         </div>
         <div style="display:flex; align-items:center; gap:8px;"><a class="kg-lp" href="login.html" style="display:flex; align-items:center; gap:6px; height:36px; padding:0 14px; border-radius:38px; background:#3F52B4; color:#fff; font-size:12px; font-weight:600; text-decoration:none;">ログイン</a>
-        <div style="display:flex; align-items:center; gap:6px; height:36px; padding:0 14px; border-radius:38px; background:#fff; font-size:12px; font-weight:600; color:#3F52B4;">日本語</div></div>
+        <div id="kglangwrap" style="position:relative;"><div id="kglangbtn" style="display:flex; align-items:center; gap:4px; height:36px; padding:0 14px; border-radius:38px; background:#fff; font-size:12px; font-weight:600; color:#3F52B4; cursor:pointer; white-space:nowrap;">日本語<span style="font-size:9px;">▾</span></div><div id="kglangmenu" style="display:none; position:absolute; right:0; top:42px; z-index:900; border-radius:14px; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.28); overflow:hidden; padding:4px 0;"><div data-lang="ja" data-ready="y" style="padding:10px 14px; font-size:13px; font-weight:700; color:#3F52B4; cursor:pointer; white-space:nowrap;">日本語</div><div data-lang="ko" data-ready="y" style="padding:10px 14px; font-size:13px; font-weight:500; color:#4B4F63; cursor:pointer; white-space:nowrap;">한국어</div><div data-lang="en" data-ready="n" style="padding:10px 14px; font-size:13px; font-weight:500; color:#B9BCC9; cursor:default; white-space:nowrap;">English（準備中）</div><div data-lang="zh" data-ready="n" style="padding:10px 14px; font-size:13px; font-weight:500; color:#B9BCC9; cursor:default; white-space:nowrap;">中文（準備中）</div></div></div></div>
       </div>
       <div style="position:absolute; right:16px; top:64px; z-index:6; display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
         <div onClick="{{ wxToggle }}" style="display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px; border-radius:38px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.16); font-size:11px; font-weight:600; color:#4B4F63; cursor:pointer; white-space:nowrap;">
@@ -242,16 +242,19 @@ const byId = (id) => SP.find(s => s.id === id);
 const bg = (u, w) => u ? `url('${u}') center / cover no-repeat` : 'linear-gradient(135deg,#E9ECF8,#D1D6EE)';
 const shot = (u) => `linear-gradient(180deg, rgba(17,21,41,0) 45%, rgba(17,21,41,0.8) 100%), ${bg(u)}`;
 const qid = () => new URLSearchParams(location.search).get('id');
-const para = (t) => { const s = String(t || '').trim(); if (!s) return []; const out = []; let cur = '', n = 0; for (let i = 0; i < s.length; i++) { cur += s[i]; if (s[i] === '\u3002') { n++; if (n >= 2) { out.push({ t: cur.trim() }); cur = ''; n = 0; } } } if (cur.trim()) { if (out.length && cur.trim().length < 40) out[out.length - 1].t += cur.trim(); else out.push({ t: cur.trim() }); } return out; };
-const DOW = ['日','月','火','水','木','金','土'];
+const SENT_END = '\u3002';
+const para = (t) => { const s = String(t || '').trim(); if (!s) return []; const out = []; let cur = '', n = 0; for (let i = 0; i < s.length; i++) { cur += s[i]; if (s[i] === SENT_END) { n++; if (n >= 2) { out.push({ t: cur.trim() }); cur = ''; n = 0; } } } if (cur.trim()) { if (out.length && cur.trim().length < 40) out[out.length - 1].t += cur.trim(); else out.push({ t: cur.trim() }); } return out; };
+/*NOI18N*/const DOWJ = ['日','月','火','水','木','金','土'];/*/NOI18N*/
+const DOW = ['日','月','火','水','木','金','土'];   // 표시용(언어별로 번역됨)
 const KR_HOLI = new Set(['2026-01-01','2026-02-16','2026-02-17','2026-02-18','2026-03-01','2026-03-02','2026-05-05','2026-05-24','2026-05-25','2026-06-06','2026-08-15','2026-08-17','2026-09-24','2026-09-25','2026-09-26','2026-10-03','2026-10-05','2026-10-09','2026-12-25','2027-01-01','2027-02-06','2027-02-07','2027-02-08','2027-03-01','2027-05-05','2027-05-13','2027-06-06','2027-08-15','2027-08-16','2027-09-14','2027-09-15','2027-09-16','2027-10-03','2027-10-04','2027-10-09','2027-12-25']);
 const SEOL = {day: ['2026-02-17','2027-02-07'], run: ['2026-02-16','2026-02-17','2026-02-18','2027-02-06','2027-02-07','2027-02-08']};
 const CHUSEOK = {day: ['2026-09-25','2027-09-15'], run: ['2026-09-24','2026-09-25','2026-09-26','2027-09-14','2027-09-15','2027-09-16']};
 const ymd = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+/*NOI18N*/
 function closedOn(r, d) {
   r = r || ''; if (!r) return false;
   if (/年中無休|無休|年中開放|年中運航|休みなし/.test(r) && !/店舗により|一部/.test(r)) return false;
-  const key = ymd(d), dow = DOW[d.getDay()], isHoli = KR_HOLI.has(key);
+  const key = ymd(d), dow = DOWJ[d.getDay()], isHoli = KR_HOLI.has(key);
   const r1 = r.replace(/第\d月曜日?/g, ''), r2 = r1.replace(/[（(][^）)]*[）)]/g, '').replace(/[^、,／/]*祝日の(場合|次|翌|時)[^、,／/]*/g, '');
   const wd = new Set((r1.match(/[月火水木金土日](?=曜)/g) || [])); if (/週末/.test(r)) { wd.add('土'); wd.add('日'); }
   if (/祝日|公休日|祝祭日/.test(r2) && isHoli) return true;
@@ -266,10 +269,11 @@ function closedOn(r, d) {
     if (/祝日の場合|祝日は開|祝日の時|祝日と重なる/.test(r) && isHoli) return false;   // 휴관요일이 공휴일이면 개관
     return true;
   }
-  if (/翌日|翌平日|次の平日/.test(r)) { const y = new Date(d); y.setDate(y.getDate() - 1); if (wd.has(DOW[y.getDay()]) && KR_HOLI.has(ymd(y))) return true; }
+  if (/翌日|翌平日|次の平日/.test(r)) { const y = new Date(d); y.setDate(y.getDate() - 1); if (wd.has(DOWJ[y.getDay()]) && KR_HOLI.has(ymd(y))) return true; }
   return false;
 }
-function isClosedToday(s){ return closedOn(s.rest, new Date()); }
+function isClosedToday(s){ return closedOn(s.restJa || s.rest, new Date()); }
+/*/NOI18N*/
 const OPEN = { dot: '#047857', open: '開館中', openFg: '#047857' };
 const SHUT = { dot: '#B22459', open: '本日休館', openFg: '#B22459' };
 const st = (s) => isClosedToday(s) ? SHUT : OPEN;
@@ -306,7 +310,7 @@ class Component extends DCLogic {
     return {
       holidayBanner: this.props.holidayBanner ?? true,
       liveCamera: SP.some(x => x.cam) || !!(KG.camExtra || []).length,
-      areas: [['鍾路 · 光化門','景福宮エリア','キョンボックン'],['明洞','明洞','ミョンドン'],['北村 · 三清洞','北村','プクチョン'],['弘大','弘大','ホンデ']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: `${yomi} · ${list.length}件`, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }),
+      areas: [['鍾路 · 光化門','景福宮エリア','キョンボックン'],['明洞','明洞','ミョンドン'],['北村 · 三清洞','北村','プクチョン'],['弘大','弘大','ホンデ']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: (yomi ? yomi + ' · ' : '') + list.length + '件', bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }),
       regions: [['仁川空港・永宗島','仁川空港','インチョンクウコウ'],['釜山','釜山','プサン'],['済州','済州','チェジュ'],['水原','水原','スウォン'],['南怡島・春川','南怡島','ナミソム'],['坡州','坡州','パジュ'],['仁川','仁川','インチョン'],['龍仁','龍仁','ヨンイン'],['江陵・束草','江陵','カンヌン'],['慶州','慶州','キョンジュ'],['全州','全州','チョンジュ'],['麗水','麗水','ヨス'],['大邱','大邱','テグ'],['大田','大田','テジョン']].map(([k, label, yomi]) => { const list = SP.filter(x => x.areaKey === k); if (!list.length) return null; const pic = (list.find(x => x.photo) || {}).photo; return { name: label, sub: yomi, bg: shot(pic), href: 'search.html?area=' + encodeURIComponent(k) }; }).filter(Boolean),
       hasEvents: !!(KG.events || []).length, events: (() => { const t = new Date(); const ymd = t.toISOString().slice(0, 10); const fmt = d => d ? (parseInt(d.slice(5, 7)) + '/' + parseInt(d.slice(8, 10))) : ''; return (KG.events || []).filter(e => (e.end || e.start) >= ymd).sort((a, b) => a.start < b.start ? -1 : 1).slice(0, 5).map(e => ({ when: fmt(e.start) + (e.end && e.end !== e.start ? String.fromCharCode(10) + '〜' + fmt(e.end) : ''), name: e.name, place: [e.city, e.place].filter(Boolean).join(' · '), href: e.url || '#' })); })(),
       onSearchKey: (e) => { if (e.key === 'Enter' && e.target.value.trim()) location.href = 'search.html?q=' + encodeURIComponent(e.target.value.trim()); },
@@ -320,6 +324,25 @@ class Component extends DCLogic {
   }
 }
 
+</script>
+<script>
+(function(){
+  function base(){ var p=location.pathname.split('/').filter(Boolean); var f=p[p.length-1]||'home.html';
+    if(f.indexOf('.html')<0) f='home.html'; return f; }
+  function root(){ var p=location.pathname; var m=p.match(/^(.*?)\/(?:ja|ko|en|zh)\/[^\/]*$/); if(m) return m[1]+'/';
+    return p.replace(/[^\/]*$/,''); }
+  function go(code){ try{ localStorage.setItem('kg_lang', code); }catch(e){}
+    var r=root(), f=base(); location.href = r + (code==='ja' ? '' : code + '/') + f + location.search; }
+  function bind(){
+    var b=document.getElementById('kglangbtn'), m=document.getElementById('kglangmenu');
+    if(!b||!m||b.__kg) return; b.__kg=1;
+    b.addEventListener('click', function(e){ e.stopPropagation(); m.style.display = m.style.display==='none' ? 'block' : 'none'; });
+    m.querySelectorAll('[data-lang]').forEach(function(d){ d.addEventListener('click', function(e){ e.stopPropagation();
+      if(d.getAttribute('data-ready')!=='y') return; go(d.getAttribute('data-lang')); }); });
+    document.addEventListener('click', function(){ m.style.display='none'; });
+  }
+  setInterval(bind, 700); bind(); document.addEventListener('DOMContentLoaded', bind);
+})();
 </script>
 <script>
 (function(){ function go(){ var i=document.getElementById('kgq'); if(!i||i.__kgq) return; i.__kgq=1; i.addEventListener('keydown', function(e){ if(e.key==='Enter'){ var v=(i.value||'').trim(); if(v) location.href='search.html?q='+encodeURIComponent(v); } }); }
