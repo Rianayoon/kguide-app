@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3F52B4">
+<title>K-GUIDE</title>
+<style>
+  html, body { margin:0; background:#F2F4FC; min-height:100%; }
+</style>
+<script>
+(function(){
+  var W=390, H=844;
+  var KB=0, NAV=null;
+  function navEl(){
+    if(NAV && NAV.isConnected) return NAV;
+    var d=document.getElementsByTagName('div');
+    for(var i=0;i<d.length;i++){ var st=(d[i].getAttribute('style')||'').replace(/\s+/g,'');
+      if(st.indexOf('height:98px')>=0 && st.indexOf('bottom:0')>=0){ NAV=d[i]; return NAV; } }
+    return null;
+  }
+  function navHide(on){
+    var n=navEl(); if(n){ if(on){ if(n.__d===undefined) n.__d=n.style.display; n.style.display='none'; } else if(n.__d!==undefined){ n.style.display=n.__d; } }
+    var b=document.getElementById('kgline'); if(b) b.style.visibility = on ? 'hidden' : '';
+  }
+  function isField(t){ return t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable); }
+  document.addEventListener('focusin', function(e){ if(!isField(e.target)) return; KB=1; navHide(1); });
+  document.addEventListener('focusout', function(e){ if(!isField(e.target)) return; KB=0; setTimeout(function(){ if(!KB){ navHide(0); fit(); } }, 150); });
+  function fit(){
+    if(KB) return;
+    var all=document.querySelectorAll('[data-screen-label]'), s=null;
+    for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
+    if(!s) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var stage=s.parentNode; if(!stage||stage===document.body){ return; }
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    s.style.flexShrink='0'; s.style.transformOrigin='center center';
+    var k;
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }  /* 패드·PC: 가운데에 폰 프레임 */
+    s.style.transform='scale('+k+')';
+    s.style.margin='0';
+  }
+  var mo=new MutationObserver(function(){ fit(); });
+  document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+})();
+</script>
+
+<script src="https://kguide-rt.vercel.app/support.js"></script>
+<script src="../data.ko.js?v=1788912386"></script>
+<script src="../kicon.js?v=1788912386"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../auth.js?v=1789000001"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap">
+  <style>
+    body { margin:0; background:#FAFAFA; font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic","Noto Sans JP","Hiragino Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#111527; }
+    a { color:#3F52B4; text-decoration:none; } a:hover { color:#323D76; }
+    ::-webkit-scrollbar { display:none; }
+  </style>
+  
+</helmet>
+<div data-screen-label="FAQ詳細" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
+
+  <div style="flex-shrink:0; padding:16px 16px 12px; display:flex; align-items:center; gap:12px;">
+    <a href="help.html" style="width:48px; height:48px; flex-shrink:0; border-radius:24px; background:#F2F4FC; display:flex; align-items:center; justify-content:center; text-decoration:none;"><k-icon name="ArrowRightSize24" size="24" style="color:#3F52B4; transform:scaleX(-1)"></k-icon></a>
+    <div style="font-size:16px; font-weight:600; line-height:24px; color:#373B51;">자주 묻는 질문</div>
+  </div>
+
+  <div style="flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:24px; padding:4px 16px 150px;">
+
+    <div style="flex-shrink:0; display:flex; flex-direction:column; gap:10px;">
+      <span style="align-self:flex-start; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:600;">{{ cat }}</span>
+      <div style="font-size:20px; font-weight:700; line-height:1.45; color:#111527;">{{ q }}</div>
+      <div style="font-size:12px; font-weight:500; color:#6B6E80;">최종 수정 <span style="font-family:Poppins,sans-serif;">2026.09.01</span></div>
+    </div>
+
+    <sc-if value="{{ isDefault }}" hint-placeholder-val="{{ true }}">
+<div style="flex-shrink:0; border-radius:16px; background:#F7F7FA; padding:16px; display:flex; flex-direction:column; gap:12px;">
+      <div style="font-size:14px; font-weight:500; line-height:1.8; color:#111527;">서울 지하철은 역의 발매기에서 「<span style="font-weight:700;">1회용 교통카드</span>」를 사거나 편의점에서 <span style="font-family:Poppins,'Noto Sans JP',sans-serif; font-weight:600;">T-money</span> 카드를 사서 충전하는 방법이 있습니다. 체류가 <span style="font-family:Poppins,'Noto Sans JP',sans-serif; font-weight:600;">2</span>일 이상이면 T-money 가 더 싸고 버스에도 쓸 수 있습니다.</div>
+      <div style="font-size:14px; font-weight:500; line-height:1.8; color:#111527;">발매기는 일본어 표시로 바꿀 수 있습니다. 화면 오른쪽 위 언어 버튼을 누르세요.</div>
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="3">
+          <div style="display:flex; gap:8px; align-items:flex-start;">
+            <div style="width:20px; flex-shrink:0; font-family:Poppins,'Noto Sans JP',sans-serif; font-size:14px; font-weight:600; line-height:1.8; color:#3F52B4;">{{ s.n }}</div>
+            <div style="flex:1; font-size:14px; font-weight:500; line-height:1.8; color:#111527;">{{ s.text }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="font-size:14px; font-weight:500; line-height:1.8; color:#111527;">내린 뒤 카드를 반납하면 보증금 <span style="font-family:Poppins,'Noto Sans JP',sans-serif; font-weight:600;">₩500</span> 이 돌아옵니다. 반납기는 개찰구 밖에 있습니다.</div>
+      <div style="border-radius:8px; background:#F2F4FC; padding:12px; display:flex; align-items:center; gap:8px;">
+        <k-icon name="InfoCircleSize20" size="18" style="color:#3F52B4"></k-icon>
+        <div style="flex:1; font-size:12px; font-weight:500; line-height:1.6; color:#111527;">공항에서 호텔까지는 짐이 많으면 공항버스가 편합니다.</div>
+      </div>
+    </div>
+
+    </sc-if>
+<sc-if value="{{ isData }}" hint-placeholder-val="{{ false }}">
+<div style="flex-shrink:0; border-radius:16px; background:#F7F7FA; padding:16px; display:flex; flex-direction:column; gap:12px;"><div style="font-size:14px; font-weight:500; line-height:1.8; color:#111527; white-space:pre-line;">{{ a }}</div><sc-if value="{{ hasUrl }}" hint-placeholder-val="{{ false }}"><a href="{{ url }}" target="_blank" style="font-size:12px; font-weight:600; color:#3F52B4;">공식 사이트에서 확인 →</a></sc-if></div>
+</sc-if>
+    <div style="display:flex; flex-direction:column; gap:8px;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">관련 질문</div>
+      <sc-for list="{{ related }}" as="q" hint-placeholder-count="3">
+        <a href="{{ q.href }}" style="flex-shrink:0; display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:16px; background:#F2F4FC; text-decoration:none;">
+          <div style="flex:1; font-size:14px; font-weight:500; color:#111527;">{{ q.q }}</div>
+          <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
+        </a>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="position:absolute; left:0; right:0; bottom:0; padding:12px 16px 20px; box-sizing:border-box; background:#fff; box-shadow:0 -8px 24px rgba(131,139,180,.10); display:flex; flex-direction:column; gap:8px;">
+    <div style="text-align:center; font-size:14px; font-weight:600; line-height:20px; color:#373B51;">{{ footTitle }}</div>
+    <sc-if value="{{ askAgain }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div onClick="{{ onYes }}" style="flex:1; height:48px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:16px; font-weight:600; display:flex; align-items:center; justify-content:center; cursor:pointer;">예</div>
+        <div onClick="{{ onNo }}" style="flex:1; height:48px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:16px; font-weight:600; display:flex; align-items:center; justify-content:center; cursor:pointer;">아니요</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ showConsult }}" hint-placeholder-val="{{ false }}">
+      <a href="guide.html" style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; letter-spacing:.02em; text-decoration:none;"><k-icon name="MessagesSize24" size="20" style="color:#fff"></k-icon>LINE으로 상담하기</a>
+    </sc-if>
+    <sc-if value="{{ thanks }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex; align-items:center; justify-content:center; gap:6px; height:48px; border-radius:16px; background:#F2F4FC; color:#3F52B4; font-size:14px; font-weight:600;"><k-icon name="TickCircleSize20" size="18" style="color:#3F52B4"></k-icon>감사합니다</div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;notSolved&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;状態&quot;}}">
+class Component extends DCLogic {
+  state = { answer: undefined };
+
+  renderVals() {
+    const FQ = window.KG.faq || []; const id = new URLSearchParams(location.search).get('id') || 'Q001'; const f = FQ.find(x => x.id === id) || FQ[0] || {}; const isDefault = (f.id || 'Q001') === 'Q001';
+    const answer = this.state.answer === undefined ? (this.props.notSolved ? 'no' : null) : this.state.answer;
+    return {
+      askAgain: !answer,
+      showConsult: answer === 'no',
+      thanks: answer === 'yes',
+      footTitle: answer === 'no' ? '해결되지 않았나요? 가이드가 답해 드립니다' : answer === 'yes' ? '해결했습니다' : '해결되었나요?',
+      onYes: () => this.setState({ answer: 'yes' }),
+      onNo: () => this.setState({ answer: 'no' }),
+      steps: [
+        { n: '①', text: '발매기에서 「1회용 교통카드」를 선택' },
+        { n: '②', text: '목적지 역을 지도에서 선택(일본어 표시 있음)' },
+        { n: '③', text: '운임 + 보증금 ₩500 을 넣고 카드를 받기' },
+      ],
+      related: FQ.filter(x => x.id !== (f.id || 'Q001')).slice(0, 4).map(x => ({ q: x.q, href: 'faq.html?id=' + x.id })),
+      cat: f.category || '교통', q: f.q || '지하철 표는 어떻게 사나요?', a: f.a || '', isDefault, isData: !isDefault, hasUrl: !!(f.url && f.url !== 'None'), url: f.url || '',
+    };
+  }
+}
+</script>
+<script>
+(function(){
+  var U='https://line.me/R/ti/p/@897fvigb'; if(!U) return;
+  var b=document.createElement('a'); b.href=U; b.target='_blank'; b.rel='noopener'; b.id='kgline';
+  b.setAttribute('aria-label','LINE으로 상담');
+  b.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.6-.7L3 21l1.8-4.2A8.4 8.4 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5z"/></svg><span style="font-size:9px;font-weight:700;letter-spacing:.5px;line-height:1;margin-top:1px">LINE</span>';
+  b.style.cssText='position:absolute; right:16px; bottom:114px; z-index:700; display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#06C755; color:#fff; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
+  function place(s){
+    var sr=s.getBoundingClientRect(), top=sr.bottom;
+    Array.prototype.forEach.call(s.children, function(c){
+      if(c===b) return;
+      var st=getComputedStyle(c); if(st.position!=='absolute'&&st.position!=='fixed') return;
+      var r=c.getBoundingClientRect();
+      if(r.height>0 && r.height<260 && r.bottom>sr.bottom-260 && r.bottom<=sr.bottom+2) top=Math.min(top, r.top);
+    });
+    b.style.bottom = Math.round(Math.max(16, sr.bottom-top+16)) + 'px';
+  }
+  function screenEl(){ var a=document.querySelectorAll('[data-screen-label]'), out=null;
+    for(var i=0;i<a.length;i++){ if(a[i].closest('x-dc')) continue; var r=a[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=a[i]; }
+    return out; }
+  function mount(){ var s=screenEl(); if(!s) return; if(b.parentNode!==s) s.appendChild(b); place(s); }
+  setInterval(mount, 700);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', function(){
+    b.style.display = (window.visualViewport.height < window.innerHeight*0.75) ? 'none' : 'inline-flex'; }); }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3F52B4">
+<title>K-GUIDE</title>
+<script>
+(function(){
+  var W=390, H=844;
+  function fit(){
+    var s=document.querySelector('[data-screen-label]'); if(!s) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var stage=s.parentNode; if(!stage||stage===document.body){ return; }
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    s.style.flexShrink='0'; s.style.transformOrigin='center center';
+    var k;
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }
+    s.style.transform='scale('+k+')'; s.style.margin='0';
+  }
+  var KB=false;
+  document.addEventListener('focusin', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) KB=true; });
+  document.addEventListener('focusout', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){ KB=false; setTimeout(fit,50); } });
+  var _fit=fit; fit=function(){ if(KB) return; _fit(); };
+  document.addEventListener('DOMContentLoaded', fit);
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+})();
+</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#F2F4FC;min-height:100%}
+  body{font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic","Noto Sans JP","Hiragino Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;color:#111527}
+  a{color:#3F52B4;text-decoration:none}
+  ::-webkit-scrollbar{display:none}
+  .sc{position:relative;width:390px;height:844px;margin:0 auto;background:#fff;overflow:hidden;display:flex;flex-direction:column}
+  .hd{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;font-size:16px;font-weight:600;line-height:24px;color:#373B51}
+  .hd a.bk{position:absolute;left:8px;top:8px;width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center}
+  .bd{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 16px 40px;display:flex;flex-direction:column;gap:16px}
+  .hero{position:relative;flex-shrink:0;height:260px;overflow:hidden}
+  .hero .img{position:absolute;inset:0;background:url('https://tong.visitkorea.or.kr/cms/resource_photo/62/4061962_image2_1.jpg') center / cover no-repeat}
+  .hero .vl{position:absolute;inset:0;background:linear-gradient(180deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,1) 104%)}
+  .hero .in{position:absolute;left:16px;right:16px;top:56px;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .hero .ic{width:88px;height:88px;border-radius:44px;background:#F2F4FC;display:flex;align-items:center;justify-content:center}
+  .hero h1{margin:0;font-size:20px;font-weight:700;text-align:center;color:#111527}
+  .hero p{margin:0;font-size:14px;font-weight:500;line-height:1.7;text-align:center;color:#4B4F63}
+  .sheet{position:relative;flex-shrink:0;border-radius:32px 32px 0 0;background:#fff;box-shadow:0 8px 32px rgba(131,139,180,.16);display:flex;flex-direction:column;flex:1;min-height:0}
+  .sheet .grip{height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .sheet .grip i{width:40px;height:4px;border-radius:100px;background:#D1D3DB;display:block}
+  .sheet .in{padding:0 16px 34px;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
+  label.f{display:flex;flex-direction:column;gap:6px}
+  label.f>span{font-size:12px;font-weight:600;line-height:16px;color:#4B4F63}
+  label.f>span em{font-style:normal;color:#9C9FAF;font-weight:500}
+  .f input,.f textarea{width:100%;height:48px;border:0;box-shadow:inset 0 0 0 1px #E1E3EC;border-radius:14px;background:#fff;padding:0 14px;font-size:15px;font-family:inherit;color:#111527;outline:none}
+  .f input:focus,.f textarea:focus{box-shadow:inset 0 0 0 2px #3F52B4}
+  .f textarea{height:96px;padding:12px 14px;line-height:1.6;resize:none}
+  .f input[type=file]{padding:12px 14px;height:auto;font-size:13px;color:#4B4F63}
+  .btn{width:100%;height:48px;border:0;border-radius:16px;background:#3F52B4;color:#fff;font-size:16px;font-weight:600;letter-spacing:.02em;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-decoration:none}
+  .btn:active{background:#323D76}
+  .btn.ghost{background:#fff;color:#3F52B4;box-shadow:inset 0 0 0 1px #3F52B4}
+  .btn.flat{background:#F2F4FC;color:#3F52B4}
+  .btn.off{background:#F2F4FC;color:#9C9FAF;cursor:default}
+  .btn.sm{height:40px;font-size:14px;border-radius:12px}
+  .btn[disabled]{opacity:.55;cursor:default}
+  .msg{display:none;font-size:13px;font-weight:600;line-height:1.6;border-radius:12px;padding:10px 12px;background:#F2F4FC;color:#323D76}
+  .msg.on{display:block}
+  .row{display:flex;gap:8px}
+  .row>*{flex:1}
+  .links{display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;font-weight:600;color:#3F52B4}
+  .links span{color:#D1D3DB}
+  .note{font-size:11px;font-weight:500;line-height:1.6;text-align:center;color:#6B6E80}
+  .card{border-radius:16px;background:#F7F7FA;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+  .card h3{margin:0;font-size:15px;font-weight:700;color:#111527}
+  .kv{display:flex;gap:8px;font-size:13px;line-height:1.6}
+  .kv b{flex:0 0 82px;font-weight:600;color:#6B6E80}
+  .kv span{flex:1;min-width:0;color:#373B51;word-break:break-all}
+  .badge{align-self:flex-start;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;background:#F2F4FC;color:#3F52B4}
+  .badge.g{background:#3F52B4;color:#fff}
+  .badge.n{background:#EDEDF2;color:#6B6E80}
+  .menu{display:flex;flex-direction:column;gap:12px}
+  .menu a{min-height:60px;border-radius:16px;background:#F7F7FA;padding:8px 16px;display:flex;align-items:center;gap:16px}
+  .menu a .ic{width:40px;height:40px;flex-shrink:0;border-radius:20px;background:#F2F4FC;display:flex;align-items:center;justify-content:center}
+  .menu a .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+  .menu a .tx b{font-size:14px;font-weight:600;line-height:20px;color:#373B51}
+  .menu a .tx i{font-style:normal;font-size:12px;line-height:16px;color:#4B4F63}
+  .menu a .vl{font-size:14px;font-weight:600;color:#3F52B4;white-space:nowrap}
+  .nav{position:absolute;left:0;right:0;bottom:0;height:98px;border-radius:16px 16px 0 0;background:#fff;box-shadow:0 8px 32px rgba(131,139,180,.16);display:grid;grid-template-columns:repeat(5,1fr);align-items:start;padding:6px 12px 0}
+  .nav a{display:flex;flex-direction:column;align-items:center;gap:8px}
+  .nav a div{width:38px;height:38px;border-radius:48px;display:flex;align-items:center;justify-content:center}
+  .nav a span{font-size:10px;font-weight:600;letter-spacing:.02em;color:#6B6E80}
+  .nav a.on div{background:#F2F4FC}
+  .nav a.on span{color:#3F52B4}
+  .sp{height:4px}
+</style>
+<script src="../kicon.js?v=1789000001"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../auth.js?v=1789000001"></script>
+</head>
+<body>
+<div class="stage">
+<div class="sc" data-screen-label="マイページ">
+  <div style="flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;gap:16px;padding-bottom:112px">
+    <div style="position:relative;height:300px;flex-shrink:0;overflow:hidden">
+      <div style="position:absolute;left:0;right:0;top:0;height:230px;background:url('https://tong.visitkorea.or.kr/cms/resource_photo/62/4061962_image2_1.jpg') center / cover no-repeat"></div>
+      <div style="position:absolute;left:0;right:0;top:0;height:300px;background:linear-gradient(180deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,1) 104%)"></div>
+      <div style="position:relative;padding:16px;display:flex;align-items:center;justify-content:center;height:56px"><div style="font-size:16px;font-weight:600;line-height:24px;color:#373B51">마이페이지</div></div>
+      <div style="position:absolute;left:149px;top:116px;width:92px;height:92px;border-radius:73px;overflow:hidden;display:flex;align-items:center;justify-content:center">
+        <div style="width:80px;height:80px;border-radius:200px;background:#F2F4FC;display:flex;align-items:center;justify-content:center"><k-icon name="UserSize24" size="36" style="color:#3F52B4"></k-icon></div>
+      </div>
+      <div style="position:absolute;left:16px;top:216px;width:358px;display:flex;flex-direction:column;gap:4px;align-items:center">
+        <div id="nm" style="font-size:16px;font-weight:600;line-height:24px;text-align:center;color:#373B51">게스트</div>
+        <div id="sb" style="font-size:14px;font-weight:500;line-height:20px;text-align:center;color:#6B6E80">보기만 할 때는 로그인이 필요 없습니다</div>
+      </div>
+    </div>
+
+    <div id="guest" style="margin:0 16px;flex-shrink:0;border-radius:16px;background:#F2F4FC;padding:16px;display:none;flex-direction:column;gap:12px">
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="font-size:14px;font-weight:600;line-height:20px;color:#373B51">로그인·회원가입</div>
+        <div style="font-size:12px;font-weight:400;line-height:16px;color:#4B4F63">저장한 스팟·루트를 기기를 바꿔도 남길 수 있습니다. 견적 요청에도 쓸 수 있습니다.</div>
+      </div>
+      <a class="btn" href="login.html">로그인</a>
+      <a class="btn ghost" href="signup.html">회원가입(무료)</a>
+      <div class="links"><a href="reset.html">비밀번호를 잊으셨나요</a><span>·</span><a href="guide-apply.html">가이드이신 분은 이쪽</a></div>
+    </div>
+
+    <div id="gstate" style="margin:0 16px;flex-shrink:0;border-radius:16px;background:#F2F4FC;padding:16px;display:none;flex-direction:column;gap:8px">
+      <div id="gs1" style="font-size:14px;font-weight:600;line-height:20px;color:#373B51"></div>
+      <div id="gs2" style="font-size:12px;font-weight:400;line-height:18px;color:#4B4F63"></div>
+    </div>
+
+    <div class="menu" style="padding:8px 16px 0">
+      <a href="saved.html?tab=spots"><div class="ic"><k-icon name="HeartSize24" size="24" style="color:#3F52B4"></k-icon></div><div class="tx"><b>저장한 스팟</b></div><k-icon name="ArrowRightSize24" size="24" style="color:#9C9FAF"></k-icon></a>
+      <a href="saved.html?tab=routes"><div class="ic"><k-icon name="RoutingSize24" size="24" style="color:#3F52B4"></k-icon></div><div class="tx"><b>내 루트</b></div><k-icon name="ArrowRightSize24" size="24" style="color:#9C9FAF"></k-icon></a>
+      <a href="bookings.html"><div class="ic"><k-icon name="TickCircleSize24" size="24" style="color:#3F52B4"></k-icon></div><div class="tx"><b>예약·견적</b></div><k-icon name="ArrowRightSize24" size="24" style="color:#9C9FAF"></k-icon></a>
+      <a href="#" id="lang"><div class="ic"><k-icon name="Setting2Size24" size="24" style="color:#3F52B4"></k-icon></div><div class="tx"><b>언어</b></div><span class="vl">일본어</span><k-icon name="ArrowRightSize24" size="24" style="color:#9C9FAF"></k-icon></a>
+      <a href="help.html"><div class="ic"><k-icon name="MessagesSize24" size="24" style="color:#3F52B4"></k-icon></div><div class="tx"><b>문의</b><i>가이드와 바로 연결됩니다</i></div><k-icon name="ArrowRightSize24" size="24" style="color:#9C9FAF"></k-icon></a>
+      <a href="guide.html"><div class="ic"><k-icon name="InfoCircleSize24" size="24" style="color:#3F52B4"></k-icon></div><div class="tx"><b>앱 소개</b></div><k-icon name="ArrowRightSize24" size="24" style="color:#9C9FAF"></k-icon></a>
+      <a href="admin.html" id="adm" style="display:none"><div class="ic"><k-icon name="PrivacySize24" size="24" style="color:#3F52B4"></k-icon></div><div class="tx"><b>가이드 신청 관리</b><i>관리자 전용</i></div><k-icon name="ArrowRightSize24" size="24" style="color:#9C9FAF"></k-icon></a>
+    </div>
+
+    <div style="padding:8px 16px 0;display:flex;flex-direction:column;gap:10px">
+      <a class="btn flat" id="pwchg" href="reset.html" style="display:none">비밀번호 변경</a>
+      <button class="btn flat" id="out" style="display:none">로그아웃</button>
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;font-weight:400;line-height:16px;color:#4B4F63">
+        <a href="#">이용약관</a><span style="color:#D1D3DB">·</span><a href="#">개인정보처리방침</a>
+      </div>
+      <div style="font-family:Poppins,'Noto Sans JP',sans-serif;font-size:12px;font-weight:500;color:#6B6E80">K-GUIDE v0.2.1</div>
+    </div>
+  </div>
+  <div class="nav">
+    <a href="home.html"><div><k-icon name="HomeSize24" size="24" style="color:#6B6E80"></k-icon></div><span>홈</span></a>
+    <a href="search.html"><div><k-icon name="SearchNormal2Size24" size="24" style="color:#6B6E80"></k-icon></div><span>찾기</span></a>
+    <a href="plan.html"><div><k-icon name="RoutingSize24" size="24" style="color:#6B6E80"></k-icon></div><span>플랜</span></a>
+    <a href="help.html"><div><k-icon name="MessagesSize24" size="24" style="color:#6B6E80"></k-icon></div><span>도움말</span></a>
+    <a href="my.html" class="on"><div><k-icon name="UserSize24" size="24" style="color:#3F52B4"></k-icon></div><span>마이페이지</span></a>
+  </div>
+</div>
+<script>
+(function(){
+  (async function(){
+    var u=await KGA.user();
+    if(!u){ document.getElementById('guest').style.display='flex'; return; }
+    var p=await KGA.profile(true)||{};
+    document.getElementById('nm').textContent=(p.display_name||u.email||'').split('@')[0];
+    document.getElementById('sb').textContent=u.email||'';
+    document.getElementById('out').style.display='flex';
+    document.getElementById('pwchg').style.display='flex';
+    if(p.role==='admin') document.getElementById('adm').style.display='flex';
+    if(p.role==='guide'){
+      var g=document.getElementById('gstate'); g.style.display='flex';
+      var s=p.status;
+      document.getElementById('gs1').textContent = KG_TEXT.guideJa+' · '+(s==='approved'?KG_TEXT.approvedJa:(s==='rejected'?KG_TEXT.rejectedJa:'심사 중'));
+      document.getElementById('gs2').innerHTML = s==='approved'? KG_TEXT.guideKo+' 화면을 이용하실 수 있습니다.'
+        : (s==='rejected'? '<a href="guide-apply.html">신청 내용 보기</a>' : KG_TEXT.pendingJa+'<br>'+KG_TEXT.pendingKo+' <a href="guide-apply.html">신청 내용 보기</a>');
+    }
+  })();
+  document.getElementById('out').onclick=async function(){ await KGA.signOut(); location.reload(); };
+  document.getElementById('lang').onclick=function(e){ e.preventDefault(); };
+})();
+</script>
+</div>
+<script>
+(function(){
+  var U='https://line.me/R/ti/p/@897fvigb'; if(!U) return;
+  var b=document.createElement('a'); b.href=U; b.target='_blank'; b.rel='noopener'; b.id='kgline';
+  b.setAttribute('aria-label','LINE으로 상담');
+  b.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.6-.7L3 21l1.8-4.2A8.4 8.4 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5z"/></svg><span style="font-size:9px;font-weight:700;letter-spacing:.5px;line-height:1;margin-top:1px">LINE</span>';
+  b.style.cssText='position:absolute; right:16px; bottom:114px; z-index:700; display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#06C755; color:#fff; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
+  function place(s){
+    var sr=s.getBoundingClientRect(), top=sr.bottom;
+    Array.prototype.forEach.call(s.children, function(c){
+      if(c===b) return;
+      var st=getComputedStyle(c); if(st.position!=='absolute'&&st.position!=='fixed') return;
+      var r=c.getBoundingClientRect();
+      if(r.height>0 && r.height<260 && r.bottom>sr.bottom-260 && r.bottom<=sr.bottom+2) top=Math.min(top, r.top);
+    });
+    b.style.bottom = Math.round(Math.max(16, sr.bottom-top+16)) + 'px';
+  }
+  function screenEl(){ var a=document.querySelectorAll('[data-screen-label]'), out=null;
+    for(var i=0;i<a.length;i++){ if(a[i].closest('x-dc')) continue; var r=a[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=a[i]; }
+    return out; }
+  function mount(){ var s=screenEl(); if(!s) return; if(b.parentNode!==s) s.appendChild(b); place(s); }
+  setInterval(mount, 700);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', function(){
+    b.style.display = (window.visualViewport.height < window.innerHeight*0.75) ? 'none' : 'inline-flex'; }); }
+})();
+</script>
+</body>
+</html>

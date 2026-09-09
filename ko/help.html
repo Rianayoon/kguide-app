@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3F52B4">
+<title>K-GUIDE</title>
+<style>
+  html, body { margin:0; background:#F2F4FC; min-height:100%; }
+</style>
+<script>
+(function(){
+  var W=390, H=844;
+  var KB=0, NAV=null;
+  function navEl(){
+    if(NAV && NAV.isConnected) return NAV;
+    var d=document.getElementsByTagName('div');
+    for(var i=0;i<d.length;i++){ var st=(d[i].getAttribute('style')||'').replace(/\s+/g,'');
+      if(st.indexOf('height:98px')>=0 && st.indexOf('bottom:0')>=0){ NAV=d[i]; return NAV; } }
+    return null;
+  }
+  function navHide(on){
+    var n=navEl(); if(n){ if(on){ if(n.__d===undefined) n.__d=n.style.display; n.style.display='none'; } else if(n.__d!==undefined){ n.style.display=n.__d; } }
+    var b=document.getElementById('kgline'); if(b) b.style.visibility = on ? 'hidden' : '';
+  }
+  function isField(t){ return t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable); }
+  document.addEventListener('focusin', function(e){ if(!isField(e.target)) return; KB=1; navHide(1); });
+  document.addEventListener('focusout', function(e){ if(!isField(e.target)) return; KB=0; setTimeout(function(){ if(!KB){ navHide(0); fit(); } }, 150); });
+  function fit(){
+    if(KB) return;
+    var all=document.querySelectorAll('[data-screen-label]'), s=null;
+    for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
+    if(!s) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var stage=s.parentNode; if(!stage||stage===document.body){ return; }
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    s.style.flexShrink='0'; s.style.transformOrigin='center center';
+    var k;
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }  /* 패드·PC: 가운데에 폰 프레임 */
+    s.style.transform='scale('+k+')';
+    s.style.margin='0';
+  }
+  var mo=new MutationObserver(function(){ fit(); });
+  document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+})();
+</script>
+
+<script src="https://kguide-rt.vercel.app/support.js"></script>
+<script src="../data.ko.js?v=1788912386"></script>
+<script src="../kicon.js?v=1788912386"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../auth.js?v=1789000001"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap">
+  <style>
+    body { margin:0; background:#FAFAFA; font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic","Noto Sans JP","Hiragino Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#111527; }
+    a { color:#3F52B4; text-decoration:none; } a:hover { color:#323D76; }
+    ::-webkit-scrollbar { display:none; }
+  </style>
+  
+</helmet>
+<div data-screen-label="ヘルプ" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
+
+  <div style="position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; gap:24px; padding:20px 16px 112px;">
+
+    <div style="display:flex; flex-direction:column; gap:4px; flex-shrink:0;">
+      <div style="font-size:20px; font-weight:700; color:#111527;">도움말</div>
+      <div style="display:flex; align-items:center; gap:6px; font-size:12px; font-weight:500; color:#6B6E80;">
+        <k-icon name="TickCircleSize14" size="14" style="color:#047857"></k-icon>오프라인에서도 「보여주는 카드」를 쓸 수 있습니다
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex-shrink:0;">
+      <div style="display:flex; flex-direction:column; gap:2px;">
+        <div style="font-size:16px; font-weight:700; color:#111527;"><span style="font-family:Poppins,'Noto Sans JP',sans-serif;">24</span>시간 통역 서비스</div>
+        <div style="font-size:12px; font-weight:500; color:#6B6E80;">무료·일본어 OK</div>
+      </div>
+      <div style="min-height:64px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#3F52B4; padding:12px 16px; display:flex; align-items:center; gap:12px;">
+        <k-icon name="CallSize24" size="24" style="color:#fff"></k-icon>
+        <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+          <div style="font-size:16px; font-weight:600; line-height:23px; color:#fff; letter-spacing:.02em;"><span style="font-family:Poppins,'Noto Sans JP',sans-serif;">1330</span> 관광통역안내</div>
+          <div style="font-size:11px; font-weight:500; color:#fff;">한국관광공사 · 안내·통역·불편신고</div>
+        </div>
+        <k-icon name="ArrowRightSize18" size="18" style="color:#fff"></k-icon>
+      </div>
+      <div style="min-height:64px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; padding:12px 16px; display:flex; align-items:center; gap:12px;">
+        <k-icon name="MessagesSize24" size="24" style="color:#3F52B4"></k-icon>
+        <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+          <div style="font-size:16px; font-weight:600; line-height:23px; color:#3F52B4; letter-spacing:.02em;">BBB 생활통역 자원봉사</div>
+          <div style="font-size:11px; font-weight:500; color:#4B4F63;">병원·택시·가게에서</div>
+        </div>
+        <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
+      </div>
+      <div style="font-size:11px; font-weight:500; color:#6B6E80;">가이드는 BBB에서<span style="font-family:Poppins,'Noto Sans JP',sans-serif;">5</span>년째 통역 자원봉사 중</div>
+    </div>
+
+
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">막 도착하신 분께</div>
+      <sc-for list="{{ arrival }}" as="a" hint-placeholder-count="3">
+        <div style="min-height:76px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:14px 16px; display:flex; align-items:center; gap:14px;">
+          <div style="width:48px; height:48px; flex-shrink:0; border-radius:16px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="{{ a.icon }}" size="24" style="color:#3F52B4"></k-icon></div>
+          <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+            <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527; white-space:nowrap;">{{ a.title }}</div>
+            <div style="font-size:12px; font-weight:500; color:#6B6E80;">{{ a.sub }}</div>
+          </div>
+          <k-icon name="ArrowRightSize18" size="18" style="color:#9C9FAF"></k-icon>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex-shrink:0;">
+      <div style="display:flex; align-items:baseline; justify-content:space-between;">
+        <div style="font-size:16px; font-weight:700; color:#111527;">보여주는 카드</div>
+        <span style="display:inline-flex; align-items:center; gap:4px; height:22px; padding:0 8px; border-radius:8px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:600;"><k-icon name="TickCircleSize12" size="12" style="color:#3F52B4"></k-icon>오프라인 OK</span>
+      </div>
+      <div style="font-size:12px; font-weight:500; color:#6B6E80;">화면을 보여주기만 하면 됩니다. 누르면 크게 보입니다.</div>
+      <div style="display:flex; gap:8px; overflow-x:auto; padding-bottom:2px;">
+        <sc-for list="{{ sits }}" as="t" hint-placeholder-count="5"><div onClick="{{ t.onClick }}" style="flex-shrink:0; display:inline-flex; align-items:center; height:32px; padding:0 14px; border-radius:32px; background:{{ t.bg }}; box-shadow:{{ t.ring }}; color:{{ t.fg }}; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;">{{ t.label }}</div></sc-for>
+      </div>
+      <sc-for list="{{ cards }}" as="c" hint-placeholder-count="4">
+        <div onClick="{{ c.onClick }}" style="min-height:96px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:14px 16px; display:flex; align-items:center; gap:14px; cursor:pointer;">
+          <div style="width:48px; height:48px; flex-shrink:0; border-radius:16px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="{{ c.icon }}" size="24" style="color:#3F52B4"></k-icon></div>
+          <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+            <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527;">{{ c.jp }}</div>
+            <div style="font-size:{{ c.koSize }}; font-weight:{{ c.koWeight }}; color:#111527; line-height:1.45;">{{ c.ko }}</div>
+            <sc-if value="{{ c.sub }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ c.sub }}</div>
+            </sc-if>
+          </div>
+          <k-icon name="ArrowRightSize18" size="18" style="color:#9C9FAF"></k-icon>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">휴관일 캘린더</div>
+      <div style="border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:14px 12px; display:flex; flex-direction:column; gap:12px;">
+        <div style="display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:4px;">
+          <sc-for list="{{ week }}" as="d" hint-placeholder-count="7">
+            <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+              <div style="height:24px; font-size:14px; font-weight:600; letter-spacing:.02em; line-height:24px; color:#4B4F63;">{{ d.day }}</div>
+              <div style="width:36px; height:36px; box-sizing:border-box; border-radius:200px; background:{{ d.bg }}; box-shadow:{{ d.ring }}; display:flex; align-items:center; justify-content:center; font-family:Poppins,'Noto Sans JP',sans-serif; font-size:14px; font-weight:600; letter-spacing:.02em; line-height:14px; color:{{ d.fg }};">{{ d.date }}</div>
+              <div style="width:6px; height:6px; border-radius:50%; background:{{ d.dot }};"></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="font-size:12px; font-weight:500; color:#4B4F63;">오늘 휴무: <span style="font-weight:700; color:#111527;">서울시립미술관</span></div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">오늘 운항</div>
+      <div style="min-height:76px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:14px 16px; display:flex; align-items:center; gap:12px;">
+        <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+          <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527;">인천공항</div>
+          <div style="font-size:12px; font-weight:500; color:#4B4F63;">북풍 <span style="font-family:Poppins,sans-serif; color:#111527;">12kt</span> · 시정 <span style="font-family:Poppins,sans-serif; color:#111527;">10km</span></div>
+        </div>
+        <span style="display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#047857; color:#fff; font-size:11px; font-weight:600; white-space:nowrap;">결항 위험 낮음</span>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">지도에서 길을 잃었다면</div>
+      <div style="height:48px; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #D1D3DB; padding:0 16px; display:flex; align-items:center; gap:8px;">
+        <k-icon name="SearchNormal2Size20" size="20" style="color:#9C9FAF"></k-icon>
+        <input value="{{ mq }}" onInput="{{ onMq }}" placeholder="한국어 이름으로 검색하세요" style="flex:1; font-size:14px; font-weight:500; color:#111527; border:0; outline:0; background:transparent; padding:0; font-family:inherit; min-width:0;" />
+      </div>
+      <div style="border-radius:16px; background:#F2F4FC; padding:14px 16px; display:flex; flex-direction:column; gap:10px;">
+        <div style="font-size:11px; font-weight:600; color:#6B6E80;">「{{ mName }}」 한국어 표기</div>
+        <div style="font-size:16px; font-weight:700; color:#111527;">{{ mKo }}</div>
+        <div style="font-size:12px; font-weight:500; color:#4B4F63;">{{ mAddr }}</div>
+        <a href="{{ mHref }}" target="_blank" style="display:flex; align-items:center; justify-content:center; gap:6px; height:40px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:14px; font-weight:600; text-decoration:none;"><k-icon name="LocationSize18" size="18" style="color:#3F52B4"></k-icon>네이버 지도로 열기</a>
+      </div>
+    </div>
+
+<div style="display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">예약·사용법 안내</div>
+      <div style="font-size:12px; color:#6B6E80;">KTX·버스·택시·티켓·교통카드 등의 절차를 단계별로 설명합니다</div>
+      <sc-for list="{{ howto }}" as="h" hint-placeholder-count="3">
+        <a href="{{ h.href }}" style="flex-shrink:0; display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); text-decoration:none;">
+          <span style="flex-shrink:0; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:600;">{{ h.cat }}</span>
+          <div style="flex:1; font-size:14px; font-weight:500; color:#111527;">{{ h.q }}</div>
+          <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
+        </a>
+      </sc-for>
+    </div>
+
+<div style="display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">한국은 이런 점이 다릅니다</div>
+      <div style="font-size:12px; color:#6B6E80;">일본과 달라 당황하기 쉬운 것 20</div>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+      <sc-for list="{{ culture }}" as="u" hint-placeholder-count="3">
+        <a href="{{ u.href }}" style="display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 12px; border-radius:34px; background:#fff; box-shadow:inset 0 0 0 1px #D1D3DB; color:#111527; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap;"><span style="color:#3F52B4; font-size:10px;">{{ u.cat }}</span>{{ u.q }}</a>
+      </sc-for>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
+      <div style="font-size:16px; font-weight:700; color:#111527;">자주 묻는 질문</div>
+      <sc-for list="{{ faq }}" as="q" hint-placeholder-count="3">
+        <a href="{{ q.href }}" style="flex-shrink:0; display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:16px; background:#F2F4FC; text-decoration:none;">
+          <div style="flex:1; font-size:14px; font-weight:500; color:#111527;">{{ q.q }}</div>
+          <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
+        </a>
+      </sc-for>
+    </div>
+
+    <div style="min-height:64px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; padding:12px 16px; display:flex; align-items:center; gap:12px;">
+      <k-icon name="MessagesSize24" size="24" style="color:#3F52B4"></k-icon>
+      <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;">
+        <div style="font-size:16px; font-weight:600; line-height:23px; color:#3F52B4; letter-spacing:.02em;">가이드에게 문의</div>
+        <div style="font-size:11px; font-weight:500; color:#4B4F63;">LINE으로 편하게</div>
+      </div>
+      <k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon>
+    </div>
+  </div>
+
+  <div style="position:absolute; left:0; right:0; bottom:0; height:98px; border-radius:16px 16px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:grid; grid-template-columns:repeat(5,1fr); align-items:start; padding:6px 12px 0; box-sizing:border-box;">
+    <a href="home.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="HomeSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">홈</span></a>
+    <a href="search.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="SearchNormal2Size24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">찾기</span></a>
+    <a href="plan.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="RoutingSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">플랜</span></a>
+    <a href="help.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="MessagesSize24" size="24" style="color:#3F52B4"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#3F52B4;">도움말</span></a>
+    <a href="my.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">마이페이지</span></a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+class Component extends DCLogic {
+  renderVals() {
+    const mq = (this.state.mq || '').trim().toLowerCase(); const SPL = window.KG.spots || []; const hit = mq ? (SPL.find(x => (x.name || '').toLowerCase().includes(mq)) || SPL.find(x => (x.kana || '').includes(mq) || (x.ko || '').includes(mq))) : SPL.find(x => x.id === 'S016');
+    return {
+      mq: this.state.mq || '', onMq: (e) => this.setState({ mq: e.target.value }), mName: hit ? hit.name : (mq || '—'), mKo: hit ? hit.ko : '찾을 수 없습니다(찾기 탭에서 검색하세요)', mAddr: hit ? (hit.addrKo || hit.addr || '') : '', mHref: hit ? (hit.naver || ('https://map.naver.com/p/search/' + encodeURIComponent(hit.ko || hit.name))) : '#',
+      ...(() => { const ICON = { '병원': 'AddCircleSize24', '약국': 'AddCircleSize24', '식당': 'TickCircleSize24', '카페': 'TickCircleSize24', '택시': 'CarSize24', '지하철': 'RoutingSize24', '호텔': 'HomeSize24', '쇼핑': 'TickCircleSize24', '분실': 'InfoCircleSize24', '길 묻기': 'LocationSize24', '길': 'LocationSize24', '현재 위치': 'LocationSize24', '관광': 'LocationSize24', '면세': 'TickCircleSize24', '사진': 'TickCircleSize24' };
+        const all = KG.cards || []; const sits = []; all.forEach(c => { if (!sits.includes(c.situation)) sits.push(c.situation); });
+        const sit = this.state.sit || sits[0]; const big = this.state.big;
+        return { sits: sits.map(x => ({ label: x, onClick: () => this.setState({ sit: x, big: null }), bg: x === sit ? '#3F52B4' : '#fff', fg: x === sit ? '#fff' : '#4B4F63', ring: x === sit ? 'none' : 'inset 0 0 0 1px #D1D3DB' })),
+          cards: all.filter(c => c.situation === sit).map(c => ({ icon: ICON[c.situation] || 'InfoCircleSize24', jp: c.ja, ko: c.ko, sub: c.sub || '', koSize: big === c.id ? '26px' : '15px', koWeight: big === c.id ? '700' : '500', onClick: () => this.setState({ big: big === c.id ? null : c.id }) })) };
+      })(),
+      arrival: [
+        { icon: 'BusSize24', title: '공항버스 시간표', sub: '6001 · 6015 · 명동까지' },
+        { icon: 'CarSize24', title: '공항→호텔', sub: '택시 약 60분 · ₩70,000~' },
+        { icon: 'WifiSize24', title: 'SIM·Wi-Fi', sub: '도착 로비 1F 카운터' },
+      ],
+      week: [
+        { day: '월', date: 8, bg: '#3F52B4', ring: 'inset 0 0 0 1.5px #fff', fg: '#F2F4FC', dot: '#B22459' },
+        { day: '화', date: 9, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: 'transparent' },
+        { day: '수', date: 10, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: 'transparent' },
+        { day: '목', date: 11, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: 'transparent' },
+        { day: '금', date: 12, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: 'transparent' },
+        { day: '토', date: 13, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: 'transparent' },
+        { day: '일', date: 14, bg: 'transparent', ring: 'none', fg: '#4B4F63', dot: '#B22459' },
+      ],
+      faq: (window.KG.faq || []).filter(f => /^Q/.test(f.id)).map(f => ({ q: f.q, href: 'faq.html?id=' + f.id })), howto: (window.KG.faq || []).filter(f => /^[HFT]/.test(f.id)).map(f => ({ q: f.q, cat: f.category || '', href: 'faq.html?id=' + f.id })), culture: (window.KG.faq || []).filter(f => /^U/.test(f.id)).map(f => ({ q: f.q, cat: f.category || '', href: 'faq.html?id=' + f.id })),
+    };
+  }
+}
+</script>
+<script>
+(function(){
+  var U='https://line.me/R/ti/p/@897fvigb'; if(!U) return;
+  var b=document.createElement('a'); b.href=U; b.target='_blank'; b.rel='noopener'; b.id='kgline';
+  b.setAttribute('aria-label','LINE으로 상담');
+  b.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.6-.7L3 21l1.8-4.2A8.4 8.4 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5z"/></svg><span style="font-size:9px;font-weight:700;letter-spacing:.5px;line-height:1;margin-top:1px">LINE</span>';
+  b.style.cssText='position:absolute; right:16px; bottom:114px; z-index:700; display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#06C755; color:#fff; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
+  function place(s){
+    var sr=s.getBoundingClientRect(), top=sr.bottom;
+    Array.prototype.forEach.call(s.children, function(c){
+      if(c===b) return;
+      var st=getComputedStyle(c); if(st.position!=='absolute'&&st.position!=='fixed') return;
+      var r=c.getBoundingClientRect();
+      if(r.height>0 && r.height<260 && r.bottom>sr.bottom-260 && r.bottom<=sr.bottom+2) top=Math.min(top, r.top);
+    });
+    b.style.bottom = Math.round(Math.max(16, sr.bottom-top+16)) + 'px';
+  }
+  function screenEl(){ var a=document.querySelectorAll('[data-screen-label]'), out=null;
+    for(var i=0;i<a.length;i++){ if(a[i].closest('x-dc')) continue; var r=a[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=a[i]; }
+    return out; }
+  function mount(){ var s=screenEl(); if(!s) return; if(b.parentNode!==s) s.appendChild(b); place(s); }
+  setInterval(mount, 700);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', function(){
+    b.style.display = (window.visualViewport.height < window.innerHeight*0.75) ? 'none' : 'inline-flex'; }); }
+})();
+</script>
+</body>
+</html>

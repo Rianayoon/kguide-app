@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3F52B4">
+<title>K-GUIDE</title>
+<style>
+  html, body { margin:0; background:#F2F4FC; min-height:100%; }
+</style>
+<script>
+(function(){
+  var W=390, H=844;
+  var KB=0, NAV=null;
+  function navEl(){
+    if(NAV && NAV.isConnected) return NAV;
+    var d=document.getElementsByTagName('div');
+    for(var i=0;i<d.length;i++){ var st=(d[i].getAttribute('style')||'').replace(/\s+/g,'');
+      if(st.indexOf('height:98px')>=0 && st.indexOf('bottom:0')>=0){ NAV=d[i]; return NAV; } }
+    return null;
+  }
+  function navHide(on){
+    var n=navEl(); if(n){ if(on){ if(n.__d===undefined) n.__d=n.style.display; n.style.display='none'; } else if(n.__d!==undefined){ n.style.display=n.__d; } }
+    var b=document.getElementById('kgline'); if(b) b.style.visibility = on ? 'hidden' : '';
+  }
+  function isField(t){ return t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable); }
+  document.addEventListener('focusin', function(e){ if(!isField(e.target)) return; KB=1; navHide(1); });
+  document.addEventListener('focusout', function(e){ if(!isField(e.target)) return; KB=0; setTimeout(function(){ if(!KB){ navHide(0); fit(); } }, 150); });
+  function fit(){
+    if(KB) return;
+    var all=document.querySelectorAll('[data-screen-label]'), s=null;
+    for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
+    if(!s) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var stage=s.parentNode; if(!stage||stage===document.body){ return; }
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    s.style.flexShrink='0'; s.style.transformOrigin='center center';
+    var k;
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }  /* 패드·PC: 가운데에 폰 프레임 */
+    s.style.transform='scale('+k+')';
+    s.style.margin='0';
+  }
+  var mo=new MutationObserver(function(){ fit(); });
+  document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+})();
+</script>
+
+<script src="https://kguide-rt.vercel.app/support.js"></script>
+<script src="../data.ko.js?v=1788912386"></script>
+<script src="../kicon.js?v=1788912386"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../auth.js?v=1789000001"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap">
+  <style>
+    body { margin:0; background:#FAFAFA; font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic","Noto Sans JP","Hiragino Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#111527; }
+    a { color:#3F52B4; text-decoration:none; } a:hover { color:#323D76; }
+    ::-webkit-scrollbar { display:none; }
+  </style>
+  
+</helmet>
+<div data-screen-label="コース詳細" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
+
+  <div style="position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; gap:24px; padding-bottom:252px;">
+
+    <div style="position:relative; flex-shrink:0; display:flex; flex-direction:column;">
+      <div style="position:relative; height:264px; flex-shrink:0; overflow:hidden; background:{{ chero }};">
+        <div style="position:absolute; left:0; right:0; top:0; height:40%; background:linear-gradient(180deg, rgba(17,21,41,0.40) 0%, rgba(17,21,41,0) 100%);"></div>
+        <div style="position:absolute; left:16px; top:16px; width:48px; height:48px; border-radius:24px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); display:flex; align-items:center; justify-content:center;"><k-icon name="ArrowRightSize24" size="24" style="color:#111527; transform:scaleX(-1)"></k-icon></div>
+        <div style="position:absolute; right:16px; top:16px; width:48px; height:48px; border-radius:24px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); display:flex; align-items:center; justify-content:center;"><k-icon name="HeartSize24" size="24" style="color:#B22459"></k-icon></div>
+      </div>
+      <div style="position:relative; margin:-78px 16px 16px; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:16px; display:flex; flex-direction:column; gap:10px;">
+        <span style="align-self:flex-start; display:inline-flex; align-items:center; gap:4px; height:22px; padding:0 8px; border-radius:8px; background:#3F52B4; color:#fff; font-size:11px; font-weight:600;"><k-icon name="TickCircleSize12" size="12" style="color:#fff"></k-icon>가이드 확인함</span>
+        <div style="font-size:20px; font-weight:700; line-height:1.35; color:#111527;">{{ cname }}<br>{{ csub }}</div>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; font-weight:500; color:#6B6E80;">
+          <span>소요 <span style="font-family:Poppins,sans-serif; color:#111527;">{{ chours }}</span>시간</span>
+          <span style="color:#D1D3DB;">·</span>
+          <span>도보 <span style="font-family:Poppins,sans-serif; color:#111527;">{{ ckm }}</span></span>
+          <span style="color:#D1D3DB;">·</span>
+          <span style="color:#3F52B4; font-weight:600;">일본어 가능</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; flex-direction:column; gap:12px; padding:0 16px;">
+      <div style="display:flex; align-items:baseline; justify-content:space-between;">
+        <div style="font-size:16px; font-weight:700; color:#111527;">도는 순서</div>
+        <div style="font-size:12px; font-weight:500; color:#6B6E80;"><span style="font-family:Poppins,sans-serif;">3</span>스팟</div>
+      </div>
+
+      <sc-for list="{{ stops }}" as="s" hint-placeholder-count="3">
+        <div style="display:flex; gap:12px;">
+          <div style="width:28px; flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:4px;">
+            <div style="width:28px; height:28px; border-radius:14px; background:#3F52B4; color:#fff; font-family:Poppins,sans-serif; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;">{{ s.n }}</div>
+            <div style="flex:1; width:0; border-left:2px dashed #D1D3DB;"></div>
+          </div>
+          <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; padding-bottom:8px;">
+            <div style="min-height:106px; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:8px; display:flex; gap:8px; align-items:center;">
+              <div style="width:88px; min-height:90px; align-self:stretch; flex-shrink:0; border-radius:8px; background:{{ s.photo }};"></div>
+              <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span style="width:7px; height:7px; border-radius:50%; background:#047857;"></span>
+                  <span style="font-size:11px; font-weight:600; color:#047857;">개관 중</span>
+                  <span style="font-size:11px; font-weight:500; color:#6B6E80;">체류 {{ s.stay }}</span>
+                </div>
+                <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ s.name }}</div>
+                <div style="font-size:11px; font-weight:500; color:#4B4F63;">{{ s.note }}</div>
+              </div>
+              <k-icon name="ArrowRightSize18" size="18" style="color:#9C9FAF"></k-icon>
+            </div>
+            <sc-if value="{{ s.hasLeg }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex; align-items:center; gap:8px; padding-left:4px; font-size:11px; font-weight:500; color:#6B6E80;">
+                <k-icon name="RoutingSize14" size="14" style="color:#9C9FAF"></k-icon>
+                직선 <span style="font-family:Poppins,sans-serif; color:#111527;">{{ s.dist }}</span> · 도보 <span style="font-family:Poppins,sans-serif; color:#111527;">{{ s.walk }}</span>분
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="margin:0 16px; border-radius:16px; background:#F2F4FC; padding:16px; display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="width:40px; height:40px; flex-shrink:0; border-radius:20px; background:#fff; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="22" style="color:#3F52B4"></k-icon></div>
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">가이드 한마디</div>
+          <div style="font-size:11px; font-weight:500; color:#4B4F63;">국가자격 관광통역안내사 · 통역 자원봉사<span style="font-family:Poppins,'Noto Sans JP',sans-serif;">5</span>년</div>
+        </div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <sc-for list="{{ ctipParas }}" as="pp" hint-placeholder-count="2">
+          <div style="font-size:14px; font-weight:500; line-height:1.75; color:#373B51;">{{ pp.t }}</div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="position:absolute; left:0; right:0; bottom:98px; padding:12px 16px; box-sizing:border-box; background:#fff; box-shadow:0 -8px 24px rgba(131,139,180,.10); display:flex; flex-direction:column; gap:6px;">
+    <a href="{{ planHref }}" style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; letter-spacing:.02em; text-decoration:none;"><k-icon name="RoutingSize24" size="20" style="color:#fff"></k-icon>이 코스로 플랜 만들기</a>
+    <a href="quote.html" style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:16px; font-weight:600; letter-spacing:.02em; text-decoration:none;"><k-icon name="MessagesSize24" size="20" style="color:#3F52B4"></k-icon>견적 요청</a>
+    <div style="text-align:center; font-size:11px; font-weight:500; color:#6B6E80;">플랜은 나중에 순서를 바꿀 수 있습니다</div>
+  </div>
+
+  <div style="position:absolute; left:0; right:0; bottom:0; height:98px; border-radius:16px 16px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:grid; grid-template-columns:repeat(5,1fr); align-items:start; padding:6px 12px 0; box-sizing:border-box;">
+    <a href="home.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="HomeSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">홈</span></a>
+    <a href="search.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="SearchNormal2Size24" size="24" style="color:#3F52B4"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#3F52B4;">찾기</span></a>
+    <a href="plan.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="RoutingSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">플랜</span></a>
+    <a href="help.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="MessagesSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">도움말</span></a>
+    <a href="my.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">마이페이지</span></a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+
+
+const KG = window.KG; const SP = KG.spots;
+const YOMI = {'명동':'','종로·광화문':'','북촌·삼청동':'','동대문':'','홍대':'','강남':'','이태원':'','성수':'','잠실':'','여의도':'','대학로·성북':'','신촌·서대문':'','수원':'','인천':'','파주':'','인천공항·영종도':'','용인':'','남이섬·춘천':'','강릉·속초':'','부산':'','경주':'','전주':'','여수':'','대구':'','대전':'','제주':''};
+const SUB_AREAS = {'부산':[['해운대',''],['광안리',''],['남포동·자갈치',''],['감천·송도',''],['서면·전포',''],['기장',''],['영도',''],['부산역·초량',''],['기타','']],'제주':[['제주시·공항 주변',''],['동부',''],['서부',''],['남부','']]};
+const PLAN = { get() { try { return JSON.parse(localStorage.getItem('kg_plan') || '{}'); } catch (e) { return {}; } }, set(p) { try { localStorage.setItem('kg_plan', JSON.stringify(p)); } catch (e) {} }, addSpot(id) { const p = PLAN.get(); const l = (p.course ? (KG.courses.find(c => c.id === p.course) || { spots: '' }).spots.split(',').filter(Boolean) : (p.spots || [])); if (!l.includes(id)) l.push(id); PLAN.set({ spots: l }); return l.length; }, ids() { const p = PLAN.get(); if (p.course) { const c = KG.courses.find(x => x.id === p.course); if (c) return c.spots.split(',').map(x => x.trim()).filter(Boolean); } return (p.spots || []).filter(id => byId(id)); } };
+const FAV = { get() { try { return JSON.parse(localStorage.getItem('kg_fav') || '[]'); } catch (e) { return []; } }, has(id) { return FAV.get().includes(id); }, toggle(id) { const l = FAV.get(); const i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.unshift(id); try { localStorage.setItem('kg_fav', JSON.stringify(l)); } catch (e) {} return i < 0; } };
+const stopNav = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } };
+const byId = (id) => SP.find(s => s.id === id);
+const bg = (u, w) => u ? `url('${u}') center / cover no-repeat` : 'linear-gradient(135deg,#E9ECF8,#D1D6EE)';
+const shot = (u) => `linear-gradient(180deg, rgba(17,21,41,0) 45%, rgba(17,21,41,0.8) 100%), ${bg(u)}`;
+const qid = () => new URLSearchParams(location.search).get('id');
+const SENT_END = '.';
+const para = (t) => { const s = String(t || '').trim(); if (!s) return []; const out = []; let cur = '', n = 0; for (let i = 0; i < s.length; i++) { cur += s[i]; if (s[i] === SENT_END) { n++; if (n >= 2) { out.push({ t: cur.trim() }); cur = ''; n = 0; } } } if (cur.trim()) { if (out.length && cur.trim().length < 40) out[out.length - 1].t += cur.trim(); else out.push({ t: cur.trim() }); } return out; };
+/*NOI18N*/const DOWJ = ['日','月','火','水','木','金','土'];/*/NOI18N*/
+const DOW = ['일','월','화','수','목','금','토'];   // 표시용(언어별로 번역됨)
+const KR_HOLI = new Set(['2026-01-01','2026-02-16','2026-02-17','2026-02-18','2026-03-01','2026-03-02','2026-05-05','2026-05-24','2026-05-25','2026-06-06','2026-08-15','2026-08-17','2026-09-24','2026-09-25','2026-09-26','2026-10-03','2026-10-05','2026-10-09','2026-12-25','2027-01-01','2027-02-06','2027-02-07','2027-02-08','2027-03-01','2027-05-05','2027-05-13','2027-06-06','2027-08-15','2027-08-16','2027-09-14','2027-09-15','2027-09-16','2027-10-03','2027-10-04','2027-10-09','2027-12-25']);
+const SEOL = {day: ['2026-02-17','2027-02-07'], run: ['2026-02-16','2026-02-17','2026-02-18','2027-02-06','2027-02-07','2027-02-08']};
+const CHUSEOK = {day: ['2026-09-25','2027-09-15'], run: ['2026-09-24','2026-09-25','2026-09-26','2027-09-14','2027-09-15','2027-09-16']};
+const ymd = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+/*NOI18N*/
+function closedOn(r, d) {
+  r = r || ''; if (!r) return false;
+  if (/年中無休|無休|年中開放|年中運航|休みなし/.test(r) && !/店舗により|一部/.test(r)) return false;
+  const key = ymd(d), dow = DOWJ[d.getDay()], isHoli = KR_HOLI.has(key);
+  const r1 = r.replace(/第\d月曜日?/g, ''), r2 = r1.replace(/[（(][^）)]*[）)]/g, '').replace(/[^、,／/]*祝日の(場合|次|翌|時)[^、,／/]*/g, '');
+  const wd = new Set((r1.match(/[月火水木金土日](?=曜)/g) || [])); if (/週末/.test(r)) { wd.add('土'); wd.add('日'); }
+  if (/祝日|公休日|祝祭日/.test(r2) && isHoli) return true;
+  if (/1月1日/.test(r) && key.endsWith('-01-01')) return true;
+  if (/12月25日/.test(r) && key.endsWith('-12-25')) return true;
+  if (/5月1日/.test(r) && key.endsWith('-05-01')) return true;
+  const run = /連休/.test(r);
+  if (/ソルナル|ソルラル|旧正月|旧暦1月1日/.test(r) && (run ? SEOL.run : SEOL.day).includes(key)) return true;
+  if (/秋夕|旧暦8月15日/.test(r) && (run ? CHUSEOK.run : CHUSEOK.day).includes(key)) return true;
+  if (/第1月曜/.test(r) && dow === '月' && d.getDate() <= 7) { const ms = (r.match(/(\d{1,2})月/g) || []).map(x => parseInt(x)); if (!ms.length || ms.includes(d.getMonth() + 1)) return true; }
+  if (wd.has(dow)) {
+    if (/祝日の場合|祝日は開|祝日の時|祝日と重なる/.test(r) && isHoli) return false;   // 휴관요일이 공휴일이면 개관
+    return true;
+  }
+  if (/翌日|翌平日|次の平日/.test(r)) { const y = new Date(d); y.setDate(y.getDate() - 1); if (wd.has(DOWJ[y.getDay()]) && KR_HOLI.has(ymd(y))) return true; }
+  return false;
+}
+function isClosedToday(s){ return closedOn(s.restJa || s.rest, new Date()); }
+/*/NOI18N*/
+const OPEN = { dot: '#047857', open: '개관 중', openFg: '#047857' };
+const SHUT = { dot: '#B22459', open: '오늘 휴관', openFg: '#B22459' };
+const st = (s) => isClosedToday(s) ? SHUT : OPEN;
+const metaOf = (s) => [s.jp ? '일본어 가능' : '', s.stay ? `약 ${s.stay}분` : '', s.fee && s.fee.length < 22 ? s.fee : '', s.area].filter(Boolean).slice(0,2).join(' · ');
+const WXTXT = (c) => c <= 2 ? '맑음' : c === 3 ? '흐림' : (c === 45 || c === 48) ? '안개' : ((c >= 71 && c <= 77) || c === 85 || c === 86) ? '눈' : '비';
+const WEAR = (mx, pop) => { const w = mx >= 30 ? '햇빛 차단·수분 보충' : mx >= 20 ? '반팔＋얇은 겉옷' : mx >= 10 ? '겉옷 필수' : '코트·장갑'; return pop >= 50 ? '우산 ·' + w : w; };
+const CITY_LL = {'서울':[37.57,126.98],'부산':[35.18,129.08],'강릉·속초':[37.75,128.88],'경주':[35.86,129.22],'전주':[35.82,127.15],'여수':[34.76,127.66],'대구':[35.87,128.60],'대전':[36.35,127.38],'제주':[33.51,126.53]};
+function wxFetch(lat, lng) {
+  const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia/Seoul&forecast_days=7`;
+  return fetch(u).then(r => r.json()).then(j => {
+    const d = j.daily;
+    return d.time.map((t, i) => {
+      const pd = t.split('-').map(Number), dt = new Date(pd[0], pd[1] - 1, pd[2]), mx = Math.round(d.temperature_2m_max[i]), mn = Math.round(d.temperature_2m_min[i]);
+      const pop = d.precipitation_probability_max[i] || 0;
+      return { date: t, label: (dt.getMonth() + 1) + '/' + dt.getDate() + '(' + DOW[dt.getDay()] + ')', sky: WXTXT(d.weathercode[i]), max: mx, min: mn, pop: pop, wear: WEAR(mx, pop), rain: pop >= 50 };
+    });
+  });
+}
+
+
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      ...(() => { const c = KG.courses.find(x => x.id === (qid() || 'C001')) || KG.courses[0]; const f = byId(c.spots.split(',')[0].trim()) || {}; document.title = c.name + ' | K-GUIDE'; return { cname: c.name, csub: c.sub || '', chero: bg(f.photo), chours: c.hours || '', ckm: (c.km || 0) + 'km', ctipParas: para(c.tip) }; })(), planHref: 'plan.html?id=' + ((KG.courses.find(x => x.id === (qid() || 'C001')) || KG.courses[0]).id), stops: (() => { const c = KG.courses.find(x => x.id === (qid() || 'C001')) || KG.courses[0]; const ids = c.spots.split(','); const stays = String(c.stay).split(','); return ids.map((id, i) => { const sp = byId(id) || {}; const nx = byId(ids[i+1]); const d = nx ? Math.hypot((sp.lat - nx.lat) * 111, (sp.lng - nx.lng) * 88) : 0; return { n: i + 1, name: sp.name || id, stay: (stays[i] || '') + '분', note: [sp.rest ? '휴무: ' + sp.rest : '', sp.fee || ''].filter(Boolean).join(' · ').slice(0, 40), photo: bg(sp.photo), hasLeg: !!nx, dist: nx ? d.toFixed(1) + 'km' : '', walk: nx ? Math.max(1, Math.round(d / 0.08)) : '', href: 'spot.html?id=' + id }; }); })(),
+    };
+  }
+}
+
+</script>
+<script>
+(function(){
+  var U='https://line.me/R/ti/p/@897fvigb'; if(!U) return;
+  var b=document.createElement('a'); b.href=U; b.target='_blank'; b.rel='noopener'; b.id='kgline';
+  b.setAttribute('aria-label','LINE으로 상담');
+  b.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.6-.7L3 21l1.8-4.2A8.4 8.4 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5z"/></svg><span style="font-size:9px;font-weight:700;letter-spacing:.5px;line-height:1;margin-top:1px">LINE</span>';
+  b.style.cssText='position:absolute; right:16px; bottom:114px; z-index:700; display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#06C755; color:#fff; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
+  function place(s){
+    var sr=s.getBoundingClientRect(), top=sr.bottom;
+    Array.prototype.forEach.call(s.children, function(c){
+      if(c===b) return;
+      var st=getComputedStyle(c); if(st.position!=='absolute'&&st.position!=='fixed') return;
+      var r=c.getBoundingClientRect();
+      if(r.height>0 && r.height<260 && r.bottom>sr.bottom-260 && r.bottom<=sr.bottom+2) top=Math.min(top, r.top);
+    });
+    b.style.bottom = Math.round(Math.max(16, sr.bottom-top+16)) + 'px';
+  }
+  function screenEl(){ var a=document.querySelectorAll('[data-screen-label]'), out=null;
+    for(var i=0;i<a.length;i++){ if(a[i].closest('x-dc')) continue; var r=a[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=a[i]; }
+    return out; }
+  function mount(){ var s=screenEl(); if(!s) return; if(b.parentNode!==s) s.appendChild(b); place(s); }
+  setInterval(mount, 700);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', function(){
+    b.style.display = (window.visualViewport.height < window.innerHeight*0.75) ? 'none' : 'inline-flex'; }); }
+})();
+</script>
+</body>
+</html>

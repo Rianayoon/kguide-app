@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3F52B4">
+<title>K-GUIDE</title>
+<style>
+  html, body { margin:0; background:#F2F4FC; min-height:100%; }
+</style>
+<script>
+(function(){
+  var W=390, H=844;
+  var KB=0, NAV=null;
+  function navEl(){
+    if(NAV && NAV.isConnected) return NAV;
+    var d=document.getElementsByTagName('div');
+    for(var i=0;i<d.length;i++){ var st=(d[i].getAttribute('style')||'').replace(/\s+/g,'');
+      if(st.indexOf('height:98px')>=0 && st.indexOf('bottom:0')>=0){ NAV=d[i]; return NAV; } }
+    return null;
+  }
+  function navHide(on){
+    var n=navEl(); if(n){ if(on){ if(n.__d===undefined) n.__d=n.style.display; n.style.display='none'; } else if(n.__d!==undefined){ n.style.display=n.__d; } }
+    var b=document.getElementById('kgline'); if(b) b.style.visibility = on ? 'hidden' : '';
+  }
+  function isField(t){ return t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable); }
+  document.addEventListener('focusin', function(e){ if(!isField(e.target)) return; KB=1; navHide(1); });
+  document.addEventListener('focusout', function(e){ if(!isField(e.target)) return; KB=0; setTimeout(function(){ if(!KB){ navHide(0); fit(); } }, 150); });
+  function fit(){
+    if(KB) return;
+    var all=document.querySelectorAll('[data-screen-label]'), s=null;
+    for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
+    if(!s) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var stage=s.parentNode; if(!stage||stage===document.body){ return; }
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    s.style.flexShrink='0'; s.style.transformOrigin='center center';
+    var k;
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }  /* 패드·PC: 가운데에 폰 프레임 */
+    s.style.transform='scale('+k+')';
+    s.style.margin='0';
+  }
+  var mo=new MutationObserver(function(){ fit(); });
+  document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+})();
+</script>
+
+<script src="https://kguide-rt.vercel.app/support.js"></script>
+<script src="../data.ko.js?v=1788912386"></script>
+<script src="../kicon.js?v=1788912386"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../auth.js?v=1789000001"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap">
+  <style>
+    body { margin:0; background:#FAFAFA; font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic","Noto Sans JP","Hiragino Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#111527; }
+    a { color:#3F52B4; text-decoration:none; } a:hover { color:#323D76; }
+    ::-webkit-scrollbar { display:none; }
+  </style>
+  
+</helmet>
+<div data-screen-label="予約・見積もり" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
+
+  <div style="flex-shrink:0; padding:16px 16px 12px; display:flex; align-items:center; gap:12px;">
+    <div onClick="{{ back }}" style="width:48px; height:48px; flex-shrink:0; border-radius:24px; background:#F2F4FC; display:flex; align-items:center; justify-content:center; cursor:pointer;"><k-icon name="ArrowRightSize24" size="24" style="color:#3F52B4; transform:scaleX(-1)"></k-icon></div>
+    <div style="flex:1; display:flex; flex-direction:column; gap:2px;">
+      <div style="font-size:16px; font-weight:600; line-height:24px; color:#373B51;">{{ headerTitle }}</div>
+      <div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ headerSub }}</div>
+    </div>
+  </div>
+
+  <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:16px; padding:4px 16px 112px;">
+      <sc-for list="{{ items }}" as="b" hint-placeholder-count="3">
+        <div onClick="{{ b.onOpen }}" style="flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:8px; display:flex; flex-direction:column; gap:8px; cursor:pointer;">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <div style="width:88px; height:90px; flex-shrink:0; border-radius:8px; background:{{ b.photo }};"></div>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+              <span style="align-self:flex-start; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:{{ b.badgeBg }}; color:{{ b.badgeFg }}; font-size:11px; font-weight:600;">{{ b.status }}</span>
+              <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ b.name }}</div>
+              <div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ b.date }} · 성인 <span style="font-family:Poppins,sans-serif;">{{ b.people }}</span>명</div>
+            </div>
+            <k-icon name="ArrowRightSize18" size="18" style="color:#9C9FAF"></k-icon>
+          </div>
+          <sc-if value="{{ b.reply }}" hint-placeholder-val="{{ false }}">
+            <div style="border-radius:8px; background:#F2F4FC; padding:8px 12px; display:flex; align-items:center; gap:8px;">
+              <k-icon name="MessagesSize20" size="18" style="color:#3F52B4"></k-icon>
+              <div style="flex:1; font-size:11px; font-weight:600; color:#3F52B4;">{{ b.reply }}</div>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+      <div style="font-size:11px; font-weight:500; line-height:1.6; color:#6B6E80;">결제는 당일 가이드와 직접. 취소는 전날까지 무료입니다.</div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:16px; padding:4px 16px 190px;">
+
+      <div style="flex-shrink:0; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:8px; display:flex; gap:8px; align-items:center;">
+        <div style="width:88px; height:90px; flex-shrink:0; border-radius:8px; background:{{ detail.photo }};"></div>
+        <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+          <span style="align-self:flex-start; display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:{{ detail.badgeBg }}; color:{{ detail.badgeFg }}; font-size:11px; font-weight:600;">{{ detail.status }}</span>
+          <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527;">{{ detail.name }}</div>
+          <div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ detail.date }} · 성인 <span style="font-family:Poppins,sans-serif;">{{ detail.people }}</span>명</div>
+        </div>
+      </div>
+
+      <div style="flex-shrink:0; border-radius:16px; background:#F2F4FC; padding:16px; display:flex; flex-direction:column; gap:12px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:40px; height:40px; flex-shrink:0; border-radius:20px; background:#fff; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="22" style="color:#3F52B4"></k-icon></div>
+          <div style="display:flex; flex-direction:column; gap:2px;">
+            <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">가이드 답변</div>
+            <div style="font-size:11px; font-weight:500; color:#4B4F63;">9월 8일(화) 18:20</div>
+          </div>
+        </div>
+        <div style="font-size:14px; font-weight:500; line-height:1.7; color:#111527;">요청 감사합니다. 경복궁은 교대식 <span style="font-family:Poppins,'Noto Sans JP',sans-serif; font-weight:600;">10:00</span> 에 맞춰 <span style="font-family:Poppins,'Noto Sans JP',sans-serif; font-weight:600;">09:30</span> 집합은 어떠신가요. 인사동 점심은 일본어 메뉴가 있는 가게로 예약해 두겠습니다.</div>
+      </div>
+
+      <div style="flex-shrink:0; display:flex; flex-direction:column; gap:12px;">
+        <div style="font-size:16px; font-weight:700; color:#111527;">견적</div>
+        <div style="border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:16px; display:flex; flex-direction:column; gap:12px;">
+          <sc-for list="{{ quote }}" as="q" hint-placeholder-count="4">
+            <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px;">
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">{{ q.k }}</div>
+                <sc-if value="{{ q.note }}" hint-placeholder-val="{{ false }}"><div style="font-size:11px; font-weight:500; color:#6B6E80;">{{ q.note }}</div></sc-if>
+              </div>
+              <div style="font-family:Poppins,'Noto Sans JP',sans-serif; font-size:14px; font-weight:600; color:#373B51; white-space:nowrap;">{{ q.v }}</div>
+            </div>
+          </sc-for>
+          <div style="height:1px; background:#D1D3DB;"></div>
+          <div style="display:flex; align-items:baseline; justify-content:space-between;">
+            <div style="font-size:14px; font-weight:600; color:#111527;">합계(성인 2명)</div>
+            <div style="font-family:Poppins,'Noto Sans JP',sans-serif; font-size:20px; font-weight:600; color:#3F52B4;">₩96,000</div>
+          </div>
+          <div style="font-size:11px; font-weight:500; line-height:1.6; color:#6B6E80;">입장료·점심값은 각자 부담입니다. 결제는 당일 현금 또는 송금으로.</div>
+        </div>
+      </div>
+
+      <div style="flex-shrink:0; display:flex; flex-direction:column; gap:12px;">
+        <div style="font-size:16px; font-weight:700; color:#111527;">당일 일정</div>
+        <sc-for list="{{ steps }}" as="s" hint-placeholder-count="4">
+          <div style="min-height:60px; box-sizing:border-box; border-radius:16px; background:#F7F7FA; padding:8px 16px; display:flex; align-items:center; gap:12px;">
+            <div style="font-family:Poppins,sans-serif; font-size:14px; font-weight:600; color:#3F52B4; width:44px; flex-shrink:0;">{{ s.time }}</div>
+            <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
+              <div style="font-size:14px; font-weight:600; line-height:20px; color:#373B51;">{{ s.title }}</div>
+              <div style="font-size:12px; font-weight:400; line-height:16px; color:#4B4F63;">{{ s.note }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="position:absolute; left:0; right:0; bottom:98px; padding:12px 16px; box-sizing:border-box; background:#fff; box-shadow:0 -8px 24px rgba(131,139,180,.10); display:flex; flex-direction:column; gap:8px;">
+      <div style="display:flex; align-items:center; justify-content:center; gap:8px; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; letter-spacing:.02em;"><k-icon name="TickCircleSize24" size="20" style="color:#fff"></k-icon>이 견적으로 확정</div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        <div style="flex:1; height:48px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:14px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px;"><k-icon name="MessagesSize20" size="18" style="color:#3F52B4"></k-icon>LINE으로 질문</div>
+        <div style="flex:1; height:48px; border-radius:16px; background:#fff; color:#B22459; font-size:14px; font-weight:600; display:flex; align-items:center; justify-content:center;">요청 취소</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="position:absolute; left:0; right:0; bottom:0; height:98px; border-radius:16px 16px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:grid; grid-template-columns:repeat(5,1fr); align-items:start; padding:6px 12px 0; box-sizing:border-box;">
+    <a href="home.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="HomeSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">홈</span></a>
+    <a href="search.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="SearchNormal2Size24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">찾기</span></a>
+    <a href="plan.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="RoutingSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">플랜</span></a>
+    <a href="help.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="MessagesSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">도움말</span></a>
+    <a href="my.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="24" style="color:#3F52B4"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#3F52B4;">마이페이지</span></a>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844}}">
+const WM = {"Bukchon-ro_11-gil_street_with_hanok_houses_and_blue_sky_in_Bukchon_Hanok_Village_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg", "Bukchon-ro_11-gil_street_with_hanok_houses_at_sunrise_in_Bukchon_Hanok_Village_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg", "Bukchon_Village_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource/04/3304404_image2_1.jpg", "Front_view_of_Heungnyemun_Gate_in_Gyeongbokgung_Palace_Seoul_South_Korea.jpg": "https://tong.visitkorea.or.kr/cms/resource/97/3487597_image2_1.jpg", "Front_view_of_the_Imperial_Throne_Hall_Geunjeongjeon_at_Gyeongbokgung_Palace_with_blue_sky_in_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource/97/3487597_image2_1.jpg", "Front_view_of_Jibokjae_Hall_under_blue_sky_at_Gyeongbokgung_Palace_in_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/62/4061962_image2_1.jpg", "Gwanghwamun_20240413.jpg": "https://tong.visitkorea.or.kr/cms/resource/88/3589188_image2_1.jpg", "Insadong_Street_in_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/87/2546387_image2_1.jpg", "Myeongdong_Cathedral_6.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/05/1939005_image2_1.jpg", "Myeongdong_at_night.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/45/2588645_image2_1.jpg", "Myeongdong_Neon_at_Night,_Seoul.jpg": "https://tong.visitkorea.or.kr/cms/resource_photo/45/2588645_image2_1.jpg", "Tteokbokki.JPG": "https://tong.visitkorea.or.kr/cms/resource_photo/67/2540167_image2_1.jpg"};
+const photo = (file) => `url('${WM[file] || ''}') center / cover no-repeat`;
+
+const REPLIED = { status: '답변 있음', badgeBg: '#3F52B4', badgeFg: '#fff' };
+const WAITING = { status: '답변 대기', badgeBg: '#F2F4FC', badgeFg: '#3F52B4' };
+const CLOSED = { status: '종료', badgeBg: '#fff', badgeFg: '#6B6E80' };
+
+class Component extends DCLogic {
+  state = { view: 'list' };
+
+  renderVals() {
+    const detail = {
+      ...REPLIED,
+      name: '경복궁 → 북촌 → 인사동',
+      date: '9월 10일(수) 09:30',
+      people: 2,
+      photo: photo('Bukchon-ro_11-gil_street_with_hanok_houses_and_blue_sky_in_Bukchon_Hanok_Village_Seoul.jpg'),
+    };
+    const list = this.state.view === 'list';
+    return {
+      isList: list,
+      isDetail: !list,
+      headerTitle: list ? '예약·견적' : '견적 상세',
+      headerSub: list ? '답변은 LINE 으로도 옵니다' : 'KG-260908-014',
+      back: () => this.setState({ view: 'list' }),
+      detail,
+      items: [
+        { ...detail, reply: '가이드 답변이 있습니다 · ₩96,000', onOpen: () => this.setState({ view: 'detail' }) },
+        { ...WAITING, name: '명동 → 남산 저녁 풍경 플랜', date: '9월 12일(금) 16:00', people: 2, reply: '', photo: photo('Myeongdong_at_night.jpg'), onOpen: () => this.setState({ view: 'detail' }) },
+        { ...CLOSED, name: '홍대 맛집 산책', date: '9월 2일(수)', people: 3, reply: '', photo: photo('Tteokbokki.JPG'), onOpen: () => this.setState({ view: 'detail' }) },
+      ],
+      quote: [
+        { k: '가이드 요금', v: '₩80,000', note: '4시간 · 일본어' },
+        { k: '교통비', v: '₩16,000', note: '지하철·택시 실비' },
+        { k: '입장료', v: '각자', note: '경복궁 ₩3,000 / 한복이면 무료' },
+        { k: '점심', v: '각자', note: '₩8,000~(예약은 가이드가 대행)' },
+      ],
+      steps: [
+        { time: '09:30', title: '명동 호텔 집합', note: '로비에서 기다립니다' },
+        { time: '10:00', title: '경복궁 · 수문장 교대식', note: '한복 대여 시 입장 무료' },
+        { time: '11:20', title: '북촌한옥마을', note: '언덕길 있음 · 편한 신발로' },
+        { time: '12:40', title: '인사동에서 점심', note: '일본어 메뉴가 있는 가게 예약' },
+      ],
+    };
+  }
+}
+</script>
+<script>
+(function(){
+  var U='https://line.me/R/ti/p/@897fvigb'; if(!U) return;
+  var b=document.createElement('a'); b.href=U; b.target='_blank'; b.rel='noopener'; b.id='kgline';
+  b.setAttribute('aria-label','LINE으로 상담');
+  b.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.6-.7L3 21l1.8-4.2A8.4 8.4 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5z"/></svg><span style="font-size:9px;font-weight:700;letter-spacing:.5px;line-height:1;margin-top:1px">LINE</span>';
+  b.style.cssText='position:absolute; right:16px; bottom:114px; z-index:700; display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#06C755; color:#fff; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
+  function place(s){
+    var sr=s.getBoundingClientRect(), top=sr.bottom;
+    Array.prototype.forEach.call(s.children, function(c){
+      if(c===b) return;
+      var st=getComputedStyle(c); if(st.position!=='absolute'&&st.position!=='fixed') return;
+      var r=c.getBoundingClientRect();
+      if(r.height>0 && r.height<260 && r.bottom>sr.bottom-260 && r.bottom<=sr.bottom+2) top=Math.min(top, r.top);
+    });
+    b.style.bottom = Math.round(Math.max(16, sr.bottom-top+16)) + 'px';
+  }
+  function screenEl(){ var a=document.querySelectorAll('[data-screen-label]'), out=null;
+    for(var i=0;i<a.length;i++){ if(a[i].closest('x-dc')) continue; var r=a[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=a[i]; }
+    return out; }
+  function mount(){ var s=screenEl(); if(!s) return; if(b.parentNode!==s) s.appendChild(b); place(s); }
+  setInterval(mount, 700);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize', function(){
+    b.style.display = (window.visualViewport.height < window.innerHeight*0.75) ? 'none' : 'inline-flex'; }); }
+})();
+</script>
+</body>
+</html>
