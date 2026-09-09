@@ -659,7 +659,7 @@
       + '<div style="font-size:13px; font-weight:700; color:#3F52B4;">' + esc(isIn ? (T.inFlight || '到着便') : (T.outFlight || '帰国便')) + '</div>'
       + '<div style="display:flex; gap:8px;">'
       + '<input id="f' + kind + 'no" value="' + esc((f && f.no) || '') + '" placeholder="' + esc(T.flightNo || '便名') + '" style="flex:1; min-width:0; box-sizing:border-box; height:44px; border:0; box-shadow:inset 0 0 0 1px #E1E3EC; border-radius:12px; padding:0 12px; font-size:14px; font-family:inherit; outline:none;">'
-      + '<input id="f' + kind + 'time" type="time" value="' + esc((f && f.time) || '') + '" style="width:118px; flex-shrink:0; box-sizing:border-box; height:44px; border:0; box-shadow:inset 0 0 0 1px #E1E3EC; border-radius:12px; padding:0 10px; font-size:14px; font-family:inherit; outline:none;">'
+      + '<div id="f' + kind + 'time" data-tf="' + kind + '" data-v="' + esc((f && f.time) || '') + '" style="cursor:pointer; width:118px; flex-shrink:0; box-sizing:border-box; height:44px; box-shadow:inset 0 0 0 1px #E1E3EC; border-radius:12px; padding:0 12px; font-size:15px; font-weight:600; font-family:Poppins,sans-serif; display:flex; align-items:center; justify-content:center; color:' + ((f && f.time) ? '#111527' : '#9C9FAF') + ';">' + esc((f && f.time) || '--:--') + '</div>'
       + '</div><div style="display:flex; gap:6px; overflow-x:auto;">'
       + K.AP_LIST.map(function (a) {
         var on = f && f.airport === a;
@@ -705,7 +705,8 @@
     }
     /* 스팟 목록 */
     h += '<div style="display:flex; align-items:baseline; justify-content:space-between; padding:20px 16px 0;">'
-      + '<div style="font-size:16px; font-weight:700; color:#111527;">' + esc(mdw(day.date)) + ' · ' + plan.rows.length + esc(T.spotUnit || 'スポット') + '</div>'
+      + '<div style="display:flex; align-items:center; gap:8px; min-width:0;"><div style="font-size:16px; font-weight:700; color:#111527;">' + esc(mdw(day.date)) + ' · ' + plan.rows.length + esc(T.spotUnit || 'スポット') + '</div>'
+      + '<div data-tstart="1" style="cursor:pointer; flex-shrink:0; display:inline-flex; align-items:center; gap:4px; height:26px; padding:0 10px; border-radius:13px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:700;">' + esc(T.startAt || '開始') + ' <span style="font-family:Poppins,sans-serif;">' + esc(day.start || '10:00') + '</span></div></div>'
       + (plan.walk ? '<div style="font-size:12px; font-weight:500; color:#6B6E80;">' + esc(T.walkTotal || '合計 徒歩') + ' <span style="font-family:Poppins,sans-serif;">' + plan.walk + '</span>' + esc(T.min || '分') + '</div>' : '') + '</div>';
     h += '<div style="display:flex; flex-direction:column; gap:12px; padding:12px 16px 0;">';
     if (!plan.rows.length) {
@@ -858,12 +859,78 @@
     }, 60000);
   }
 
+
+  /* ── 시각 입력: 다이얼(input type=time) 대신 숫자 두 칸 직접 입력 ── */
+  function timeSheet(cur, title, cb) {
+    var m = /^(\d{1,2}):(\d{1,2})$/.exec(String(cur || '')) || [];
+    var pad = K.pad;
+    var H = m[1] !== undefined ? pad(parseInt(m[1], 10)) : '', M = m[2] !== undefined ? pad(parseInt(m[2], 10)) : '';
+    var host = document.getElementById('kg-overlay-top') || document.body;
+    var w = document.createElement('div');
+    w.style.cssText = 'position:fixed; left:0; top:0; right:0; bottom:0; z-index:1200; pointer-events:auto; background:rgba(17,21,41,.40); display:flex; align-items:flex-end; justify-content:center;';
+    var box = 'width:64px; height:56px; box-sizing:border-box; text-align:center; font-family:Poppins,sans-serif; font-size:24px; font-weight:700; color:#111527; border:0; box-shadow:inset 0 0 0 1px #E1E3EC; border-radius:14px; outline:none; background:#fff;';
+    w.innerHTML = '<div style="width:100%; max-width:480px; box-sizing:border-box; background:#fff; border-radius:20px 20px 0 0; padding:16px 16px 24px; display:flex; flex-direction:column; gap:12px;">'
+      + '<div style="width:40px; height:4px; border-radius:2px; background:#E9ECF8; margin:0 auto 4px;"></div>'
+      + '<div style="font-size:15px; font-weight:700; color:#111527;">' + esc(title || T.timeTitle || '時刻を入力') + '</div>'
+      + '<div id="tsPrev" style="text-align:center; font-family:Poppins,sans-serif; font-size:40px; font-weight:700; color:#3F52B4; letter-spacing:1px;">--:--</div>'
+      + '<div style="display:flex; align-items:center; justify-content:center; gap:10px;">'
+      + '<div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><input id="tsH" inputmode="numeric" maxlength="2" value="' + H + '" placeholder="00" style="' + box + '"><span style="font-size:11px; font-weight:600; color:#6B6E80;">' + esc(T.hour || '時') + '</span></div>'
+      + '<div style="font-size:28px; font-weight:700; color:#9C9FAF; padding-bottom:18px;">:</div>'
+      + '<div style="display:flex; flex-direction:column; align-items:center; gap:4px;"><input id="tsM" inputmode="numeric" maxlength="2" value="' + M + '" placeholder="00" style="' + box + '"><span style="font-size:11px; font-weight:600; color:#6B6E80;">' + esc(T.minute || '分') + '</span></div>'
+      + '</div>'
+      + '<div id="tsOk" style="cursor:pointer; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:16px; font-weight:600; display:flex; align-items:center; justify-content:center;">' + esc(T.ok || '決定') + '</div>'
+      + '<div id="tsNo" style="cursor:pointer; height:40px; color:#6B6E80; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;">' + esc(T.cancel || 'キャンセル') + '</div>'
+      + '</div>';
+    host.appendChild(w);
+    var ih = w.querySelector('#tsH'), im = w.querySelector('#tsM'), pv = w.querySelector('#tsPrev');
+    function okH() { return /^\d{1,2}$/.test(ih.value) && +ih.value >= 0 && +ih.value <= 23; }
+    function okM() { return /^\d{1,2}$/.test(im.value) && +im.value >= 0 && +im.value <= 59; }
+    function paint() {
+      ih.style.boxShadow = 'inset 0 0 0 ' + (ih.value && !okH() ? '2px #B22459' : '1px #E1E3EC');
+      im.style.boxShadow = 'inset 0 0 0 ' + (im.value && !okM() ? '2px #B22459' : '1px #E1E3EC');
+      pv.textContent = (okH() && okM()) ? (pad(+ih.value) + ':' + pad(+im.value)) : '--:--';
+    }
+    function clean(el) { var v = el.value.replace(/[^0-9]/g, '').slice(0, 2); if (v !== el.value) el.value = v; }
+    ih.addEventListener('input', function () { clean(ih); paint(); if (ih.value.length === 2) { im.focus(); im.select(); } });
+    im.addEventListener('input', function () { clean(im); paint(); });
+    ih.addEventListener('focus', function () { ih.select(); });
+    im.addEventListener('focus', function () { im.select(); });
+    function close() { if (w.parentNode) w.parentNode.removeChild(w); }
+    w.addEventListener('click', function (e) {
+      if (e.target === w || e.target.id === 'tsNo') { close(); return; }
+      if (e.target.id === 'tsOk' || (e.target.closest && e.target.closest('#tsOk'))) {
+        if (!okH() || !okM()) { paint(); K.toast(T.timeTitle || '時刻を入力'); return; }
+        var v = pad(+ih.value) + ':' + pad(+im.value); close(); cb(v);
+      }
+    });
+    paint(); setTimeout(function () { ih.focus(); ih.select(); }, 60);
+  }
+
   /* ── 이벤트 ── */
   function cur() { return TRIPS.get(state.id) || TRIPS.cur(); }
   document.addEventListener('click', function (e) {
-    var el = e.target.closest ? e.target.closest('[data-open],[data-edit],[data-del],[data-new],[data-cal],[data-pick],[data-city],[data-ap],[data-stay],[data-save],[data-cancel],[data-day],[data-up],[data-down],[data-rm],[data-move],[data-switch],[data-editrip],[data-mode],[data-ics],[data-drawer],[data-put]') : null;
+    var el = e.target.closest ? e.target.closest('[data-tf],[data-tstart],[data-open],[data-edit],[data-del],[data-new],[data-cal],[data-pick],[data-city],[data-ap],[data-stay],[data-save],[data-cancel],[data-day],[data-up],[data-down],[data-rm],[data-move],[data-switch],[data-editrip],[data-mode],[data-ics],[data-drawer],[data-put]') : null;
     if (!el || !document.getElementById('kgtrip')) return;
     var g = function (k) { return el.getAttribute('data-' + k); };
+    if (g('tf')) {
+      e.preventDefault(); e.stopPropagation(); collect();
+      var _k = g('tf'), _el = document.getElementById('f' + _k + 'time');
+      var _cur = (_el && _el.getAttribute('data-v')) || (_k === 'in' ? '14:00' : '11:00');
+      timeSheet(_cur, _k === 'in' ? (T.inFlight || '到着便') : (T.outFlight || '帰国便'), function (v) {
+        if (!draft) return;
+        var f = draft.flights[_k] || {};
+        f.time = v; if (!f.airport) f.airport = 'ICN1';
+        draft.flights[_k] = f; render();
+      });
+      return;
+    }
+    if (g('tstart')) {
+      e.preventDefault(); e.stopPropagation();
+      var _t = cur(); if (!_t) return;
+      var _d = _t.days[state.d];
+      timeSheet(_d.start || '10:00', T.startAt || '開始', function (v) { _d.start = v; TRIPS.put(_t); render(); });
+      return;
+    }
     if (g('open') !== null && g('open')) { e.preventDefault(); go('day', { id: g('open'), d: TRIPS.todayIndex(TRIPS.get(g('open'))) }); return; }
     if (g('edit')) { e.preventDefault(); e.stopPropagation(); draft = JSON.parse(JSON.stringify(TRIPS.get(g('edit')))); go('new', { id: g('edit') }); return; }
     if (g('del')) {
@@ -959,7 +1026,7 @@
       if (!no && !tm) return;
       var f = draft.flights[k] || {};
       f.no = no ? no.value.trim() : (f.no || '');
-      f.time = tm ? tm.value : (f.time || '');
+      f.time = tm ? (tm.getAttribute('data-v') || '') : (f.time || '');
       if (!f.airport) f.airport = k === 'in' ? 'ICN1' : 'ICN1';
       draft.flights[k] = (f.no || f.time) ? f : null;
     });
