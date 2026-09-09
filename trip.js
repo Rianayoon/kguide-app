@@ -1073,59 +1073,58 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else setTimeout(start, 0);
 })();
 
-/* ═══ 홈 「今日の予定」 카드 (13번) ═══════════════════════════ */
+/* ═══ 홈 「今日」 카드 (시안 F · 2026-09-09 홈정리) ══════════════ */
 (function () {
   'use strict';
   var K = window.KGTRIP, T = window.KGT || {};
+  /* 홈 플래그(FLAG_JS)와 같은 기준으로 여행을 고른다: 오늘이 포함된 여행 → 30일 안에 시작하는 여행 */
+  function pickTrip() {
+    var l = K.TRIPS.all(), today = K.todayS(), lim = K.addDays(today, -30), best = null;
+    for (var i = 0; i < l.length; i++) {
+      var x = l[i]; if (!x || !x.start || !x.end) continue;
+      if (today >= x.start && today <= x.end) return x;
+      if (today < x.start && x.start >= lim && (!best || x.start < best.start)) best = x;
+    }
+    return best;
+  }
   function render() {
     var host = document.getElementById('kghomecard'); if (!host || !K) return;
     /* React 가 만든 슬롯 안에 우리 전용 컨테이너를 하나 두고, 거기에만 쓴다 (2026-09-09 핫픽스) */
     var box = host.querySelector('[data-kghc]');
     if (!box || box.parentNode !== host) { box = document.createElement('div'); box.setAttribute('data-kghc', '1'); box.style.display = 'contents'; try { host.appendChild(box); } catch (e) { return; } }
-    var TRIPS = K.TRIPS, esc = K.esc;
-    var n = K.NOTIFY.get();
-    var t = TRIPS.cur();
+    var esc = K.esc, n = K.NOTIFY.get(), t = pickTrip();
     if (!t || !n.homeCard) { box.innerHTML = ''; return; }
-    var today = K.todayS(), eve = K.addDays(t.start, -1);
-    if (today < eve || today > t.end) { box.innerHTML = ''; return; }
-    var open = false; try { open = localStorage.getItem('kg_home_card_open') === '1'; } catch (e) { }
-    var title, sum, di = -1, tl = null, warn = '';
-    if (today === eve) {
-      title = (T.hcEve || '明日から {c} {n}').replace('{c}', (t.city && t.city[0]) || (T.seoul || 'ソウル')).replace('{n}', TRIPS.nights(t));
+    var today = K.todayS(), b1, b2, title, sub = '', href = 'trip.html?id=' + t.id;
+    if (today < t.start) {
+      b1 = T.hcPre || '出発まで';
+      b2 = (T.hcPreN || '{n}日').replace('{n}', K.diffDays(today, t.start));
+      title = t.name || (t.city && t.city[0]) || (T.seoul || 'ソウル');
       var fi = t.flights && t.flights.in;
-      sum = fi && fi.time ? ((T.hcEveSub || '到着便 {no} {t} · 荷造りチェック').replace('{no}', fi.no || '').replace('{t}', fi.time)) : (T.hcEveSub2 || '荷造りチェック');
+      if (fi && fi.time) sub = (T.hcArr || '到着便 {d} {t} {a}').replace('{d}', K.md(t.start)).replace('{t}', fi.time).replace('{a}', K.apLabel(fi.airport) || '');
     } else {
-      di = TRIPS.dayIndexFor(t, today);
-      var day = t.days[di], plan = K.dayPlan(t, di);
-      tl = K.tlFor(t, day.date);
-      var names = plan.rows.map(function (r) { return r.name; });
-      if (today === t.start && tl) {
-        title = (T.hcArrive || '到着日 · {d}').replace('{d}', K.mdw(day.date));
-        sum = (T.hcArriveSub || '{t} 着 → ホテル到着 {h} ごろ · 観光は {s} から').replace('{t}', K.hm(tl.rows[0].min)).replace('{h}', K.hm(tl.rows[3].min)).replace('{s}', K.hm(tl.tourStart));
-      } else if (today === t.end && tl) {
-        title = (T.hcLeave || '帰国日 · {d}').replace('{d}', K.mdw(day.date));
-        sum = (T.hcLeaveSub || 'ホテル出発 {t} · 空港へ').replace('{t}', K.hm(tl.rows[1].min));
-      } else {
-        title = (T.hcDay || '{n}日目 · {d}').replace('{n}', di + 1).replace('{d}', K.mdw(day.date));
-        sum = names.length ? (T.hcDaySub || '今日は {n}（{c}スポット · 徒歩 {k}km）').replace('{n}', names.slice(0, 3).join(' → ')).replace('{c}', names.length).replace('{k}', (plan.walk * 0.08).toFixed(1)) : (T.hcFree || '今日は予定がありません');
-      }
-      var shut = plan.rows.filter(function (r) { return r.shut; });
-      if (shut.length) warn = ' <span style="color:#FFD3E2; font-weight:700;">⚠ ' + esc((T.hcShut || '{n}は本日休館').replace('{n}', shut[0].name)) + '</span>';
+      var di = K.TRIPS.dayIndexFor(t, today), day = t.days[di] || { date: today, spots: [] };
+      var plan = K.dayPlan(t, di), rows = plan.rows;
+      b1 = (T.hcNDay || '{n}日目').replace('{n}', di + 1);
+      b2 = K.md(day.date);
+      title = rows.length ? rows.slice(0, 3).map(function (r) { return r.name; }).join(' → ') : (T.hcFree || '今日は予定がありません');
+      var d = new Date(), nowm = d.getHours() * 60 + d.getMinutes(), nx = null;
+      for (var i = 0; i < rows.length; i++) { if (K.toMin(rows[i].time) >= nowm) { nx = rows[i]; break; } }
+      var parts = [];
+      if (nx) parts.push((T.hcNext || '次は {t} {n}').replace('{t}', nx.time).replace('{n}', nx.name));
+      var fo = t.flights && t.flights.out;
+      if (fo && fo.time) parts.push((T.hcRet || '帰国 {d} {t}').replace('{d}', K.md(t.end)).replace('{t}', fo.time));
+      sub = parts.join(' · ');
+      href = 'trip.html?id=' + t.id + '&d=' + di;
     }
-    var h = '<div style="margin:0 16px 4px; border-radius:16px; background:#3F52B4; color:#fff; padding:14px 16px; display:flex; flex-direction:column; gap:8px;">'
-      + '<div data-hc="1" style="cursor:pointer; display:flex; align-items:center; gap:8px;">'
-      + '<div style="flex:1; min-width:0;"><div style="font-size:13px; font-weight:700;">' + esc(title) + '</div>'
-      + '<div style="font-size:12px; font-weight:500; line-height:1.6; margin-top:3px; opacity:.95;">' + esc(sum) + warn + '</div></div>'
-      + '<div style="font-size:12px; font-weight:700; white-space:nowrap;">' + esc(open ? (T.close || '閉じる') + ' ▴' : (T.open || '開く') + ' ▾') + '</div></div>';
-    if (open && di >= 0) {
-      var plan2 = K.dayPlan(t, di);
-      h += '<div style="border-top:1px solid rgba(255,255,255,.24); padding-top:8px; display:flex; flex-direction:column; gap:4px;">';
-      if (tl) tl.rows.forEach(function (r) { if (r.span) return; h += '<div style="display:flex; gap:10px; font-size:12px; font-weight:600;"><span style="font-family:Poppins,sans-serif; width:44px;">' + K.hm(r.min) + '</span><span>' + esc(r.label) + '</span></div>'; });
-      plan2.rows.forEach(function (r) { h += '<div style="display:flex; gap:10px; font-size:12px; font-weight:600;"><span style="font-family:Poppins,sans-serif; width:44px;">' + r.time + '</span><span style="flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + esc(r.name) + (r.shut ? ' ⚠' : '') + '</span></div>'; });
-      h += '<a href="trip.html" style="margin-top:6px; height:36px; border-radius:12px; background:rgba(255,255,255,.18); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; text-decoration:none;">' + esc(T.openTrip || '旅程を開く →') + '</a></div>';
-    }
-    h += '</div>';
-    box.innerHTML = h;
+    box.innerHTML = '<a href="' + href + '" style="margin:0 16px; min-height:90px; box-sizing:border-box; border-radius:18px; background:#3F52B4; color:#fff; display:flex; align-items:center; gap:12px; padding:12px 14px; text-decoration:none;">'
+      + '<div style="flex-shrink:0; width:62px; border-radius:12px; background:rgba(255,255,255,.16); padding:8px 0; text-align:center;">'
+      + '<div style="font-size:12px; font-weight:700; line-height:1.3;">' + esc(b1) + '</div>'
+      + '<div style="font-family:Poppins,sans-serif; font-size:12px; font-weight:600; line-height:1.3; opacity:.92;">' + esc(b2) + '</div></div>'
+      + '<div style="flex:1; min-width:0;">'
+      + '<div style="font-size:14px; font-weight:700; line-height:1.4; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + esc(title) + '</div>'
+      + (sub ? '<div style="font-size:11px; font-weight:500; line-height:1.5; margin-top:4px; opacity:.92; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + esc(sub) + '</div>' : '')
+      + '</div>'
+      + '<div style="flex-shrink:0; font-size:12px; font-weight:700; white-space:nowrap;">' + esc(T.hcTrip || '旅程 ›') + '</div></a>';
   }
   window.KGHOME_render = render;
   /* React 재렌더로 슬롯 내용이 사라지면 다시 그린다 */

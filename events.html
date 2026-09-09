@@ -131,7 +131,7 @@
   window.addEventListener('orientationchange', fit);
 })();
 </script>
-<title>休館日カレンダー | K-GUIDE</title>
+<title>イベント・ライブ | K-GUIDE</title>
 <script src="https://kguide-rt.vercel.app/support.js"></script>
 <script src="./data.js?v=1788951865"></script>
 <script src="./kicon.js?v=1788951865"></script>
@@ -150,26 +150,14 @@
 </head>
 <body>
 <div>
-<div data-screen-label="休館日カレンダー" style="position:relative; width:390px; height:844px; margin:0 auto; background:#fff; overflow:hidden; display:flex; flex-direction:column;">
-  <div style="flex-shrink:0; display:flex; align-items:center; gap:8px; padding:16px 16px 12px;">
+<div data-screen-label="イベント・ライブ" style="position:relative; width:390px; height:844px; margin:0 auto; background:#FAFAFA; overflow:hidden; display:flex; flex-direction:column;">
+  <div style="flex-shrink:0; display:flex; align-items:center; gap:8px; padding:16px 16px 12px; background:#fff;">
     <a href="home.html" style="width:40px; height:40px; margin-left:-8px; border-radius:20px; display:flex; align-items:center; justify-content:center;"><k-icon name="ArrowRightSize24" size="24" style="color:#111527; transform:rotate(180deg)"></k-icon></a>
-    <div style="font-size:20px; font-weight:700; color:#111527;">休館日カレンダー</div>
+    <div style="font-size:20px; font-weight:700; color:#111527;">イベント・ライブ</div>
   </div>
-  <div style="position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; gap:16px; padding-bottom:112px;">
-    <div style="margin:0 16px; display:flex; align-items:flex-start; gap:10px; padding:12px 14px; border-radius:16px; background:#F2F4FC;">
-      <k-icon name="InfoCircleSize20" size="18" style="color:#3F52B4"></k-icon>
-      <div style="flex:1; font-size:12px; font-weight:500; line-height:1.6; color:#4B4F63;">休館日は変更されることがあります。公式サイトで最終確認をおすすめします。</div>
-    </div>
-    <div id="cal-tabs" style="display:flex; gap:8px; padding:0 16px;"></div>
-    <div style="margin:0 16px; border-radius:16px; background:#F7F7FA; padding:12px 14px; display:flex; flex-direction:column; gap:8px;">
-      <div id="cal-mtoggle" style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-        <k-icon name="ClockSize20" size="18" style="color:#3F52B4"></k-icon>
-        <div style="flex:1; font-size:14px; font-weight:600; color:#373B51;">月のカレンダー</div>
-        <span id="cal-mcaret" style="font-size:11px; font-weight:600; color:#3F52B4;">開く ▼</span>
-      </div>
-      <div id="cal-month" style="display:none;"></div>
-    </div>
-    <div id="cal-body" style="display:flex; flex-direction:column; gap:12px;"></div>
+  <div style="position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; gap:16px; padding:16px 0 112px;">
+    <div id="ev-tabs" style="display:flex; gap:8px; padding:0 16px;"></div>
+    <div id="ev-body" style="display:flex; flex-direction:column; gap:12px;"></div>
   </div>
   <div style="position:absolute; left:0; right:0; bottom:0; height:98px; border-radius:16px 16px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:grid; grid-template-columns:repeat(5,1fr); align-items:start; padding:6px 12px 0; box-sizing:border-box;">
     <a href="home.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="HomeSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">ホーム</span></a>
@@ -243,84 +231,75 @@ function wxFetch(lat, lng) {
   });
 }
 
-const TARGET = SP.filter(x => (x.type === '名所' && x.rest) || x.type === '体験');
-const T0 = new Date(); T0.setHours(0, 0, 0, 0);
-const addD = (n) => { const d = new Date(T0); d.setDate(d.getDate() + n); return d; };
-let sel = new Date(T0);
-let cur = new Date(T0.getFullYear(), T0.getMonth(), 1);
-let monthOpen = false;
-let moreOpen = false;
-const same = (a, b) => ymd(a) === ymd(b);
-const dayLabel = (d) => same(d, T0) ? '今日' : same(d, addD(1)) ? '明日' : same(d, addD(2)) ? '明後日' : ((d.getMonth() + 1) + '/' + d.getDate() + '（' + DOW[d.getDay()] + '）');
+const TABS = [['event', 'イベント'], ['cam', 'ライブカメラ'], ['course', '今週のコース']];
+let tab = (new URLSearchParams(location.search).get('tab') || 'event');
+if (!TABS.some(t => t[0] === tab)) tab = 'event';
 
-function card(x, closed) {
-  const badge = closed
-    ? '<span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:#B22459;"><span style="width:7px; height:7px; border-radius:50%; background:#B22459;"></span>休館</span>'
-    : '<span style="display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:600; color:#047857;"><span style="width:7px; height:7px; border-radius:50%; background:#047857;"></span>開館</span>';
-  const kana = x.kana ? '<div style="font-size:11px; font-weight:500; color:#9C9FAF; margin-top:-4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + x.kana + '</div>' : '';
-  const sub = closed ? (x.rest || '') : (x.hours || '');
-  return '<a href="spot.html?id=' + x.id + '" style="color:inherit; text-decoration:none; min-height:96px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:8px; display:flex; gap:8px; align-items:center;">'
-    + '<div style="width:80px; min-height:80px; align-self:stretch; flex-shrink:0; border-radius:8px; background:' + bg(x.photo) + ';"></div>'
-    + '<div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; justify-content:center;">'
-    + '<div style="display:flex; align-items:center; gap:6px;">' + badge + '<span style="font-size:11px; font-weight:500; color:#6B6E80;">' + (x.city && x.city !== 'ソウル' ? x.city : (x.area || '')) + '</span></div>'
-    + '<div style="font-size:15px; font-weight:700; line-height:22px; color:#111527; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + x.name + '</div>' + kana
-    + '<div style="display:flex; align-items:center; gap:6px;"><span style="display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:600;">' + x.type + '</span></div>'
-    + '<div style="font-size:11px; font-weight:500; color:#6B6E80; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + sub + '</div>'
-    + '</div></a>';
+const TODAY = (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
+const mdOf = (d) => d ? (parseInt(d.slice(5, 7), 10) + '/' + parseInt(d.slice(8, 10), 10)) : '';
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function evRow(e) {
+  const when = mdOf(e.start) + (e.end && e.end !== e.start ? '<br>〜' + mdOf(e.end) : '');
+  const pop = e.kind === 'popup' ? '<span style="flex-shrink:0; display:inline-flex; align-items:center; height:18px; padding:0 6px; border-radius:6px; background:#FCF2F6; color:#B22459; font-family:Poppins,sans-serif; font-size:9px; font-weight:700; letter-spacing:.04em;">POP-UP</span>' : '';
+  return '<a href="' + esc(e.url || '#') + '" target="_blank" rel="noopener" style="display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); text-decoration:none;">'
+    + '<div style="flex-shrink:0; width:52px; text-align:center; font-family:Poppins,sans-serif; font-size:11px; font-weight:600; line-height:1.3; color:#3F52B4; background:#F2F4FC; border-radius:10px; padding:6px 0;">' + when + '</div>'
+    + '<div style="flex:1; min-width:0;"><div style="display:flex; align-items:center; gap:6px;">' + pop
+    + '<span style="font-size:14px; font-weight:600; color:#111527; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + esc(e.name) + '</span></div>'
+    + '<div style="font-size:11px; color:#6B6E80; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + esc([e.city, e.place].filter(Boolean).join(' · ')) + '</div></div>'
+    + '<k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon></a>';
 }
 
-function monthGrid() {
-  const y = cur.getFullYear(), m = cur.getMonth();
-  const first = new Date(y, m, 1), last = new Date(y, m + 1, 0);
-  let cells = '';
-  for (let i = 0; i < first.getDay(); i++) cells += '<div></div>';
-  for (let d = 1; d <= last.getDate(); d++) {
-    const dt = new Date(y, m, d);
-    const on = same(dt, sel), holi = KR_HOLI.has(ymd(dt)), past = dt < T0;
-    const fg = on ? '#fff' : past ? '#9C9FAF' : (dt.getDay() === 0 || holi) ? '#B22459' : '#111527';
-    cells += '<div data-d="' + ymd(dt) + '" style="height:38px; border-radius:10px; background:' + (on ? '#3F52B4' : 'transparent') + '; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer;">'
-      + '<span style="font-family:Poppins,sans-serif; font-size:13px; font-weight:600; color:' + fg + ';">' + d + '</span>'
-      + '<span style="width:4px; height:4px; border-radius:50%; background:' + (holi ? (on ? '#fff' : '#B22459') : 'transparent') + ';"></span></div>';
-  }
-  const head = ['日', '月', '火', '水', '木', '金', '土'].map((w, i) => '<div style="text-align:center; font-size:11px; font-weight:600; color:' + (i === 0 ? '#B22459' : '#6B6E80') + ';">' + w + '</div>').join('');
-  return '<div style="display:flex; align-items:center; justify-content:space-between; padding:4px 4px 8px;">'
-    + '<div data-mv="-1" style="padding:4px 12px; font-size:16px; font-weight:700; color:#3F52B4; cursor:pointer;">&#8249;</div>'
-    + '<div style="font-family:Poppins,sans-serif; font-size:14px; font-weight:600; color:#111527;">' + y + '. ' + (m + 1) + '</div>'
-    + '<div data-mv="1" style="padding:4px 12px; font-size:16px; font-weight:700; color:#3F52B4; cursor:pointer;">&#8250;</div></div>'
-    + '<div style="display:grid; grid-template-columns:repeat(7,1fr); gap:2px; margin-bottom:4px;">' + head + '</div>'
-    + '<div style="display:grid; grid-template-columns:repeat(7,1fr); gap:2px;">' + cells + '</div>'
-    + '<div style="display:flex; align-items:center; gap:6px; padding-top:10px; font-size:10px; font-weight:500; color:#9C9FAF;"><span style="width:4px; height:4px; border-radius:50%; background:#B22459;"></span>韓国の祝日</div>';
+function camCard(c) {
+  return '<a href="' + esc(c.href) + '"' + (c.tgt ? ' target="_blank" rel="noopener"' : '') + ' style="position:relative; display:block; height:165px; border-radius:16px; overflow:hidden; background:' + c.bg + '; text-decoration:none;">'
+    + '<span style="position:absolute; top:12px; left:12px; display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px; border-radius:8px; background:#fff; color:#4B4F63; font-size:11px; font-weight:600;"><span style="width:6px; height:6px; border-radius:50%; background:#B22459;"></span>LIVE</span>'
+    + '<div style="position:absolute; left:14px; right:14px; bottom:14px;">'
+    + '<div style="font-size:18px; font-weight:700; line-height:24px; color:#fff;">' + esc(c.name) + '</div>'
+    + '<div style="font-size:12px; font-weight:400; line-height:20px; color:#fff; opacity:.92;">' + esc(c.crowd) + '</div></div></a>';
+}
+
+const cPhoto = (c) => { const ids = String(c.spots || '').split(',').map(x => x.trim()).filter(Boolean); for (const id of ids) { const x = byId(id); if (x && x.photo) return x.photo; } return ''; };
+function courseCard(c, first) {
+  const meta = '所要 ' + (c.hours || '') + '時間 · 徒歩 ' + (c.km || '') + 'km';
+  const badge = first ? '<span style="position:absolute; left:10px; top:10px; display:inline-flex; align-items:center; height:20px; padding:0 8px; border-radius:8px; background:#3F52B4; color:#fff; font-size:10px; font-weight:700;">今週</span>' : '';
+  return '<a href="course.html?id=' + c.id + '" style="display:flex; gap:10px; padding:8px; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); text-decoration:none;">'
+    + '<div style="position:relative; width:96px; min-height:78px; align-self:stretch; flex-shrink:0; border-radius:10px; background:' + bg(cPhoto(c)) + ';">' + badge + '</div>'
+    + '<div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; justify-content:center;">'
+    + '<div style="font-size:14px; font-weight:700; line-height:1.4; color:#111527;">' + esc(c.name) + '</div>'
+    + '<div style="font-size:11px; font-weight:500; color:#6B6E80;">' + esc([c.sub, c.area].filter(Boolean).join(' · ')) + '</div>'
+    + '<div style="font-size:11px; font-weight:500; color:#9C9FAF;">' + esc(meta) + '</div></div></a>';
 }
 
 function render() {
-  const tabs = [0, 1, 2].map(n => {
-    const d = addD(n), on = same(d, sel);
-    return '<div data-t="' + n + '" style="flex:1; height:38px; border-radius:12px; background:' + (on ? '#3F52B4' : '#F2F4FC') + '; color:' + (on ? '#fff' : '#4B4F63') + '; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; cursor:pointer;">' + ['今日', '明日', '明後日'][n] + '</div>';
-  }).join('');
-  const rj = (x) => x.restJa || x.rest;
-  const shut = TARGET.filter(x => closedOn(rj(x), sel));
-  const opens = TARGET.filter(x => !closedOn(rj(x), sel));
-  const shown = moreOpen ? opens : opens.slice(0, 20);
-  const lbl = dayLabel(sel);
-  const sec = (title, n, body) => '<div style="display:flex; flex-direction:column; gap:12px;"><div style="display:flex; align-items:baseline; gap:8px; padding:0 16px;"><div style="font-size:18px; font-weight:700; color:#111527;">' + title + '</div><div style="font-family:Poppins,sans-serif; font-size:13px; font-weight:600; color:#6B6E80;">' + n + '</div></div><div style="display:flex; flex-direction:column; gap:8px; padding:0 16px;">' + body + '</div></div>';
-  document.getElementById('cal-tabs').innerHTML = tabs;
-  document.getElementById('cal-month').innerHTML = monthOpen ? monthGrid() : '';
-  document.getElementById('cal-month').style.display = monthOpen ? 'block' : 'none';
-  document.getElementById('cal-mcaret').textContent = monthOpen ? '閉じる ▲' : '開く ▼';
-  document.getElementById('cal-body').innerHTML =
-    sec(lbl + '休みの場所', shut.length + '件', shut.length ? shut.map(x => card(x, true)).join('') : '<div style="padding:14px 16px; border-radius:16px; background:#F7F7FA; font-size:13px; font-weight:500; color:#4B4F63;">この日に休館するところはありません。</div>')
-    + '<div style="height:8px;"></div>'
-    + sec(lbl + '行ける場所', opens.length + '件', shown.map(x => card(x, false)).join('')
-        + (opens.length > shown.length ? '<div id="cal-more" style="height:44px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #D1D3DB; color:#3F52B4; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; cursor:pointer;">もっと見る（残り ' + (opens.length - shown.length) + '件）</div>' : ''));
-  document.title = lbl + 'の休館日 | K-GUIDE';
+  document.getElementById('ev-tabs').innerHTML = TABS.map(([k, label]) =>
+    '<div data-tab="' + k + '" style="flex:1; height:38px; border-radius:12px; background:' + (tab === k ? '#3F52B4' : '#F2F4FC') + '; color:' + (tab === k ? '#fff' : '#4B4F63') + '; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;">' + label + '</div>').join('');
+  let h = '';
+  if (tab === 'event') {
+    const list = (KG.events || []).filter(e => (e.end || e.start) >= TODAY).sort((a, b) => a.start < b.start ? -1 : 1);
+    h = '<div style="display:flex; flex-direction:column; gap:8px; padding:0 16px;">'
+      + (list.length ? list.map(evRow).join('') : '<div style="padding:14px 16px; border-radius:16px; background:#F7F7FA; font-size:13px; font-weight:500; color:#4B4F63;">今のところ予定されているイベントはありません。</div>')
+      + '</div>';
+  } else if (tab === 'cam') {
+    const cams = (KG.camOrder || []).map(id => {
+      const x = byId(id);
+      if (x) return { name: x.name, crowd: x.camLabel || '公式ライブ映像', bg: shot(x.photo), href: 'spot.html?id=' + x.id, tgt: '' };
+      const e = (KG.camExtra || []).find(c => c.id === id);
+      return e ? { name: e.name, crowd: e.label, bg: shot(e.photo || ''), href: e.href, tgt: '_blank' } : null;
+    }).filter(Boolean);
+    h = '<div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px; padding:0 16px;">' + cams.map(camCard).join('') + '</div>';
+  } else {
+    const CS = KG.courses || [];
+    const first = CS.find(c => c.id === 'C001');
+    const rest = CS.filter(c => c.id !== 'C001');
+    h = '<div style="display:flex; flex-direction:column; gap:8px; padding:0 16px;">'
+      + (first ? courseCard(first, true) : '') + rest.map(c => courseCard(c, false)).join('') + '</div>';
+  }
+  document.getElementById('ev-body').innerHTML = h;
 }
 
 document.addEventListener('click', (e) => {
-  const t = e.target.closest('[data-t]'); if (t) { sel = addD(parseInt(t.dataset.t)); moreOpen = false; render(); return; }
-  const d = e.target.closest('[data-d]'); if (d) { const p = d.dataset.d.split('-').map(Number); sel = new Date(p[0], p[1] - 1, p[2]); moreOpen = false; render(); return; }
-  const mv = e.target.closest('[data-mv]'); if (mv) { cur = new Date(cur.getFullYear(), cur.getMonth() + parseInt(mv.dataset.mv), 1); render(); return; }
-  if (e.target.closest('#cal-mtoggle')) { monthOpen = !monthOpen; if (monthOpen) cur = new Date(sel.getFullYear(), sel.getMonth(), 1); render(); return; }
-  if (e.target.closest('#cal-more')) { moreOpen = true; render(); return; }
+  const t = e.target.closest('[data-tab]');
+  if (t) { tab = t.dataset.tab; try { history.replaceState(null, '', 'events.html?tab=' + tab); } catch (x) {} render(); }
 });
 render();
 
