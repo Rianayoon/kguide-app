@@ -155,9 +155,41 @@
     '\ub0a8\ud3ec\ub3d9\u00b7\uc790\uac08\uce58': '\u5357\u6d66\u6d1e\u30fb\u30c1\u30e3\u30ac\u30eb\u30c1', '\uad11\uc548\ub9ac': '\u5e83\u5b89\u91cc',
     '\ubd80\uc0b0\uc5ed\u00b7\ucd08\ub7c9': '\u91dc\u5c71\u99c5\u30fb\u8349\u6881', '\uc81c\uc8fc\uc2dc\u00b7\uacf5\ud56d \uc8fc\ubcc0': '\u6e08\u5dde\u5e02\u30fb\u7a7a\u6e2f\u5468\u8fba'
   };
-  var AP_LIST = ['ICN1', 'ICN2', 'GMP', 'PUS', 'CJU'];
+  var AP_LIST = ['ICN1', 'ICN2', 'GMP', 'PUS', 'CJU', 'TAE', 'CJJ'];
   function apGroup(k) { return String(k || '').slice(0, 3) === 'ICN' ? 'ICN' : (k || 'ICN'); }
   function apLabel(k) { return (T.ap && T.ap[k]) || k; }
+
+  /* ── 11차 소규모개선7: 편명 자동 채우기 ─────────────────────────
+     window.KG_FLIGHTS (build_trip.py 가 data_v3/flights_jp_kr.json 을 그대로 심어준다)
+     레코드: {no, airline, from, from_ja, to, to_ja, std, sta, days, valid_from, valid_to, src}
+     from/to 는 공항 3레터코드. 한국 공항코드(ICN/GMP/PUS/CJU/TAE/CJJ) 쪽이 있는 방향으로 판정한다. */
+  var KR_AP_SET = { ICN: 1, GMP: 1, PUS: 1, CJU: 1, TAE: 1, CJJ: 1 };
+  function flightsDB() { return (window.KG_FLIGHTS || []); }
+  function findFlight(no) {
+    no = String(no || '').toUpperCase().replace(/\s+/g, '');
+    if (!no) return null;
+    var all = flightsDB();
+    for (var i = 0; i < all.length; i++) { if (String(all[i].no || '').toUpperCase() === no) return all[i]; }
+    return null;
+  }
+  /* 인천은 대한항공만 T2, 나머지는 전부 T1 */
+  function apCodeForFlight(f) {
+    var kr = KR_AP_SET[f.from] ? f.from : (KR_AP_SET[f.to] ? f.to : null);
+    if (!kr) return null;
+    if (kr === 'ICN') return (f.airline === '대한항공') ? 'ICN2' : 'ICN1';
+    return kr;
+  }
+  function flightTimeFor(f) { return KR_AP_SET[f.to] ? f.sta : f.std; }
+  var ISO_DOW = ['7', '1', '2', '3', '4', '5', '6']; /* JS Date#getDay(): 0=일 → ISO 7 */
+  function dowLabelIdx(iso) { return { '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 0 }[iso]; } /* TXT.dow=[日,月,火,水,木,金,土] 인덱스 */
+  function flightDayWarn(f, dateStr) {
+    if (!f || !f.days || f.days.length >= 7 || !dateStr) return '';
+    var d = parseD(dateStr); if (!d) return '';
+    var iso = ISO_DOW[d.getDay()];
+    if (f.days.indexOf(iso) >= 0) return '';
+    var names = f.days.split('').map(function (x) { return (T.dow || ['日', '月', '火', '水', '木', '金', '土'])[dowLabelIdx(x)]; });
+    return (T.flightDayWarn || 'この便は {d} のみ運航').replace('{d}', names.join('・'));
+  }
   function etaMin(airport, stay, mode) {
     var g = ETA[apGroup(airport)] || ETA.ICN;
     var area = (stay && (stay.area || stay.city)) || '';
@@ -714,7 +746,7 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else setTimeout(boot, 0);
 
-  window.KGTRIP = { TRIPS: TRIPS, dayPlan: dayPlan, tlFor: tlFor, shutOn: shutOn, mdw: mdw, md: md, hm: hm, toMin: toMin, addDays: addDays, diffDays: diffDays, ymd: ymd, parseD: parseD, todayS: todayS, esc: esc, bgOf: bgOf, byId: byId, sheet: sheet, closeSheet: closeSheet, toast: toast, pickDay: pickDay, dayChips: dayChips, etaMin: etaMin, apLabel: apLabel, AP_LIST: AP_LIST, NOTIFY: NOTIFY, PUSH: PUSHJ, freePool: freePool, uuid: uuid, lsGet: lsGet, lsSet: lsSet, DOW: DOW, pad: pad, up: up, base: base, inKo: inKo, dist: dist, distKm: distKm, legOf: legOf, hoursRange: hoursRange, TCFG: TCFG, tidyOrder: tidyOrder, autoPlan: autoPlan, applyPlan: applyPlan, dayWindow: dayWindow, CS: CS };
+  window.KGTRIP = { TRIPS: TRIPS, dayPlan: dayPlan, tlFor: tlFor, shutOn: shutOn, mdw: mdw, md: md, hm: hm, toMin: toMin, addDays: addDays, diffDays: diffDays, ymd: ymd, parseD: parseD, todayS: todayS, esc: esc, bgOf: bgOf, byId: byId, sheet: sheet, closeSheet: closeSheet, toast: toast, pickDay: pickDay, dayChips: dayChips, etaMin: etaMin, apLabel: apLabel, AP_LIST: AP_LIST, NOTIFY: NOTIFY, PUSH: PUSHJ, freePool: freePool, uuid: uuid, lsGet: lsGet, lsSet: lsSet, DOW: DOW, pad: pad, up: up, base: base, inKo: inKo, dist: dist, distKm: distKm, legOf: legOf, hoursRange: hoursRange, TCFG: TCFG, tidyOrder: tidyOrder, autoPlan: autoPlan, applyPlan: applyPlan, dayWindow: dayWindow, CS: CS, findFlight: findFlight, apCodeForFlight: apCodeForFlight, flightTimeFor: flightTimeFor, flightDayWarn: flightDayWarn };
 })();
 
 /* ═══ trip.html 화면 ═══════════════════════════════════════════ */
@@ -722,7 +754,7 @@
   'use strict';
   var K = window.KGTRIP, T = window.KGT || {};
   var TRIPS = K.TRIPS, esc = K.esc, mdw = K.mdw, md = K.md, hm = K.hm, byId = K.byId;
-  var root, state = { view: 'list', id: '', d: 0, pool: false, edit: false };
+  var root, state = { view: 'list', id: '', d: 0, pool: false, edit: false, flightHint: {} };
 
   function q(n) { return new URLSearchParams(location.search).get(n); }
   function setUrl() {
@@ -873,7 +905,37 @@
         var on = f && f.airport === a;
         return '<div data-ap="' + kind + ':' + a + '" style="cursor:pointer; flex-shrink:0; display:inline-flex; align-items:center; height:32px; padding:0 12px; border-radius:16px; background:' + (on ? '#3F52B4' : '#F7F7FA') + '; color:' + (on ? '#fff' : '#4B4F63') + '; font-size:12px; font-weight:600;">' + esc(K.apLabel(a)) + '</div>';
       }).join('') + '</div>'
+      + '<div id="f' + kind + 'msg" style="font-size:11px; font-weight:600; color:#A8620A;' + (state.flightHint[kind] ? '' : 'display:none;') + '">' + esc(state.flightHint[kind] || '') + '</div>'
       + '<div style="font-size:11px; font-weight:500; color:#9C9FAF;">' + esc(isIn ? (T.inHelp || '到着空港と着陸時刻') : (T.outHelp || '出発空港と出発時刻')) + '</div></div>';
+  }
+
+  /* 편명 입력칸에서 포커스가 빠지면(blur) 시간표에서 찾아 자동으로 채운다. 채운 뒤에도 시각·공항은 직접 고칠 수 있다 */
+  function applyFlightLookup(kind) {
+    var el = document.getElementById('f' + kind + 'no'); if (!el) return;
+    var no = el.value.trim();
+    if (!draft) return;
+    var f = draft.flights[kind] || {};
+    f.no = no;
+    if (!no) { state.flightHint[kind] = ''; draft.flights[kind] = (f.no || f.time) ? f : null; render(); return; }
+    var rec = K.findFlight(no);
+    if (rec) {
+      f.time = K.flightTimeFor(rec);
+      var ap = K.apCodeForFlight(rec); if (ap) f.airport = ap;
+      var t = cur() || draft;
+      var dateStr = kind === 'in' ? (draft.start || (t && t.start)) : (draft.end || (t && t.end));
+      state.flightHint[kind] = K.flightDayWarn(rec, dateStr);
+    } else {
+      state.flightHint[kind] = (T.flightNotFound || '時刻表にありません — 手入力してください');
+    }
+    draft.flights[kind] = (f.no || f.time) ? f : null;
+    render();
+  }
+  function wireFlightInputs() {
+    ['in', 'out'].forEach(function (k) {
+      var el = document.getElementById('f' + k + 'no'); if (!el) return;
+      el.addEventListener('blur', function () { applyFlightLookup(k); });
+      el.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); el.blur(); } });
+    });
   }
 
   /* ── 4. Day 화면 ── */
@@ -1184,6 +1246,7 @@
     else if (state.view === 'new') h = renderNew();
     else h = renderDay();
     root.innerHTML = h;
+    if (state.view === 'new') wireFlightInputs();
     var dr = document.getElementById('kgdrawerhost');
     if (dr) dr.innerHTML = (state.view === 'day') ? drawer() : '';
     window.KGMAP_IDS = function () {
