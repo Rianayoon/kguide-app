@@ -50,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788912386"></script>
-<script src="./kicon.js?v=1788912386"></script>
+<script src="./data.js?v=1788913224"></script>
+<script src="./kicon.js?v=1788913224"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -226,13 +226,13 @@ const shot = (u) => `linear-gradient(180deg, rgba(17,21,41,0) 45%, rgba(17,21,41
 const qid = () => new URLSearchParams(location.search).get('id');
 const SENT_END = '\u3002';
 const para = (t) => { const s = String(t || '').trim(); if (!s) return []; const out = []; let cur = '', n = 0; for (let i = 0; i < s.length; i++) { cur += s[i]; if (s[i] === SENT_END) { n++; if (n >= 2) { out.push({ t: cur.trim() }); cur = ''; n = 0; } } } if (cur.trim()) { if (out.length && cur.trim().length < 40) out[out.length - 1].t += cur.trim(); else out.push({ t: cur.trim() }); } return out; };
-/*NOI18N*/const DOWJ = ['日','月','火','水','木','金','土'];/*/NOI18N*/
+const DOWJ = ['日','月','火','水','木','金','土'];
 const DOW = ['日','月','火','水','木','金','土'];   // 표시용(언어별로 번역됨)
 const KR_HOLI = new Set(['2026-01-01','2026-02-16','2026-02-17','2026-02-18','2026-03-01','2026-03-02','2026-05-05','2026-05-24','2026-05-25','2026-06-06','2026-08-15','2026-08-17','2026-09-24','2026-09-25','2026-09-26','2026-10-03','2026-10-05','2026-10-09','2026-12-25','2027-01-01','2027-02-06','2027-02-07','2027-02-08','2027-03-01','2027-05-05','2027-05-13','2027-06-06','2027-08-15','2027-08-16','2027-09-14','2027-09-15','2027-09-16','2027-10-03','2027-10-04','2027-10-09','2027-12-25']);
 const SEOL = {day: ['2026-02-17','2027-02-07'], run: ['2026-02-16','2026-02-17','2026-02-18','2027-02-06','2027-02-07','2027-02-08']};
 const CHUSEOK = {day: ['2026-09-25','2027-09-15'], run: ['2026-09-24','2026-09-25','2026-09-26','2027-09-14','2027-09-15','2027-09-16']};
 const ymd = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-/*NOI18N*/
+
 function closedOn(r, d) {
   r = r || ''; if (!r) return false;
   if (/年中無休|無休|年中開放|年中運航|休みなし/.test(r) && !/店舗により|一部/.test(r)) return false;
@@ -255,7 +255,7 @@ function closedOn(r, d) {
   return false;
 }
 function isClosedToday(s){ return closedOn(s.restJa || s.rest, new Date()); }
-/*/NOI18N*/
+
 const st = (s) => isClosedToday(s) ? SHUT : OPEN;
 const metaOf = (s) => [s.jp ? '日本語対応' : '', s.stay ? `約${s.stay}分` : '', s.fee && s.fee.length < 22 ? s.fee : '', s.area].filter(Boolean).slice(0,2).join(' · ');
 const WXTXT = (c) => c <= 2 ? '晴' : c === 3 ? '曇' : (c === 45 || c === 48) ? '霧' : ((c >= 71 && c <= 77) || c === 85 || c === 86) ? '雪' : '雨';
