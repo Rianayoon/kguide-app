@@ -50,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="../data.ko.js?v=1788913224"></script>
-<script src="../kicon.js?v=1788913224"></script>
+<script src="../data.ko.js?v=1788922072"></script>
+<script src="../kicon.js?v=1788922072"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../auth.js?v=1789000001"></script>
 </head>
@@ -146,6 +146,8 @@
             </sc-if>
             <sc-if value="{{ r.hasAudio }}" hint-placeholder-val="{{ false }}">
               <span style="display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#FCF2F6; color:#B22459; font-size:11px; font-weight:600; white-space:nowrap;">♪ 일본어 음성</span>
+            </sc-if><sc-if value="{{ r.local }}" hint-placeholder-val="{{ false }}">
+              <span style="display:inline-flex; align-items:center; height:22px; padding:0 8px; border-radius:8px; background:#FCF2F6; color:#B22459; font-size:11px; font-weight:600; white-space:nowrap;">현지에서 인기</span>
             </sc-if>
           </div>
           <div style="font-size:11px; font-weight:500; color:#6B6E80; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ r.meta }}</div>
@@ -298,11 +300,11 @@ const SHEETS = {
   },
 };
 
-const ALL = SP.map(s => ({ ...s, hasKana: !!s.kana, hasAudio: !!(s.audio && s.audio.length), ...st(s), tags: [s.type, s.genre, ...(s.tags2 || [])].filter(Boolean), meta: metaOf(s), photo: bg(s.photo), href: 'spot.html?id=' + s.id }));
+const ALL = SP.map(s => ({ ...s, hasKana: !!s.kana, hasAudio: !!(s.audio && s.audio.length), ...st(s), tags: [s.type, s.genre, ...(s.tags2 || []), ...(s.tags || [])].filter(Boolean), dish: s.dish || '', local: (s.tags || []).indexOf('한국인에게 인기') >= 0, meta: metaOf(s), photo: bg(s.photo), href: 'spot.html?id=' + s.id }));
     const favOf = (self, s) => ({ fav: (e) => { stopNav(e); FAV.toggle(s.id); self.setState({ favTick: Date.now() }); }, favStyle: FAV.has(s.id) ? 'color:#B22459' : 'color:#9C9FAF' });
 
 class Component extends DCLogic {
-  state = (() => { const u = new URLSearchParams(location.search); const a = u.get('area') || ''; const m = u.get('mode') || (a ? (SEOUL_AK.includes(a) ? 'area' : (REGION_AK.includes(a) ? 'region' : '')) : ''); return { sheet: undefined, area: a, sub: '', mode: m, genres: u.get('type') ? [u.get('type')] : [], budget: '', jpOnly: false, q: u.get('q') || '' }; })();
+  state = (() => { const u = new URLSearchParams(location.search); const a = u.get('area') || ''; const m = u.get('mode') || (a ? (SEOUL_AK.includes(a) ? 'area' : (REGION_AK.includes(a) ? 'region' : '')) : ''); return { sheet: undefined, area: a, sub: '', mode: m, genres: u.get('type') ? [u.get('type')] : [], budget: '', jpOnly: false, q: u.get('q') || '', dish: u.get('genre') || '', local: u.get('local') === '1' }; })();
 
   renderVals() {
     const on = { bg: '#3F52B4', fg: '#fff', ring: 'none', caret: 'color:#fff; transform:rotate(90deg)' };
@@ -322,12 +324,12 @@ class Component extends DCLogic {
     };
     const genreLabel = this.state.genres.length ? `종류 · ${this.state.genres.length}` : '종류';
 
-    const { area, genres, budget, jpOnly, q } = this.state; const sub = this.state.sub || ''; const mode = this.state.mode || ''; const scope = mode === 'area' ? SEOUL_AK : mode === 'region' ? REGION_AK : null; const qq = (q || '').trim().toLowerCase();
+    const { area, genres, budget, jpOnly, q } = this.state; const dish = this.state.dish || ''; const localOnly = !!this.state.local; const sub = this.state.sub || ''; const mode = this.state.mode || ''; const scope = mode === 'area' ? SEOUL_AK : mode === 'region' ? REGION_AK : null; const qq = (q || '').trim().toLowerCase();
     const filtered = this.props.noResult ? [] : ALL.filter(r =>
       (area ? r.areaKey === area : (!scope || scope.includes(r.areaKey))) && (!sub || r.area === sub) &&
       (!genres.length || genres.some(g => r.tags.some(t => t.includes(g)))) &&
       (!budget || r.band === budget) &&
-      (!jpOnly || r.jp) &&
+      (!jpOnly || r.jp) && (!dish || r.dish === dish) && (!localOnly || r.local) &&
       (!qq || [r.name, r.ko, r.area, r.genre, r.sig, r.addr].join(' ').toLowerCase().includes(qq))
     ).map(r => ({ ...r, ...favOf(this, r) }));
 
@@ -335,7 +337,7 @@ class Component extends DCLogic {
       sheetOpen: !!sheet,
       sheetTitle: sheet ? sheet.title : '',
       sheetHint: sheet ? sheet.hint : '',
-      resultCount: filtered.length, q: this.state.q, onQ: (e) => this.setState({ q: e.target.value }), title: qq ? `「${q.trim()}」 검색 결과` : area ? `${area} 주변` : genres.length ? genres[0] : mode === 'area' ? '서울' : mode === 'region' ? '지방·근교' : '전체 스팟', hasTabs: !!scope, areaTabs: !scope ? [] : [['', mode === 'area' ? '서울 전체' : '지방·근교', '전체']].concat((mode === 'area' ? SEOUL_TABS : REGION_TABS).filter(t => SP.some(x => x.areaKey === t[0]))).map(([k, label, yomi]) => { const n = k ? SP.filter(x => x.areaKey === k).length : SP.filter(x => scope.includes(x.areaKey)).length; const on = area === k; return { label: k ? label : '전체', sub: (yomi ? yomi + ' · ' : '') + n + '건', bg: on ? '#3F52B4' : '#F2F4FC', fg: on ? '#fff' : '#4B4F63', onClick: () => this.setState({ area: k, sub: '' }) }; }), hasSub: !!(area && SUB_AREAS[area]), subTabs: !(area && SUB_AREAS[area]) ? [] : [['', '전체']].concat(SUB_AREAS[area]).map(([k]) => { const n = k ? SP.filter(x => x.areaKey === area && x.area === k).length : SP.filter(x => x.areaKey === area).length; const on = sub === k; return { label: k || '전체', n: n, bg: on ? '#3F52B4' : '#fff', fg: on ? '#fff' : '#4B4F63', ring: on ? 'none' : 'inset 0 0 0 1px #D1D3DB', onClick: () => this.setState({ sub: k }) }; }).filter(t => t.n > 0),
+      resultCount: filtered.length, q: this.state.q, onQ: (e) => this.setState({ q: e.target.value }), title: qq ? `「${q.trim()}」 검색 결과` : dish ? dish : localOnly ? '한국인에게 인기' : area ? `${area} 주변` : genres.length ? genres[0] : mode === 'area' ? '서울' : mode === 'region' ? '지방·근교' : '전체 스팟', hasTabs: !!scope, areaTabs: !scope ? [] : [['', mode === 'area' ? '서울 전체' : '지방·근교', '전체']].concat((mode === 'area' ? SEOUL_TABS : REGION_TABS).filter(t => SP.some(x => x.areaKey === t[0]))).map(([k, label, yomi]) => { const n = k ? SP.filter(x => x.areaKey === k).length : SP.filter(x => scope.includes(x.areaKey)).length; const on = area === k; return { label: k ? label : '전체', sub: (yomi ? yomi + ' · ' : '') + n + '건', bg: on ? '#3F52B4' : '#F2F4FC', fg: on ? '#fff' : '#4B4F63', onClick: () => this.setState({ area: k, sub: '' }) }; }), hasSub: !!(area && SUB_AREAS[area]), subTabs: !(area && SUB_AREAS[area]) ? [] : [['', '전체']].concat(SUB_AREAS[area]).map(([k]) => { const n = k ? SP.filter(x => x.areaKey === area && x.area === k).length : SP.filter(x => x.areaKey === area).length; const on = sub === k; return { label: k || '전체', n: n, bg: on ? '#3F52B4' : '#fff', fg: on ? '#fff' : '#4B4F63', ring: on ? 'none' : 'inset 0 0 0 1px #D1D3DB', onClick: () => this.setState({ sub: k }) }; }).filter(t => t.n > 0),
       isNoResult: filtered.length === 0,
       clearAll: () => this.setState({ genres: [], budget: '', jpOnly: false, area: '' }),
       jpBg: this.state.jpOnly ? '#F2F4FC' : '#fff',
@@ -365,6 +367,8 @@ class Component extends DCLogic {
         { label: this.state.area ? `지역 · ${this.state.area}` : '지역', ...(this.state.area ? on : off), onClick: () => this.setState({ sheet: 'area' }) },
         { label: genreLabel, ...(this.state.genres.length ? on : off), onClick: () => this.setState({ sheet: 'genre' }) },
         { label: this.state.budget || '예산', ...(this.state.budget ? on : off), onClick: () => this.setState({ sheet: 'budget' }) },
+        { label: '한국인에게 인기', bg: localOnly ? '#B22459' : '#FCF2F6', fg: localOnly ? '#fff' : '#B22459', ring: 'none', caret: 'display:none', onClick: () => this.setState({ local: !localOnly }) },
+        ...(dish ? [{ label: '요리' + ' · ' + dish, bg: '#3F52B4', fg: '#fff', ring: 'none', caret: 'display:none', onClick: () => this.setState({ dish: '' }) }] : []),
       ],
       results: filtered,
       resultLabel: `${filtered.length}건`,
