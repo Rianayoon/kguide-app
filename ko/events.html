@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html>
-<head><script>
+<head>
+<meta charset="utf-8">
+<script>
 /* K-GUIDE DOM 안전망 (2026-09-09 핫픽스)
    바닐라 스크립트가 넣은 노드와 React 재렌더가 부딪혀도 화면이 통째로 죽지 않게 한다.
    support.js(React) 보다 먼저 실행되어야 하므로 head 맨 앞에 들어간다. */
@@ -79,155 +81,229 @@
     try{ history.back(); }catch(x){ }
   }, true);
 })();
-</script>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+</script><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#3F52B4">
 <title>K-GUIDE</title>
+<style>
+  html, body { margin:0; background:#F2F4FC; min-height:100%; }
+</style>
 <script>
 (function(){
   var W=390, H=844;
+  var KB=0, NAV=null;
+  function navEl(){
+    if(NAV && NAV.isConnected) return NAV;
+    var d=document.getElementsByTagName('div');
+    for(var i=0;i<d.length;i++){ var st=(d[i].getAttribute('style')||'').replace(/\s+/g,'');
+      if(st.indexOf('height:98px')>=0 && st.indexOf('bottom:0')>=0){ NAV=d[i]; return NAV; } }
+    return null;
+  }
+  function navHide(on){
+    var n=navEl(); if(n){ if(on){ if(n.__d===undefined) n.__d=n.style.display; n.style.display='none'; } else if(n.__d!==undefined){ n.style.display=n.__d; } }
+    var b=document.getElementById('kgline'); if(b) b.style.visibility = on ? 'hidden' : '';
+  }
+  function isField(t){ return t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable); }
+  document.addEventListener('focusin', function(e){ if(!isField(e.target)) return; KB=1; navHide(1); });
+  document.addEventListener('focusout', function(e){ if(!isField(e.target)) return; KB=0; setTimeout(function(){ if(!KB){ navHide(0); fit(); } }, 150); });
   function fit(){
-    var s=document.querySelector('[data-screen-label]'); if(!s) return;
+    if(KB) return;
+    var all=document.querySelectorAll('[data-screen-label]'), s=null;
+    for(var i=0;i<all.length;i++){ if(!all[i].closest('x-dc')){ s=all[i]; break; } }
+    if(!s) return;
     var vw=window.innerWidth, vh=window.innerHeight;
     var stage=s.parentNode; if(!stage||stage===document.body){ return; }
-    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#F5F6FA;';
     s.style.flexShrink='0'; s.style.transformOrigin='center center';
-    var k;
-    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }
-    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }
-    s.style.transform='scale('+k+')'; s.style.margin='0';
+    if(vw<=430){                                   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
+      var k=vw/W;
+      s.style.width=W+'px'; s.style.height=Math.round(vh/k)+'px';
+      s.style.transform='scale('+k+')'; s.style.boxShadow='none';
+    } else {                                       /* 패드·PC: 확대하지 않고 최대 480px 컬럼을 가운데에 */
+      s.style.width=Math.min(vw, 480)+'px'; s.style.height=vh+'px';
+      s.style.transform='none'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)';
+    }
+    s.style.margin='0';
   }
-  var KB=false;
-  document.addEventListener('focusin', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) KB=true; });
-  document.addEventListener('focusout', function(e){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){ KB=false; setTimeout(fit,50); } });
-  var _fit=fit; fit=function(){ if(KB) return; _fit(); };
-  document.addEventListener('DOMContentLoaded', fit);
+  var mo=new MutationObserver(function(){ fit(); });
+  document.addEventListener('DOMContentLoaded', function(){ mo.observe(document.body,{childList:true,subtree:true}); fit(); });
   window.addEventListener('resize', fit);
   window.addEventListener('orientationchange', fit);
 })();
 </script>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap">
+<title>이벤트·라이브 | K-GUIDE</title>
+<script src="https://kguide-rt.vercel.app/support.js"></script>
+<script src="../data.ko.js?v=1788951865"></script>
+<script src="../kicon.js?v=1788951865"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap">
 <style>
-  *{box-sizing:border-box}
-  html,body{margin:0;background:#F2F4FC;min-height:100%}
-  body{font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic","Noto Sans JP","Hiragino Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;color:#111527}
-  a{color:#3F52B4;text-decoration:none}
-  ::-webkit-scrollbar{display:none}
-  .sc{position:relative;width:390px;height:844px;margin:0 auto;background:#fff;overflow:hidden;display:flex;flex-direction:column}
-  .hd{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;font-size:16px;font-weight:600;line-height:24px;color:#373B51}
-  .hd a.bk{position:absolute;left:8px;top:8px;width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center}
-  .bd{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 16px 40px;display:flex;flex-direction:column;gap:16px}
-  .hero{position:relative;flex-shrink:0;height:260px;overflow:hidden}
-  .hero .img{position:absolute;inset:0;background:url('https://tong.visitkorea.or.kr/cms/resource_photo/62/4061962_image2_1.jpg') center / cover no-repeat}
-  .hero .vl{position:absolute;inset:0;background:linear-gradient(180deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,1) 104%)}
-  .hero .in{position:absolute;left:16px;right:16px;top:56px;display:flex;flex-direction:column;align-items:center;gap:12px}
-  .hero .ic{width:88px;height:88px;border-radius:44px;background:#F2F4FC;display:flex;align-items:center;justify-content:center}
-  .hero h1{margin:0;font-size:20px;font-weight:700;text-align:center;color:#111527}
-  .hero p{margin:0;font-size:14px;font-weight:500;line-height:1.7;text-align:center;color:#4B4F63}
-  .sheet{position:relative;flex-shrink:0;border-radius:32px 32px 0 0;background:#fff;box-shadow:0 8px 32px rgba(131,139,180,.16);display:flex;flex-direction:column;flex:1;min-height:0}
-  .sheet .grip{height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  .sheet .grip i{width:40px;height:4px;border-radius:100px;background:#D1D3DB;display:block}
-  .sheet .in{padding:0 16px 34px;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
-  label.f{display:flex;flex-direction:column;gap:6px}
-  label.f>span{font-size:12px;font-weight:600;line-height:16px;color:#4B4F63}
-  label.f>span em{font-style:normal;color:#9C9FAF;font-weight:500}
-  .f input,.f textarea{width:100%;height:48px;border:0;box-shadow:inset 0 0 0 1px #E1E3EC;border-radius:14px;background:#fff;padding:0 14px;font-size:15px;font-family:inherit;color:#111527;outline:none}
-  .f input:focus,.f textarea:focus{box-shadow:inset 0 0 0 2px #3F52B4}
-  .f textarea{height:96px;padding:12px 14px;line-height:1.6;resize:none}
-  .f input[type=file]{padding:12px 14px;height:auto;font-size:13px;color:#4B4F63}
-  .btn{width:100%;height:48px;border:0;border-radius:16px;background:#3F52B4;color:#fff;font-size:16px;font-weight:600;letter-spacing:.02em;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-decoration:none}
-  .btn:active{background:#323D76}
-  .btn.ghost{background:#fff;color:#3F52B4;box-shadow:inset 0 0 0 1px #3F52B4}
-  .btn.flat{background:#F2F4FC;color:#3F52B4}
-  .btn.off{background:#F2F4FC;color:#9C9FAF;cursor:default}
-  .btn.sm{height:40px;font-size:14px;border-radius:12px}
-  .btn[disabled]{opacity:.55;cursor:default}
-  .msg{display:none;font-size:13px;font-weight:600;line-height:1.6;border-radius:12px;padding:10px 12px;background:#F2F4FC;color:#323D76}
-  .msg.on{display:block}
-  .row{display:flex;gap:8px}
-  .row>*{flex:1}
-  .links{display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;font-weight:600;color:#3F52B4}
-  .links span{color:#D1D3DB}
-  .note{font-size:11px;font-weight:500;line-height:1.6;text-align:center;color:#6B6E80}
-  .card{border-radius:16px;background:#F7F7FA;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
-  .card h3{margin:0;font-size:15px;font-weight:700;color:#111527}
-  .kv{display:flex;gap:8px;font-size:13px;line-height:1.6}
-  .kv b{flex:0 0 82px;font-weight:600;color:#6B6E80}
-  .kv span{flex:1;min-width:0;color:#373B51;word-break:break-all}
-  .badge{align-self:flex-start;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;background:#F2F4FC;color:#3F52B4}
-  .badge.g{background:#3F52B4;color:#fff}
-  .badge.n{background:#EDEDF2;color:#6B6E80}
-  .menu{display:flex;flex-direction:column;gap:12px}
-  .menu a{min-height:60px;border-radius:16px;background:#F7F7FA;padding:8px 16px;display:flex;align-items:center;gap:16px}
-  .menu a .ic{width:40px;height:40px;flex-shrink:0;border-radius:20px;background:#F2F4FC;display:flex;align-items:center;justify-content:center}
-  .menu a .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
-  .menu a .tx b{font-size:14px;font-weight:600;line-height:20px;color:#373B51}
-  .menu a .tx i{font-style:normal;font-size:12px;line-height:16px;color:#4B4F63}
-  .menu a .vl{font-size:14px;font-weight:600;color:#3F52B4;white-space:nowrap}
-  .nav{position:absolute;left:0;right:0;bottom:0;height:98px;border-radius:16px 16px 0 0;background:#fff;box-shadow:0 8px 32px rgba(131,139,180,.16);display:grid;grid-template-columns:repeat(5,1fr);align-items:start;padding:6px 12px 0}
-  .nav a{display:flex;flex-direction:column;align-items:center;gap:8px}
-  .nav a div{width:38px;height:38px;border-radius:48px;display:flex;align-items:center;justify-content:center}
-  .nav a span{font-size:10px;font-weight:600;letter-spacing:.02em;color:#6B6E80}
-  .nav a.on div{background:#F2F4FC}
-  .nav a.on span{color:#3F52B4}
-  .sp{height:4px}
+  body { margin:0; background:#FAFAFA; font-family:Pretendard,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic","Noto Sans JP","Hiragino Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#111527; }
+  a { color:#3F52B4; text-decoration:none; }
+  ::-webkit-scrollbar { display:none; }
 </style>
-<script src="../kicon.js?v=1789000001"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../auth.js?v=1789000001"></script>
-
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../icon-192.png">
 <script>window.KGT={"dow": ["일", "월", "화", "수", "목", "금", "토"], "cities": ["서울", "부산", "제주", "근교"], "ap": {"ICN1": "인천 T1", "ICN2": "인천 T2", "GMP": "김포", "PUS": "김해", "CJU": "제주"}, "seoul": "서울", "myTrip": "나의 여정", "dayTrip": "당일치기", "nights": "{n}박{m}일", "spotUnit": "스팟", "min": "분", "title": "여정 만들기", "nTrips": "여정 {n}개", "emptyList": "아직 여정이 없습니다", "emptyListSub": "여행 날짜를 정하고 가고 싶은 곳을 넣어 보세요", "newTrip": "＋ 새 여정", "newTripTitle": "새 여정", "editTrip": "여정 편집", "current": "보는 중", "pickDates": "도착일·귀국일", "arriveDay": "도착일", "leaveDay": "귀국일", "maxDays": "최대 10일까지 선택할 수 있습니다", "flightSec": "항공편", "optional": "선택", "flightHelp": "입력해 두면 공항으로 출발할 시각을 계산해 알려 드립니다", "inFlight": "도착편", "outFlight": "귀국편", "flightNo": "편명", "inHelp": "도착 공항과 착륙 시각", "outHelp": "출발 공항과 출발 시각", "intlFlight": "국제선(공항에 3시간 전 도착)", "citySec": "도시", "nameSec": "이름", "staySec": "숙소", "stayHelp": "공항으로 출발할 시각을 계산하는 데 씁니다", "pickStay": "숙소 선택", "change": "변경", "stayAreaHelp": "묵는 지역을 선택해 주세요", "stayName": "호텔 이름(선택)", "timeTitle": "시각 입력", "hour": "시", "minute": "분", "ok": "확인", "startAt": "시작", "save": "저장", "cancel": "취소", "saved": "저장했습니다", "needDates": "도착일과 귀국일을 선택해 주세요", "deleted": "여정을 삭제했습니다", "removed": "장소를 뺐습니다", "undo": "되돌리기", "switchTrip": "다른 여정", "allTrips": "모든 여정", "mapHint": "지도를 눌러서 조작", "fullScreen": "전체화면", "naverOpen": "네이버 지도로 열기", "walkTotal": "총 도보", "straight": "직선", "walkFor": "도보", "stayFor": "체류", "emptyDay": "이 날은 아직 비어 있습니다", "findSpots": "스팟 찾기", "addSpot": "스팟 추가", "moveDay": "다른 날로", "thisDayShut": "이 날은 휴관", "tooLate": "시간이 모자랄 수 있음", "shutToast": "{d}은(는) {n} 휴관일입니다. 다른 날을 추천합니다", "addedTo": "{d}에 추가했습니다", "addToTrip": "여정에 추가", "poolPick": "가고 싶은 곳(아직 정하지 않음)", "poolTitle": "가고 싶은 곳", "poolEmpty": "아직 없습니다", "putInto": "{d}에 넣기", "poolBar": "가고 싶은 곳 {n}곳", "poolBarNo": "{n}곳", "toTrip": "여정으로 →", "makeTrip": "여정 만들기 →", "noTripPool": "「가고 싶은 곳」에 넣었습니다. 여정을 만들면 날짜에 넣을 수 있습니다", "noTripYet": "먼저 여정을 만들어 주세요", "migrated": "지금까지의 플랜을 여정으로 옮겼습니다", "open": "열기", "close": "닫기", "enter": "입력", "tlPack": "짐 싸기·체크아웃", "tlLeave": "호텔 출발", "tlArrAp": "공항 도착(목표)", "tlDep": "출발", "tlLand": "착륙", "tlImmi": "입국심사·수하물(약 60분)", "tlOutAp": "공항 출발", "tlHotel": "호텔 도착(예상)", "leaveDayTitle": "귀국일 일정", "arriveDayTitle": "도착일 일정", "tourFrom": "관광은 {t}부터", "etaIs": "이동 약 {n}분", "until": "까지", "hLeft": "{h}시간 {m}분", "mLeft": "{m}분", "mArex": "AREX", "mLimo": "리무진", "mTaxi": "택시", "toCalendar": "캘린더에 넣기", "noFlight": "항공편을 등록하면 공항으로 출발할 시각을 알려 드립니다", "openTrip": "여정 열기 →", "hcEve": "내일부터 {c} {n}", "hcEveSub": "도착편 {no} {t} · 짐 싸기 체크", "hcEveSub2": "짐 싸기 체크", "hcArrive": "도착일 · {d}", "hcArriveSub": "{t} 도착 → 호텔 도착 {h}쯤 · 관광은 {s}부터", "hcLeave": "귀국일 · {d}", "hcLeaveSub": "호텔 출발 {t} · 공항으로", "hcDay": "{n}일째 · {d}", "hcDaySub": "오늘은 {n}({c}곳 · 도보 {k}km)", "hcFree": "오늘은 일정이 없습니다", "hcShut": "{n}은(는) 오늘 휴관", "hcNDay": "{n}일째", "hcPre": "출발까지", "hcPreN": "{n}일", "hcNext": "다음은 {t} {n}", "hcRet": "귀국 {d} {t}", "hcArr": "도착편 {d} {t} {a}", "hcTrip": "일정 ›", "notifySec": "알림", "ntAirport": "공항 출발 시각 알림", "ntAirportSub": "귀국일에 호텔 출발·공항 도착 시각을 알려 드립니다", "ntClosed": "휴관일 전날 알림", "ntClosedSub": "다음 날 휴관인 곳이 있으면 전날 20시에", "ntMorning": "아침 일정 알림", "ntMorningSub": "여행 중 매일 아침 8시에 오늘 일정을", "ntHome": "홈에 오늘 일정 표시", "ntHomeSub": "홈 화면 맨 위에 오늘 일정 카드를 표시합니다", "sendTest": "테스트 알림 보내기", "pushTest": "테스트 알림입니다. 이게 오면 설정 완료입니다", "pushTestSent": "테스트 알림을 보냈습니다(최대 5분)", "pushNoServer": "알림 서버에 연결하지 못했습니다", "pushUnsupported": "이 브라우저는 알림을 지원하지 않습니다", "pushIos": "아이폰은 「홈 화면에 추가」한 뒤에 알림을 켤 수 있습니다", "pushDenied": "알림이 허용되어 있지 않습니다. 브라우저 설정에서 허용해 주세요", "pushFail": "알림을 켜지 못했습니다", "pushPack": "🧳 짐 싸기·체크아웃 시간입니다", "pushLeave": "🚗 이제 호텔에서 출발 · 공항 도착 {t} 목표", "pushArrAp": "✈ 공항 도착 목표 시각 {t}", "pushTour": "🗺 관광은 {t}부터 시작할 수 있습니다", "pushClosed": "⚠ 내일 {d}은(는) {n} 휴관입니다", "pushMorning": "☀ 오늘은 {n}"};</script>
 <script src="../trip.js?v=1788951865"></script>
 </head>
 <body>
-<div class="stage">
-<div class="sc" data-screen-label="ログイン">
-  <div class="hd"><a class="bk" href="home.html"><k-icon name="ArrowRightSize24" size="24" style="color:#373B51;transform:rotate(180deg)"></k-icon></a>로그인</div>
-  <div class="bd">
-    <div class="card">
-      <h3>로그인</h3>
-      <div class="kv"><span style="color:#4B4F63">보기만 할 때는 로그인이 필요 없습니다. 저장한 스팟·루트·견적 요청에는 로그인이 필요합니다.</span></div>
-    </div>
-    <div id="msg" class="msg"></div>
-    <label class="f"><span>이메일</span><input id="em" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
-    <label class="f"><span>비밀번호</span><input id="pw" type="password" autocomplete="current-password" placeholder="••••••••"></label>
-    <button class="btn" id="go">로그인</button>
-    <div class="links"><a href="reset.html">비밀번호를 잊으셨나요</a></div>
-    <div style="display:flex;align-items:center;gap:10px;color:#9C9FAF;font-size:11px"><span style="flex:1;height:1px;background:#E1E3EC"></span>처음이신 분<span style="flex:1;height:1px;background:#E1E3EC"></span></div>
-    <a class="btn ghost" href="signup.html">회원가입(무료)</a>
-    <button class="btn off" disabled><k-icon name="MessagesSize24" size="20" style="color:#9C9FAF"></k-icon>LINE 로그인(준비 중)</button>
-    <div class="links"><a href="guide-apply.html">가이드이신 분은 이쪽</a></div>
-    <div class="note">계속하면 <a href="#">이용약관</a> 과 <a href="#">개인정보처리방침</a> 에 동의한 것이 됩니다</div>
+<div>
+<div data-screen-label="イベント・ライブ" style="position:relative; width:390px; height:844px; margin:0 auto; background:#FAFAFA; overflow:hidden; display:flex; flex-direction:column;">
+  <div style="flex-shrink:0; display:flex; align-items:center; gap:8px; padding:16px 16px 12px; background:#fff;">
+    <a href="home.html" style="width:40px; height:40px; margin-left:-8px; border-radius:20px; display:flex; align-items:center; justify-content:center;"><k-icon name="ArrowRightSize24" size="24" style="color:#111527; transform:rotate(180deg)"></k-icon></a>
+    <div style="font-size:20px; font-weight:700; color:#111527;">이벤트·라이브</div>
+  </div>
+  <div style="position:relative; flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; gap:16px; padding:16px 0 112px;">
+    <div id="ev-tabs" style="display:flex; gap:8px; padding:0 16px;"></div>
+    <div id="ev-body" style="display:flex; flex-direction:column; gap:12px;"></div>
+  </div>
+  <div style="position:absolute; left:0; right:0; bottom:0; height:98px; border-radius:16px 16px 0 0; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.16); display:grid; grid-template-columns:repeat(5,1fr); align-items:start; padding:6px 12px 0; box-sizing:border-box;">
+    <a href="home.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="HomeSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">홈</span></a>
+    <a href="search.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="SearchNormal2Size24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">찾기</span></a>
+    <a href="trip.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="RoutingSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">플랜</span></a>
+    <a href="help.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="MessagesSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">도움말</span></a>
+    <a href="my.html" style="display:flex; flex-direction:column; align-items:center; gap:8px; text-decoration:none;"><div style="width:38px; height:38px; border-radius:48px; display:flex; align-items:center; justify-content:center;"><k-icon name="UserSize24" size="24" style="color:#6B6E80"></k-icon></div><span style="font-size:10px; font-weight:600; letter-spacing:.02em; color:#6B6E80;">마이페이지</span></a>
   </div>
 </div>
-<script>
-(function(){
-  var msg=document.getElementById('msg'), go=document.getElementById('go');
-  function say(t){ msg.textContent=t; msg.className='msg on'; }
-  function nextUrl(){ var q=new URLSearchParams(location.search); return q.get('next')||'my.html'; }
-  KGA.session().then(function(s){ if(s) location.replace(nextUrl()); });
-  go.onclick=async function(){
-    var em=document.getElementById('em').value.trim(), pw=document.getElementById('pw').value;
-    if(!em||!pw){ say('이메일과 비밀번호를 입력하세요'); return; }
-    go.disabled=true; go.textContent='로그인 중…';
-    try{
-      await KGA.signIn(em,pw);
-      var p=await KGA.profile(true);
-      if(p&&p.role==='guide'&&p.status!=='approved'){ location.replace('guide-apply.html'); return; }
-      location.replace(nextUrl());
-    }catch(e){
-      say(/Invalid login/i.test(e.message||'')?'이메일 또는 비밀번호가 다릅니다':(e.message||'로그인하지 못했습니다'));
-      go.disabled=false; go.textContent='로그인';
-    }
-  };
-  document.getElementById('pw').addEventListener('keydown',function(e){ if(e.key==='Enter') go.click(); });
-})();
-</script>
 </div>
+<script>
+
+const KG = window.KG; const SP = KG.spots;
+const YOMI = {'명동':'','종로·광화문':'','북촌·삼청동':'','동대문':'','홍대':'','강남':'','이태원':'','성수':'','잠실':'','여의도':'','대학로·성북':'','신촌·서대문':'','수원':'','인천':'','파주':'','인천공항·영종도':'','용인':'','남이섬·춘천':'','강릉·속초':'','부산':'','경주':'','전주':'','여수':'','대구':'','대전':'','제주':''};
+const SUB_AREAS = {'부산':[['해운대',''],['광안리',''],['남포동·자갈치',''],['감천·송도',''],['서면·전포',''],['기장',''],['영도',''],['부산역·초량',''],['기타','']],'제주':[['제주시·공항 주변',''],['동부',''],['서부',''],['남부','']]};
+const PLAN = { get() { try { return JSON.parse(localStorage.getItem('kg_plan') || '{}'); } catch (e) { return {}; } }, set(p) { try { localStorage.setItem('kg_plan', JSON.stringify(p)); } catch (e) {} }, addSpot(id) { const p = PLAN.get(); const l = (p.course ? (KG.courses.find(c => c.id === p.course) || { spots: '' }).spots.split(',').filter(Boolean) : (p.spots || [])); if (!l.includes(id)) l.push(id); PLAN.set({ spots: l }); return l.length; }, ids() { const p = PLAN.get(); if (p.course) { const c = KG.courses.find(x => x.id === p.course); if (c) return c.spots.split(',').map(x => x.trim()).filter(Boolean); } return (p.spots || []).filter(id => byId(id)); } };
+const FAV = { get() { try { return JSON.parse(localStorage.getItem('kg_fav') || '[]'); } catch (e) { return []; } }, has(id) { return FAV.get().includes(id); }, toggle(id) { const l = FAV.get(); const i = l.indexOf(id); if (i >= 0) l.splice(i, 1); else l.unshift(id); try { localStorage.setItem('kg_fav', JSON.stringify(l)); } catch (e) {} return i < 0; } };
+const stopNav = (e) => { if (e) { e.preventDefault(); e.stopPropagation(); } };
+const byId = (id) => SP.find(s => s.id === id);
+const bg = (u, w) => u ? `url('${u}') center / cover no-repeat` : 'linear-gradient(135deg,#E9ECF8,#D1D6EE)';
+const shot = (u) => `linear-gradient(180deg, rgba(17,21,41,0) 45%, rgba(17,21,41,0.8) 100%), ${bg(u)}`;
+const qid = () => new URLSearchParams(location.search).get('id');
+const SENT_END = '.';
+const para = (t) => { const s = String(t || '').trim(); if (!s) return []; const out = []; let cur = '', n = 0; for (let i = 0; i < s.length; i++) { cur += s[i]; if (s[i] === SENT_END) { n++; if (n >= 2) { out.push({ t: cur.trim() }); cur = ''; n = 0; } } } if (cur.trim()) { if (out.length && cur.trim().length < 40) out[out.length - 1].t += cur.trim(); else out.push({ t: cur.trim() }); } return out; };
+const DOWJ = ['일','월','화','수','목','금','토'];
+const DOW = ['일','월','화','수','목','금','토'];   // 표시용(언어별로 번역됨)
+const KR_HOLI = new Set(['2026-01-01','2026-02-16','2026-02-17','2026-02-18','2026-03-01','2026-03-02','2026-05-05','2026-05-24','2026-05-25','2026-06-06','2026-08-15','2026-08-17','2026-09-24','2026-09-25','2026-09-26','2026-10-03','2026-10-05','2026-10-09','2026-12-25','2027-01-01','2027-02-06','2027-02-07','2027-02-08','2027-03-01','2027-05-05','2027-05-13','2027-06-06','2027-08-15','2027-08-16','2027-09-14','2027-09-15','2027-09-16','2027-10-03','2027-10-04','2027-10-09','2027-12-25']);
+const SEOL = {day: ['2026-02-17','2027-02-07'], run: ['2026-02-16','2026-02-17','2026-02-18','2027-02-06','2027-02-07','2027-02-08']};
+const CHUSEOK = {day: ['2026-09-25','2027-09-15'], run: ['2026-09-24','2026-09-25','2026-09-26','2027-09-14','2027-09-15','2027-09-16']};
+const ymd = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+
+function closedOn(r, d) {
+  r = r || ''; if (!r) return false;
+  if (/年中無休|無休|年中開放|年中運航|休みなし/.test(r) && !/店舗により|一部/.test(r)) return false;
+  const key = ymd(d), dow = DOWJ[d.getDay()], isHoli = KR_HOLI.has(key);
+  const r1 = r.replace(/第\d月曜日?/g, ''), r2 = r1.replace(/[（(][^）)]*[）)]/g, '').replace(/[^、,／/]*祝日の(場合|次|翌|時)[^、,／/]*/g, '');
+  const wd = new Set((r1.match(/[月火水木金土日](?=曜)/g) || [])); if (/週末/.test(r)) { wd.add('토'); wd.add('일'); }
+  if (/祝日|公休日|祝祭日/.test(r2) && isHoli) return true;
+  if (/1月1日/.test(r) && key.endsWith('-01-01')) return true;
+  if (/12月25日/.test(r) && key.endsWith('-12-25')) return true;
+  if (/5月1日/.test(r) && key.endsWith('-05-01')) return true;
+  const run = /連休/.test(r);
+  if (/ソルナル|ソルラル|旧正月|旧暦1月1日/.test(r) && (run ? SEOL.run : SEOL.day).includes(key)) return true;
+  if (/秋夕|旧暦8月15日/.test(r) && (run ? CHUSEOK.run : CHUSEOK.day).includes(key)) return true;
+  if (/第1月曜/.test(r) && dow === '월' && d.getDate() <= 7) { const ms = (r.match(/(\d{1,2})月/g) || []).map(x => parseInt(x)); if (!ms.length || ms.includes(d.getMonth() + 1)) return true; }
+  if (wd.has(dow)) {
+    if (/祝日の場合|祝日は開|祝日の時|祝日と重なる/.test(r) && isHoli) return false;   // 휴관요일이 공휴일이면 개관
+    return true;
+  }
+  if (/翌日|翌平日|次の平日/.test(r)) { const y = new Date(d); y.setDate(y.getDate() - 1); if (wd.has(DOWJ[y.getDay()]) && KR_HOLI.has(ymd(y))) return true; }
+  return false;
+}
+function isClosedToday(s){ return closedOn(s.restJa || s.rest, new Date()); }
+
+const OPEN = { dot: '#047857', open: '개관 중', openFg: '#047857' };
+const SHUT = { dot: '#B22459', open: '오늘 휴관', openFg: '#B22459' };
+const st = (s) => isClosedToday(s) ? SHUT : OPEN;
+const metaOf = (s) => [s.jp ? '일본어 가능' : '', s.stay ? `약 ${s.stay}분` : '', s.fee && s.fee.length < 22 ? s.fee : '', s.area].filter(Boolean).slice(0,2).join(' · ');
+const WXTXT = (c) => c <= 2 ? '맑음' : c === 3 ? '흐림' : (c === 45 || c === 48) ? '안개' : ((c >= 71 && c <= 77) || c === 85 || c === 86) ? '눈' : '비';
+const WEAR = (mx, pop) => { const w = mx >= 30 ? '햇빛 차단·수분 보충' : mx >= 20 ? '반팔＋얇은 겉옷' : mx >= 10 ? '겉옷 필수' : '코트·장갑'; return pop >= 50 ? '우산 ·' + w : w; };
+const CITY_LL = {'서울':[37.57,126.98],'부산':[35.18,129.08],'강릉·속초':[37.75,128.88],'경주':[35.86,129.22],'전주':[35.82,127.15],'여수':[34.76,127.66],'대구':[35.87,128.60],'대전':[36.35,127.38],'제주':[33.51,126.53]};
+function wxFetch(lat, lng) {
+  const u = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia/Seoul&forecast_days=7`;
+  return fetch(u).then(r => r.json()).then(j => {
+    const d = j.daily;
+    return d.time.map((t, i) => {
+      const pd = t.split('-').map(Number), dt = new Date(pd[0], pd[1] - 1, pd[2]), mx = Math.round(d.temperature_2m_max[i]), mn = Math.round(d.temperature_2m_min[i]);
+      const pop = d.precipitation_probability_max[i] || 0;
+      return { date: t, label: (dt.getMonth() + 1) + '/' + dt.getDate() + '(' + DOW[dt.getDay()] + ')', sky: WXTXT(d.weathercode[i]), max: mx, min: mn, pop: pop, wear: WEAR(mx, pop), rain: pop >= 50 };
+    });
+  });
+}
+
+const TABS = [['event', ''], ['cam', '라이브 카메라'], ['course', '이번 주 코스']];
+let tab = (new URLSearchParams(location.search).get('tab') || 'event');
+if (!TABS.some(t => t[0] === tab)) tab = 'event';
+
+const TODAY = (() => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); })();
+const mdOf = (d) => d ? (parseInt(d.slice(5, 7), 10) + '/' + parseInt(d.slice(8, 10), 10)) : '';
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function evRow(e) {
+  const when = mdOf(e.start) + (e.end && e.end !== e.start ? '<br>〜' + mdOf(e.end) : '');
+  const pop = e.kind === 'popup' ? '<span style="flex-shrink:0; display:inline-flex; align-items:center; height:18px; padding:0 6px; border-radius:6px; background:#FCF2F6; color:#B22459; font-family:Poppins,sans-serif; font-size:9px; font-weight:700; letter-spacing:.04em;">POP-UP</span>' : '';
+  return '<a href="' + esc(e.url || '#') + '" target="_blank" rel="noopener" style="display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); text-decoration:none;">'
+    + '<div style="flex-shrink:0; width:52px; text-align:center; font-family:Poppins,sans-serif; font-size:11px; font-weight:600; line-height:1.3; color:#3F52B4; background:#F2F4FC; border-radius:10px; padding:6px 0;">' + when + '</div>'
+    + '<div style="flex:1; min-width:0;"><div style="display:flex; align-items:center; gap:6px;">' + pop
+    + '<span style="font-size:14px; font-weight:600; color:#111527; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + esc(e.name) + '</span></div>'
+    + '<div style="font-size:11px; color:#6B6E80; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + esc([e.city, e.place].filter(Boolean).join(' · ')) + '</div></div>'
+    + '<k-icon name="ArrowRightSize18" size="18" style="color:#3F52B4"></k-icon></a>';
+}
+
+function camCard(c) {
+  return '<a href="' + esc(c.href) + '"' + (c.tgt ? ' target="_blank" rel="noopener"' : '') + ' style="position:relative; display:block; height:165px; border-radius:16px; overflow:hidden; background:' + c.bg + '; text-decoration:none;">'
+    + '<span style="position:absolute; top:12px; left:12px; display:inline-flex; align-items:center; gap:5px; height:22px; padding:0 8px; border-radius:8px; background:#fff; color:#4B4F63; font-size:11px; font-weight:600;"><span style="width:6px; height:6px; border-radius:50%; background:#B22459;"></span>LIVE</span>'
+    + '<div style="position:absolute; left:14px; right:14px; bottom:14px;">'
+    + '<div style="font-size:18px; font-weight:700; line-height:24px; color:#fff;">' + esc(c.name) + '</div>'
+    + '<div style="font-size:12px; font-weight:400; line-height:20px; color:#fff; opacity:.92;">' + esc(c.crowd) + '</div></div></a>';
+}
+
+const cPhoto = (c) => { const ids = String(c.spots || '').split(',').map(x => x.trim()).filter(Boolean); for (const id of ids) { const x = byId(id); if (x && x.photo) return x.photo; } return ''; };
+function courseCard(c, first) {
+  const meta = '소요 ' + (c.hours || '') + '시간 · 도보 ' + (c.km || '') + 'km';
+  const badge = first ? '<span style="position:absolute; left:10px; top:10px; display:inline-flex; align-items:center; height:20px; padding:0 8px; border-radius:8px; background:#3F52B4; color:#fff; font-size:10px; font-weight:700;">이번 주</span>' : '';
+  return '<a href="course.html?id=' + c.id + '" style="display:flex; gap:10px; padding:8px; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); text-decoration:none;">'
+    + '<div style="position:relative; width:96px; min-height:78px; align-self:stretch; flex-shrink:0; border-radius:10px; background:' + bg(cPhoto(c)) + ';">' + badge + '</div>'
+    + '<div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; justify-content:center;">'
+    + '<div style="font-size:14px; font-weight:700; line-height:1.4; color:#111527;">' + esc(c.name) + '</div>'
+    + '<div style="font-size:11px; font-weight:500; color:#6B6E80;">' + esc([c.sub, c.area].filter(Boolean).join(' · ')) + '</div>'
+    + '<div style="font-size:11px; font-weight:500; color:#9C9FAF;">' + esc(meta) + '</div></div></a>';
+}
+
+function render() {
+  document.getElementById('ev-tabs').innerHTML = TABS.map(([k, label]) =>
+    '<div data-tab="' + k + '" style="flex:1; height:38px; border-radius:12px; background:' + (tab === k ? '#3F52B4' : '#F2F4FC') + '; color:' + (tab === k ? '#fff' : '#4B4F63') + '; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; cursor:pointer; white-space:nowrap;">' + label + '</div>').join('');
+  let h = '';
+  if (tab === 'event') {
+    const list = (KG.events || []).filter(e => (e.end || e.start) >= TODAY).sort((a, b) => a.start < b.start ? -1 : 1);
+    h = '<div style="display:flex; flex-direction:column; gap:8px; padding:0 16px;">'
+      + (list.length ? list.map(evRow).join('') : '<div style="padding:14px 16px; border-radius:16px; background:#F7F7FA; font-size:13px; font-weight:500; color:#4B4F63;">지금은 예정된 이벤트가 없습니다.</div>')
+      + '</div>';
+  } else if (tab === 'cam') {
+    const cams = (KG.camOrder || []).map(id => {
+      const x = byId(id);
+      if (x) return { name: x.name, crowd: x.camLabel || '공식 실시간 영상', bg: shot(x.photo), href: 'spot.html?id=' + x.id, tgt: '' };
+      const e = (KG.camExtra || []).find(c => c.id === id);
+      return e ? { name: e.name, crowd: e.label, bg: shot(e.photo || ''), href: e.href, tgt: '_blank' } : null;
+    }).filter(Boolean);
+    h = '<div style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px; padding:0 16px;">' + cams.map(camCard).join('') + '</div>';
+  } else {
+    const CS = KG.courses || [];
+    const first = CS.find(c => c.id === 'C001');
+    const rest = CS.filter(c => c.id !== 'C001');
+    h = '<div style="display:flex; flex-direction:column; gap:8px; padding:0 16px;">'
+      + (first ? courseCard(first, true) : '') + rest.map(c => courseCard(c, false)).join('') + '</div>';
+  }
+  document.getElementById('ev-body').innerHTML = h;
+}
+
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-tab]');
+  if (t) { tab = t.dataset.tab; try { history.replaceState(null, '', 'events.html?tab=' + tab); } catch (x) {} render(); }
+});
+render();
+
+</script>
 <script>
 (function(){
   var U='https://line.me/R/ti/p/@897fvigb'; if(!U) return;
