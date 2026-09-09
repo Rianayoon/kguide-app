@@ -52,7 +52,36 @@
   document.addEventListener('DOMContentLoaded', killOverlay);
 })();
 </script>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+/* 앱 안 「←」 버튼: 히스토리가 있으면 진짜 뒤로가기, 없으면 링크대로. (2026-09-09) */
+(function(){
+  function backEl(t){
+    if(!t || !t.closest) return null;
+    var k = t.closest('k-icon');
+    if(!k){ var d = t.closest('a,div'); if(d) k = d.querySelector(':scope > k-icon'); }
+    if(!k) return null;
+    if((k.getAttribute('name')||'') !== 'ArrowRightSize24') return null;
+    if(((k.getAttribute('style')||'').indexOf('scaleX(-1)')) < 0) return null;
+    var el = k.parentElement; if(!el) return null;
+    if(el.hasAttribute && el.hasAttribute('data-kgnoback')) return null;
+    return el;
+  }
+  function canBack(){
+    try{ return history.length > 1 && !!document.referrer && document.referrer.indexOf(location.origin) === 0; }catch(e){ return false; }
+  }
+  document.addEventListener('click', function(e){
+    var el = backEl(e.target); if(!el) return;
+    if(window.__kgGalClose) { try{ window.__kgGalClose(); }catch(x){} }
+    if(!canBack()){
+      var a = el.closest('a[href]');
+      if(!a){ e.preventDefault(); location.href = (el.getAttribute('data-kgbackto') || 'home.html'); }
+      return;
+    }
+    e.preventDefault(); e.stopPropagation();
+    try{ history.back(); }catch(x){ }
+  }, true);
+})();
+</script><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#3F52B4">
 <title>K-GUIDE</title>
@@ -783,13 +812,13 @@ svg.leaflet-image-layer.leaflet-interactive path {
 	}
 </style>
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788929601"></script>
-<script src="./kicon.js?v=1788929601"></script>
+<script src="./data.js?v=1788931191"></script>
+<script src="./kicon.js?v=1788931191"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
-<script src="./leaflet.js?v=1788929601"></script>
+<script src="./leaflet.js?v=1788931191"></script>
 <script>window.KGT={"dow": ["日", "月", "火", "水", "木", "金", "土"], "cities": ["ソウル", "釜山", "済州", "近郊"], "ap": {"ICN1": "仁川 T1", "ICN2": "仁川 T2", "GMP": "金浦", "PUS": "金海", "CJU": "済州"}, "seoul": "ソウル", "myTrip": "マイ旅程", "dayTrip": "日帰り", "nights": "{n}泊{m}日", "spotUnit": "スポット", "min": "分", "title": "旅程をつくる", "nTrips": "{n}件の旅程", "emptyList": "まだ旅程がありません", "emptyListSub": "旅行の日にちを決めて、行きたい場所を入れていきましょう", "newTrip": "＋ 新しい旅程", "newTripTitle": "新しい旅程", "editTrip": "旅程を編集", "current": "表示中", "pickDates": "到着日・帰国日", "arriveDay": "到着日", "leaveDay": "帰国日", "maxDays": "最大10日まで選べます", "flightSec": "フライト", "optional": "任意", "flightHelp": "入れておくと、空港へ向かう時刻を計算してお知らせします", "inFlight": "到着便", "outFlight": "帰国便", "flightNo": "便名", "inHelp": "到着空港と着陸時刻", "outHelp": "出発空港と出発時刻", "intlFlight": "国際線（空港には3時間前に到着）", "citySec": "都市", "nameSec": "名前", "staySec": "泊まるところ", "stayHelp": "空港へ向かう時刻の計算に使います", "pickStay": "泊まるところを選ぶ", "change": "変える", "stayAreaHelp": "泊まるエリアを選んでください", "stayName": "ホテル名（任意）", "save": "保存", "cancel": "キャンセル", "saved": "保存しました", "needDates": "到着日と帰国日を選んでください", "deleted": "旅程を削除しました", "removed": "スポットを外しました", "undo": "元に戻す", "switchTrip": "別の旅程", "allTrips": "すべての旅程", "mapHint": "地図をタップして操作", "fullScreen": "全画面", "naverOpen": "NAVER地図で開く", "walkTotal": "合計 徒歩", "straight": "直線", "walkFor": "徒歩", "stayFor": "滞在", "emptyDay": "この日はまだ空いています", "findSpots": "スポットを探す", "addSpot": "スポットを追加", "moveDay": "別の日へ", "thisDayShut": "この日は休館", "tooLate": "間に合わない可能性", "shutToast": "{d}は{n}の休館日です。別の日がおすすめ", "addedTo": "{d}に追加しました", "addToTrip": "旅程に追加", "poolPick": "行きたい場所（まだ決めない）", "poolTitle": "行きたい場所", "poolEmpty": "まだありません", "putInto": "{d}に入れる", "poolBar": "行きたい場所 {n}件", "poolBarNo": "{n}件", "toTrip": "旅程へ →", "makeTrip": "旅程をつくる →", "noTripPool": "「行きたい場所」に入れました。旅程をつくると日にちに入れられます", "noTripYet": "まず旅程をつくってください", "migrated": "これまでのプランを旅程に移しました", "open": "開く", "close": "閉じる", "enter": "入力", "tlPack": "荷造り・チェックアウト", "tlLeave": "ホテル出発", "tlArrAp": "空港到着（目標）", "tlDep": "出発", "tlLand": "着陸", "tlImmi": "入国審査・荷物（約60分）", "tlOutAp": "空港出発", "tlHotel": "ホテル到着（予想）", "leaveDayTitle": "帰国日のうごき", "arriveDayTitle": "到着日のうごき", "tourFrom": "観光は {t} から", "etaIs": "移動 約{n}分", "until": "まで", "hLeft": "{h}時間{m}分", "mLeft": "{m}分", "mArex": "AREX", "mLimo": "リムジン", "mTaxi": "タクシー", "toCalendar": "カレンダーに入れる", "noFlight": "フライトを登録すると、空港へ向かう時刻をお知らせします", "openTrip": "旅程を開く →", "hcEve": "明日から {c} {n}", "hcEveSub": "到着便 {no} {t} · 荷造りチェック", "hcEveSub2": "荷造りチェック", "hcArrive": "到着日 · {d}", "hcArriveSub": "{t} 着 → ホテル到着 {h} ごろ · 観光は {s} から", "hcLeave": "帰国日 · {d}", "hcLeaveSub": "ホテル出発 {t} · 空港へ", "hcDay": "{n}日目 · {d}", "hcDaySub": "今日は {n}（{c}スポット · 徒歩 {k}km）", "hcFree": "今日は予定がありません", "hcShut": "{n}は本日休館", "notifySec": "通知", "ntAirport": "空港へ向かう時刻の通知", "ntAirportSub": "帰国日にホテル出発・空港到着の時刻をお知らせします", "ntClosed": "休館日の前日にお知らせ", "ntClosedSub": "次の日が休館のスポットがあれば前日20時に", "ntMorning": "朝の予定通知", "ntMorningSub": "旅行中まいあさ8時に今日の予定を", "ntHome": "ホームに今日の予定を表示", "ntHomeSub": "ホーム画面のいちばん上に今日の予定カードを出します", "sendTest": "テスト通知を送る", "pushTest": "テスト通知です。これが届けば設定完了です", "pushTestSent": "テスト通知を送りました（最大5分）", "pushNoServer": "通知サーバーに接続できませんでした", "pushUnsupported": "このブラウザは通知に対応していません", "pushIos": "iPhone は「ホーム画面に追加」してから通知をオンにできます", "pushDenied": "通知が許可されていません。ブラウザの設定から許可してください", "pushFail": "通知をオンにできませんでした", "pushPack": "🧳 荷造り・チェックアウトの時間です", "pushLeave": "🚗 そろそろホテルを出発 · 空港到着 {t} 目標", "pushArrAp": "✈ 空港到着の目標時刻 {t}", "pushTour": "🗺 観光は {t} から始められます", "pushClosed": "⚠ 明日 {d} は{n}が休館です", "pushMorning": "☀ 今日は {n}"};</script>
-<script src="./trip.js?v=1788929601"></script>
+<script src="./trip.js?v=1788931191"></script>
 </head>
 <body>
 <div class="stage">
