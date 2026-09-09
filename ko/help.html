@@ -113,12 +113,16 @@
     if(!s) return;
     var vw=window.innerWidth, vh=window.innerHeight;
     var stage=s.parentNode; if(!stage||stage===document.body){ return; }
-    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#F5F6FA;';
     s.style.flexShrink='0'; s.style.transformOrigin='center center';
-    var k;
-    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
-    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }  /* 패드·PC: 가운데에 폰 프레임 */
-    s.style.transform='scale('+k+')';
+    if(vw<=430){                                   /* 폰: 폭에 맞추고 세로는 화면 끝까지 */
+      var k=vw/W;
+      s.style.width=W+'px'; s.style.height=Math.round(vh/k)+'px';
+      s.style.transform='scale('+k+')'; s.style.boxShadow='none';
+    } else {                                       /* 패드·PC: 확대하지 않고 최대 480px 컬럼을 가운데에 */
+      s.style.width=Math.min(vw, 480)+'px'; s.style.height=vh+'px';
+      s.style.transform='none'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)';
+    }
     s.style.margin='0';
   }
   var mo=new MutationObserver(function(){ fit(); });
@@ -129,12 +133,12 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="../data.ko.js?v=1788931191"></script>
-<script src="../kicon.js?v=1788931191"></script>
+<script src="../data.ko.js?v=1788932332"></script>
+<script src="../kicon.js?v=1788932332"></script>
 <link rel="manifest" href="../manifest.json">
 <link rel="apple-touch-icon" href="../icon-192.png">
-<script>window.KGT={"dow": ["일", "월", "화", "수", "목", "금", "토"], "cities": ["서울", "부산", "제주", "근교"], "ap": {"ICN1": "인천 T1", "ICN2": "인천 T2", "GMP": "김포", "PUS": "김해", "CJU": "제주"}, "seoul": "서울", "myTrip": "나의 여정", "dayTrip": "당일치기", "nights": "{n}박{m}일", "spotUnit": "스팟", "min": "분", "title": "여정 만들기", "nTrips": "여정 {n}개", "emptyList": "아직 여정이 없습니다", "emptyListSub": "여행 날짜를 정하고 가고 싶은 곳을 넣어 보세요", "newTrip": "＋ 새 여정", "newTripTitle": "새 여정", "editTrip": "여정 편집", "current": "보는 중", "pickDates": "도착일·귀국일", "arriveDay": "도착일", "leaveDay": "귀국일", "maxDays": "최대 10일까지 선택할 수 있습니다", "flightSec": "항공편", "optional": "선택", "flightHelp": "입력해 두면 공항으로 출발할 시각을 계산해 알려 드립니다", "inFlight": "도착편", "outFlight": "귀국편", "flightNo": "편명", "inHelp": "도착 공항과 착륙 시각", "outHelp": "출발 공항과 출발 시각", "intlFlight": "국제선(공항에 3시간 전 도착)", "citySec": "도시", "nameSec": "이름", "staySec": "숙소", "stayHelp": "공항으로 출발할 시각을 계산하는 데 씁니다", "pickStay": "숙소 선택", "change": "변경", "stayAreaHelp": "묵는 지역을 선택해 주세요", "stayName": "호텔 이름(선택)", "save": "저장", "cancel": "취소", "saved": "저장했습니다", "needDates": "도착일과 귀국일을 선택해 주세요", "deleted": "여정을 삭제했습니다", "removed": "장소를 뺐습니다", "undo": "되돌리기", "switchTrip": "다른 여정", "allTrips": "모든 여정", "mapHint": "지도를 눌러서 조작", "fullScreen": "전체화면", "naverOpen": "네이버 지도로 열기", "walkTotal": "총 도보", "straight": "직선", "walkFor": "도보", "stayFor": "체류", "emptyDay": "이 날은 아직 비어 있습니다", "findSpots": "스팟 찾기", "addSpot": "스팟 추가", "moveDay": "다른 날로", "thisDayShut": "이 날은 휴관", "tooLate": "시간이 모자랄 수 있음", "shutToast": "{d}은(는) {n} 휴관일입니다. 다른 날을 추천합니다", "addedTo": "{d}에 추가했습니다", "addToTrip": "여정에 추가", "poolPick": "가고 싶은 곳(아직 정하지 않음)", "poolTitle": "가고 싶은 곳", "poolEmpty": "아직 없습니다", "putInto": "{d}에 넣기", "poolBar": "가고 싶은 곳 {n}곳", "poolBarNo": "{n}곳", "toTrip": "여정으로 →", "makeTrip": "여정 만들기 →", "noTripPool": "「가고 싶은 곳」에 넣었습니다. 여정을 만들면 날짜에 넣을 수 있습니다", "noTripYet": "먼저 여정을 만들어 주세요", "migrated": "지금까지의 플랜을 여정으로 옮겼습니다", "open": "열기", "close": "닫기", "enter": "입력", "tlPack": "짐 싸기·체크아웃", "tlLeave": "호텔 출발", "tlArrAp": "공항 도착(목표)", "tlDep": "출발", "tlLand": "착륙", "tlImmi": "입국심사·수하물(약 60분)", "tlOutAp": "공항 출발", "tlHotel": "호텔 도착(예상)", "leaveDayTitle": "귀국일 일정", "arriveDayTitle": "도착일 일정", "tourFrom": "관광은 {t}부터", "etaIs": "이동 약 {n}분", "until": "까지", "hLeft": "{h}시간 {m}분", "mLeft": "{m}분", "mArex": "AREX", "mLimo": "리무진", "mTaxi": "택시", "toCalendar": "캘린더에 넣기", "noFlight": "항공편을 등록하면 공항으로 출발할 시각을 알려 드립니다", "openTrip": "여정 열기 →", "hcEve": "내일부터 {c} {n}", "hcEveSub": "도착편 {no} {t} · 짐 싸기 체크", "hcEveSub2": "짐 싸기 체크", "hcArrive": "도착일 · {d}", "hcArriveSub": "{t} 도착 → 호텔 도착 {h}쯤 · 관광은 {s}부터", "hcLeave": "귀국일 · {d}", "hcLeaveSub": "호텔 출발 {t} · 공항으로", "hcDay": "{n}일째 · {d}", "hcDaySub": "오늘은 {n}({c}곳 · 도보 {k}km)", "hcFree": "오늘은 일정이 없습니다", "hcShut": "{n}은(는) 오늘 휴관", "notifySec": "알림", "ntAirport": "공항 출발 시각 알림", "ntAirportSub": "귀국일에 호텔 출발·공항 도착 시각을 알려 드립니다", "ntClosed": "휴관일 전날 알림", "ntClosedSub": "다음 날 휴관인 곳이 있으면 전날 20시에", "ntMorning": "아침 일정 알림", "ntMorningSub": "여행 중 매일 아침 8시에 오늘 일정을", "ntHome": "홈에 오늘 일정 표시", "ntHomeSub": "홈 화면 맨 위에 오늘 일정 카드를 표시합니다", "sendTest": "테스트 알림 보내기", "pushTest": "테스트 알림입니다. 이게 오면 설정 완료입니다", "pushTestSent": "테스트 알림을 보냈습니다(최대 5분)", "pushNoServer": "알림 서버에 연결하지 못했습니다", "pushUnsupported": "이 브라우저는 알림을 지원하지 않습니다", "pushIos": "아이폰은 「홈 화면에 추가」한 뒤에 알림을 켤 수 있습니다", "pushDenied": "알림이 허용되어 있지 않습니다. 브라우저 설정에서 허용해 주세요", "pushFail": "알림을 켜지 못했습니다", "pushPack": "🧳 짐 싸기·체크아웃 시간입니다", "pushLeave": "🚗 이제 호텔에서 출발 · 공항 도착 {t} 목표", "pushArrAp": "✈ 공항 도착 목표 시각 {t}", "pushTour": "🗺 관광은 {t}부터 시작할 수 있습니다", "pushClosed": "⚠ 내일 {d}은(는) {n} 휴관입니다", "pushMorning": "☀ 오늘은 {n}"};</script>
-<script src="../trip.js?v=1788931191"></script>
+<script>window.KGT={"dow": ["일", "월", "화", "수", "목", "금", "토"], "cities": ["서울", "부산", "제주", "근교"], "ap": {"ICN1": "인천 T1", "ICN2": "인천 T2", "GMP": "김포", "PUS": "김해", "CJU": "제주"}, "seoul": "서울", "myTrip": "나의 여정", "dayTrip": "당일치기", "nights": "{n}박{m}일", "spotUnit": "스팟", "min": "분", "title": "여정 만들기", "nTrips": "여정 {n}개", "emptyList": "아직 여정이 없습니다", "emptyListSub": "여행 날짜를 정하고 가고 싶은 곳을 넣어 보세요", "newTrip": "＋ 새 여정", "newTripTitle": "새 여정", "editTrip": "여정 편집", "current": "보는 중", "pickDates": "도착일·귀국일", "arriveDay": "도착일", "leaveDay": "귀국일", "maxDays": "최대 10일까지 선택할 수 있습니다", "flightSec": "항공편", "optional": "선택", "flightHelp": "입력해 두면 공항으로 출발할 시각을 계산해 알려 드립니다", "inFlight": "도착편", "outFlight": "귀국편", "flightNo": "편명", "inHelp": "도착 공항과 착륙 시각", "outHelp": "출발 공항과 출발 시각", "intlFlight": "국제선(공항에 3시간 전 도착)", "citySec": "도시", "nameSec": "이름", "staySec": "숙소", "stayHelp": "공항으로 출발할 시각을 계산하는 데 씁니다", "pickStay": "숙소 선택", "change": "변경", "stayAreaHelp": "묵는 지역을 선택해 주세요", "stayName": "호텔 이름(선택)", "timeTitle": "시각 입력", "hour": "시", "minute": "분", "ok": "확인", "startAt": "시작", "save": "저장", "cancel": "취소", "saved": "저장했습니다", "needDates": "도착일과 귀국일을 선택해 주세요", "deleted": "여정을 삭제했습니다", "removed": "장소를 뺐습니다", "undo": "되돌리기", "switchTrip": "다른 여정", "allTrips": "모든 여정", "mapHint": "지도를 눌러서 조작", "fullScreen": "전체화면", "naverOpen": "네이버 지도로 열기", "walkTotal": "총 도보", "straight": "직선", "walkFor": "도보", "stayFor": "체류", "emptyDay": "이 날은 아직 비어 있습니다", "findSpots": "스팟 찾기", "addSpot": "스팟 추가", "moveDay": "다른 날로", "thisDayShut": "이 날은 휴관", "tooLate": "시간이 모자랄 수 있음", "shutToast": "{d}은(는) {n} 휴관일입니다. 다른 날을 추천합니다", "addedTo": "{d}에 추가했습니다", "addToTrip": "여정에 추가", "poolPick": "가고 싶은 곳(아직 정하지 않음)", "poolTitle": "가고 싶은 곳", "poolEmpty": "아직 없습니다", "putInto": "{d}에 넣기", "poolBar": "가고 싶은 곳 {n}곳", "poolBarNo": "{n}곳", "toTrip": "여정으로 →", "makeTrip": "여정 만들기 →", "noTripPool": "「가고 싶은 곳」에 넣었습니다. 여정을 만들면 날짜에 넣을 수 있습니다", "noTripYet": "먼저 여정을 만들어 주세요", "migrated": "지금까지의 플랜을 여정으로 옮겼습니다", "open": "열기", "close": "닫기", "enter": "입력", "tlPack": "짐 싸기·체크아웃", "tlLeave": "호텔 출발", "tlArrAp": "공항 도착(목표)", "tlDep": "출발", "tlLand": "착륙", "tlImmi": "입국심사·수하물(약 60분)", "tlOutAp": "공항 출발", "tlHotel": "호텔 도착(예상)", "leaveDayTitle": "귀국일 일정", "arriveDayTitle": "도착일 일정", "tourFrom": "관광은 {t}부터", "etaIs": "이동 약 {n}분", "until": "까지", "hLeft": "{h}시간 {m}분", "mLeft": "{m}분", "mArex": "AREX", "mLimo": "리무진", "mTaxi": "택시", "toCalendar": "캘린더에 넣기", "noFlight": "항공편을 등록하면 공항으로 출발할 시각을 알려 드립니다", "openTrip": "여정 열기 →", "hcEve": "내일부터 {c} {n}", "hcEveSub": "도착편 {no} {t} · 짐 싸기 체크", "hcEveSub2": "짐 싸기 체크", "hcArrive": "도착일 · {d}", "hcArriveSub": "{t} 도착 → 호텔 도착 {h}쯤 · 관광은 {s}부터", "hcLeave": "귀국일 · {d}", "hcLeaveSub": "호텔 출발 {t} · 공항으로", "hcDay": "{n}일째 · {d}", "hcDaySub": "오늘은 {n}({c}곳 · 도보 {k}km)", "hcFree": "오늘은 일정이 없습니다", "hcShut": "{n}은(는) 오늘 휴관", "notifySec": "알림", "ntAirport": "공항 출발 시각 알림", "ntAirportSub": "귀국일에 호텔 출발·공항 도착 시각을 알려 드립니다", "ntClosed": "휴관일 전날 알림", "ntClosedSub": "다음 날 휴관인 곳이 있으면 전날 20시에", "ntMorning": "아침 일정 알림", "ntMorningSub": "여행 중 매일 아침 8시에 오늘 일정을", "ntHome": "홈에 오늘 일정 표시", "ntHomeSub": "홈 화면 맨 위에 오늘 일정 카드를 표시합니다", "sendTest": "테스트 알림 보내기", "pushTest": "테스트 알림입니다. 이게 오면 설정 완료입니다", "pushTestSent": "테스트 알림을 보냈습니다(최대 5분)", "pushNoServer": "알림 서버에 연결하지 못했습니다", "pushUnsupported": "이 브라우저는 알림을 지원하지 않습니다", "pushIos": "아이폰은 「홈 화면에 추가」한 뒤에 알림을 켤 수 있습니다", "pushDenied": "알림이 허용되어 있지 않습니다. 브라우저 설정에서 허용해 주세요", "pushFail": "알림을 켜지 못했습니다", "pushPack": "🧳 짐 싸기·체크아웃 시간입니다", "pushLeave": "🚗 이제 호텔에서 출발 · 공항 도착 {t} 목표", "pushArrAp": "✈ 공항 도착 목표 시각 {t}", "pushTour": "🗺 관광은 {t}부터 시작할 수 있습니다", "pushClosed": "⚠ 내일 {d}은(는) {n} 휴관입니다", "pushMorning": "☀ 오늘은 {n}"};</script>
+<script src="../trip.js?v=1788932332"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../auth.js?v=1789000001"></script>
 </head>
@@ -209,9 +213,11 @@
       <div style="display:flex; gap:8px; overflow-x:auto; padding-bottom:2px;">
         <sc-for list="{{ sits }}" as="t" hint-placeholder-count="5"><div onClick="{{ t.onClick }}" style="flex-shrink:0; display:inline-flex; align-items:center; height:32px; padding:0 14px; border-radius:32px; background:{{ t.bg }}; box-shadow:{{ t.ring }}; color:{{ t.fg }}; font-size:12px; font-weight:600; cursor:pointer; white-space:nowrap;">{{ t.label }}</div></sc-for>
       </div>
+      <div onClick="{{ cardsToggle }}" style="display:flex; align-items:center; justify-content:space-between; gap:8px; padding:14px 16px; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); cursor:pointer;"><div style="font-size:14px; font-weight:600; color:#111527; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ cardsTitle }}</div><div style="flex-shrink:0; font-size:12px; font-weight:600; color:#3F52B4;">{{ cardsCaret }}</div></div>
+      <sc-if value="{{ cardsOpen }}" hint-placeholder-val="{{ false }}">
       <sc-for list="{{ cards }}" as="c" hint-placeholder-count="4">
         <div onClick="{{ c.onClick }}" style="min-height:96px; flex-shrink:0; box-sizing:border-box; border-radius:16px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.12); padding:14px 16px; display:flex; align-items:center; gap:14px; cursor:pointer;">
-          <div style="width:48px; height:48px; flex-shrink:0; border-radius:16px; background:#F2F4FC; display:flex; align-items:center; justify-content:center;"><k-icon name="{{ c.icon }}" size="24" style="color:#3F52B4"></k-icon></div>
+          <div style="width:48px; height:48px; flex-shrink:0; border-radius:16px; background:#F2F4FC; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;"><k-icon name="SearchNormal2Size20" size="20" style="color:#3F52B4"></k-icon><span style="font-size:9px; font-weight:700; color:#3F52B4; line-height:1;">크게</span></div>
           <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:4px;">
             <div style="font-size:16px; font-weight:700; line-height:23px; color:#111527;">{{ c.jp }}</div>
             <div style="font-size:{{ c.koSize }}; font-weight:{{ c.koWeight }}; color:#111527; line-height:1.45;">{{ c.ko }}</div>
@@ -222,6 +228,7 @@
           <k-icon name="ArrowRightSize18" size="18" style="color:#9C9FAF"></k-icon>
         </div>
       </sc-for>
+      </sc-if>
     </div>
 
     <div style="display:flex; flex-direction:column; gap:12px; flex-shrink:0;">
@@ -325,7 +332,9 @@ class Component extends DCLogic {
       ...(() => { const ICON = { '병원': 'AddCircleSize24', '약국': 'AddCircleSize24', '식당': 'TickCircleSize24', '카페': 'TickCircleSize24', '택시': 'CarSize24', '지하철': 'RoutingSize24', '호텔': 'HomeSize24', '쇼핑': 'TickCircleSize24', '분실': 'InfoCircleSize24', '길 묻기': 'LocationSize24', '길': 'LocationSize24', '현재 위치': 'LocationSize24', '관광': 'LocationSize24', '면세': 'TickCircleSize24', '사진': 'TickCircleSize24' };
         const all = KG.cards || []; const sits = []; all.forEach(c => { if (!sits.includes(c.situation)) sits.push(c.situation); });
         const sit = this.state.sit || sits[0]; const big = this.state.big;
-        return { sits: sits.map(x => ({ label: x, onClick: () => this.setState({ sit: x, big: null }), bg: x === sit ? '#3F52B4' : '#fff', fg: x === sit ? '#fff' : '#4B4F63', ring: x === sit ? 'none' : 'inset 0 0 0 1px #D1D3DB' })),
+        const _cn = all.filter(c => c.situation === sit).length; const _open = !!this.state.cardsOpen;
+        return { cardsOpen: _open, cardsTitle: sit + ' · ' + _cn + '건', cardsCaret: _open ? '닫기 ▲' : '열기 ▼', cardsToggle: () => this.setState({ cardsOpen: !_open }),
+          sits: sits.map(x => ({ label: x, onClick: () => this.setState({ sit: x, big: null }), bg: x === sit ? '#3F52B4' : '#fff', fg: x === sit ? '#fff' : '#4B4F63', ring: x === sit ? 'none' : 'inset 0 0 0 1px #D1D3DB' })),
           cards: all.filter(c => c.situation === sit).map(c => ({ icon: ICON[c.situation] || 'InfoCircleSize24', jp: c.ja, ko: c.ko, sub: c.sub || '', koSize: big === c.id ? '26px' : '15px', koWeight: big === c.id ? '700' : '500', onClick: () => this.setState({ big: big === c.id ? null : c.id }) })) };
       })(),
       arrival: [
@@ -350,6 +359,9 @@ class Component extends DCLogic {
 <script>
 (function(){
   var U='https://line.me/R/ti/p/@897fvigb'; if(!U) return;
+  var ID=(U.split('/').pop()||'').trim();
+  var CHAT='https://line.me/R/oaMessage/'+ID+'/';
+  var POSKEY='kg_line_pos';
   /* React 가 관리하는 화면 노드 안에 넣지 않는다. body 직속 고정 컨테이너에만 붙인다. (2026-09-09 핫픽스) */
   function host(){
     var h=document.getElementById('kg-overlay-top');
@@ -360,17 +372,34 @@ class Component extends DCLogic {
     if(document.body && h.parentNode!==document.body) document.body.appendChild(h);
     return h;
   }
-  var b=document.createElement('a'); b.href=U; b.target='_blank'; b.rel='noopener'; b.id='kgline';
+  var b=document.createElement('div'); b.id='kgline'; b.setAttribute('role','button'); b.setAttribute('tabindex','0');
   b.setAttribute('aria-label','LINE으로 상담');
   b.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.6-.7L3 21l1.8-4.2A8.4 8.4 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5z"/></svg><span style="font-size:9px;font-weight:700;letter-spacing:.5px;line-height:1;margin-top:1px">LINE</span>';
-  b.style.cssText='position:fixed; right:16px; bottom:114px; z-index:700; pointer-events:auto; display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#06C755; color:#fff; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
+  b.style.cssText='position:fixed; right:16px; bottom:114px; z-index:700; pointer-events:auto; display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#06C755; color:#fff; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22); touch-action:none; -webkit-user-select:none; user-select:none; transition:transform .12s ease;';
+
+  /* ── 저장된 위치 ── */
+  function loadPos(){ try{ var v=JSON.parse(localStorage.getItem(POSKEY)||'null'); if(v && (v.side==='l'||v.side==='r') && typeof v.y==='number') return v; }catch(e){} return null; }
+  function savePos(v){ try{ localStorage.setItem(POSKEY, JSON.stringify(v)); }catch(e){} }
+  var POS=loadPos();
+
   function screenEl(){ var a=document.querySelectorAll('[data-screen-label]'), out=null;
     for(var i=0;i<a.length;i++){ if(a[i].closest('x-dc')) continue; var r=a[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=a[i]; }
     return out; }
   function place(){
+    if(dragging) return;
     var s=screenEl(); if(!s){ b.style.visibility='hidden'; return; }
     b.style.visibility='';
-    var sr=s.getBoundingClientRect(), top=sr.bottom;
+    var sr=s.getBoundingClientRect();
+    if(POS){
+      var maxY=window.innerHeight-56-16, minY=16;
+      var y=Math.min(Math.max(POS.y, minY), maxY);
+      b.style.top=Math.round(y)+'px'; b.style.bottom='auto';
+      if(POS.side==='l'){ b.style.left=Math.round(Math.max(8, sr.left+16))+'px'; b.style.right='auto'; }
+      else { b.style.right=Math.round(Math.max(8, window.innerWidth - sr.right + 16))+'px'; b.style.left='auto'; }
+      return;
+    }
+    b.style.top='auto'; b.style.left='auto';
+    var top=sr.bottom;
     Array.prototype.forEach.call(s.children, function(c){
       if(c===b) return;
       var st=getComputedStyle(c); if(st.position!=='absolute'&&st.position!=='fixed') return;
@@ -380,11 +409,122 @@ class Component extends DCLogic {
     b.style.right  = Math.round(Math.max(8, window.innerWidth - sr.right + 16)) + 'px';
     b.style.bottom = Math.round(Math.max(16, window.innerHeight - top + 16)) + 'px';
   }
+
+  /* ── 시트(짧게 탭) ── */
+  var sheet=null;
+  function closeSheet(){ if(sheet && sheet.parentNode) sheet.parentNode.removeChild(sheet); sheet=null; }
+  function row(label, sub, color, bgc){
+    return '<div class="kgl-row" data-act="'+label+'" style="display:flex; align-items:center; gap:12px; padding:15px 16px; border-radius:16px; background:'+bgc+'; cursor:pointer;">'
+      + '<div style="flex:1; min-width:0; font-size:15px; font-weight:600; color:'+color+';">'+label+'</div>'
+      + (sub?'<div style="font-size:12px; font-weight:600; color:#6B6E80;">'+sub+'</div>':'')
+      + '</div>';
+  }
+  function openSheet(){
+    if(sheet) return;
+    sheet=document.createElement('div');
+    sheet.style.cssText='position:fixed; left:0; top:0; right:0; bottom:0; z-index:900; pointer-events:auto; background:rgba(17,21,41,.40); display:flex; align-items:flex-end; justify-content:center;';
+    sheet.innerHTML='<div id="kglpanel" style="width:100%; max-width:480px; box-sizing:border-box; background:#fff; border-radius:20px 20px 0 0; padding:16px 16px 24px; display:flex; flex-direction:column; gap:8px; box-shadow:0 -8px 40px rgba(17,21,41,.18);">'
+      + '<div style="width:40px; height:4px; border-radius:2px; background:#E9ECF8; margin:0 auto 8px;"></div>'
+      + '<div style="font-size:16px; font-weight:700; color:#111527; padding:0 2px 4px;">LINE</div>'
+      + row('LINE으로 채팅','','#06C755','#F1FBF5')
+      + row('친구 추가','','#111527','#F7F7FA')
+      + row('ID 복사', ID, '#111527','#F7F7FA')
+      + '<div class="kgl-row" data-act="close" style="display:flex; align-items:center; justify-content:center; padding:14px; margin-top:4px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #E9ECF8; color:#6B6E80; font-size:14px; font-weight:600; cursor:pointer;">닫기</div>'
+      + '<div style="text-align:center; font-size:11px; font-weight:500; color:#9C9FAF; padding-top:6px;">길게 누르면 옮길 수 있어요</div>'
+      + '</div>';
+    host().appendChild(sheet);
+    sheet.addEventListener('click', function(e){
+      var r=e.target.closest('.kgl-row');
+      if(!r){ if(e.target===sheet) closeSheet(); return; }
+      var act=r.getAttribute('data-act');
+      if(act==='close'){ closeSheet(); return; }
+      if(act==='ID 복사'){
+        var done=function(){ var d=r.querySelector('div:last-child'); if(d) d.textContent='복사했습니다'; setTimeout(closeSheet, 700); };
+        try{ if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(ID).then(done, done); return; } }catch(x){}
+        var ta=document.createElement('textarea'); ta.value=ID; ta.style.cssText='position:fixed;opacity:0;'; document.body.appendChild(ta); ta.select();
+        try{ document.execCommand('copy'); }catch(x){}
+        document.body.removeChild(ta); done(); return;
+      }
+      var url = (act==='LINE으로 채팅') ? CHAT : U;
+      closeSheet();
+      window.open(url, '_blank', 'noopener');
+    });
+  }
+
+  /* ── 길게 눌러 이동 ── */
+  var dragging=false, moved=false, pressing=false, timer=null, sx=0, sy=0, ox=0, oy=0, pid=null;
+  function startDrag(){
+    dragging=true; moved=false;
+    b.style.transform='scale(1.12)';
+    b.style.boxShadow='0 12px 40px rgba(17,21,41,.32)';
+    try{ if(navigator.vibrate) navigator.vibrate(30); }catch(e){}
+    var r=b.getBoundingClientRect();
+    b.style.left=Math.round(r.left)+'px'; b.style.top=Math.round(r.top)+'px'; b.style.right='auto'; b.style.bottom='auto';
+    ox=r.left; oy=r.top;
+  }
+  function onDown(e){
+    if(sheet) return;
+    if(e.button !== undefined && e.button !== 0) return;
+    pressing=true; moved=false; sx=e.clientX; sy=e.clientY; pid=e.pointerId;
+    try{ if(b.setPointerCapture && pid!==undefined) b.setPointerCapture(pid); }catch(x){}
+    clearTimeout(timer); timer=setTimeout(startDrag, 500);
+  }
+  function onMove(e){
+    var dx=e.clientX-sx, dy=e.clientY-sy;
+    if(!dragging){ if(pressing && (Math.abs(dx)>10||Math.abs(dy)>10)) clearTimeout(timer); return; }
+    if(e.cancelable) e.preventDefault();
+    moved=true;
+    var x=Math.min(Math.max(ox+dx, 4), window.innerWidth-60);
+    var y=Math.min(Math.max(oy+dy, 4), window.innerHeight-60);
+    b.style.left=Math.round(x)+'px'; b.style.top=Math.round(y)+'px';
+  }
+  function onUp(e){
+    clearTimeout(timer); pressing=false;
+    try{ if(b.releasePointerCapture && pid!==null && pid!==undefined) b.releasePointerCapture(pid); }catch(x){}
+    pid=null;
+    if(!dragging) return;
+    dragging=false;
+    b.style.transform='';
+    b.style.boxShadow='0 8px 32px rgba(17,21,41,.22)';
+    var r=b.getBoundingClientRect();
+    var side = (r.left + r.width/2) < window.innerWidth/2 ? 'l' : 'r';
+    /* 하단 탭바·헤더와 겹치지 않게 */
+    var y=Math.min(Math.max(r.top, 72), Math.max(72, window.innerHeight-56-116));
+    POS={side:side, y:y}; savePos(POS); place();
+  }
+  if(window.PointerEvent){
+    b.addEventListener('pointerdown', onDown);
+    b.addEventListener('pointermove', onMove, {passive:false});
+    b.addEventListener('pointerup', onUp);
+    b.addEventListener('pointercancel', onUp);
+    b.addEventListener('lostpointercapture', function(){ if(dragging) onUp({}); });
+  } else {
+    b.addEventListener('mousedown', function(e){ onDown(e); document.addEventListener('mousemove', onMove, {passive:false}); document.addEventListener('mouseup', up1, true); });
+    var up1=function(e){ document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', up1, true); onUp(e); };
+    b.addEventListener('touchstart', function(e){ onDown(e.touches[0]); }, {passive:true});
+    b.addEventListener('touchmove', function(e){ onMove(e.touches[0]); }, {passive:false});
+    b.addEventListener('touchend', onUp);
+    b.addEventListener('touchcancel', onUp);
+  }
+  /* 누르고 있는 동안 브라우저의 「끌어서 놓기」가 끼어들지 않게 */
+  document.addEventListener('dragstart', function(e){ if(pressing||dragging){ e.preventDefault(); } }, true);
+  b.setAttribute('draggable','false');
+  b.addEventListener('dragstart', function(e){ e.preventDefault(); return false; });
+  b.addEventListener('selectstart', function(e){ e.preventDefault(); });
+  b.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+  b.addEventListener('click', function(e){
+    e.preventDefault(); e.stopPropagation();
+    if(moved){ moved=false; return; }
+    openSheet();
+  });
+  b.addEventListener('keydown', function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openSheet(); } });
+
   function mount(){ var h=host(); if(b.parentNode!==h) h.appendChild(b); place(); }
   setInterval(mount, 700);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
   window.addEventListener('resize', place);
   window.addEventListener('scroll', place, true);
+  window.addEventListener('pagehide', closeSheet);
   if(window.visualViewport){ window.visualViewport.addEventListener('resize', function(){
     b.style.display = (window.visualViewport.height < window.innerHeight*0.75) ? 'none' : 'inline-flex'; }); }
 })();
