@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3F52B4">
+<title>이용약관 | K-GUIDE</title>
+<script>
+(function(){
+  var W=390, H=844;
+  function fit(){
+    var s=document.querySelector('[data-screen-label]'); if(!s) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var stage=s.parentNode; if(!stage||stage===document.body){ return; }
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    s.style.flexShrink='0'; s.style.transformOrigin='center center';
+    var k;
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }
+    s.style.transform='scale('+k+')'; s.style.margin='0';
+  }
+  document.addEventListener('DOMContentLoaded', fit);
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+})();
+</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#F2F4FC;min-height:100%}
+  body{font-family:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;color:#111527}
+  a{color:#3F52B4;text-decoration:none}
+  ::-webkit-scrollbar{display:none}
+  .sc{position:relative;width:390px;height:844px;margin:0 auto;background:#fff;overflow:hidden;display:flex;flex-direction:column}
+  .hd{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;font-size:16px;font-weight:600;line-height:24px;color:#373B51}
+  .hd a.bk{position:absolute;left:8px;top:8px;width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center}
+  .hd a.lg{position:absolute;right:12px;top:14px;height:28px;display:flex;align-items:center;font-size:12px;font-weight:700;color:#3F52B4;background:#F2F4FC;padding:0 12px;border-radius:100px}
+  .bd{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 20px 40px}
+  .doc .lead{margin:4px 0 18px;font-size:13px;font-weight:500;line-height:1.8;color:#4B4F63}
+  .doc h2{margin:20px 0 6px;font-size:15px;font-weight:700;color:#111527}
+  .doc h2:first-of-type{margin-top:4px}
+  .doc p{margin:0;font-size:13.5px;font-weight:400;line-height:1.85;color:#373B51}
+  .card{margin-top:20px;border-radius:16px;background:#F7F7FA;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+  .card b{font-size:13px;font-weight:700;color:#111527}
+  .card span{font-size:13px;font-weight:500;line-height:1.8;color:#4B4F63}
+  .rev{margin-top:22px;font-size:11px;font-weight:500;color:#9C9FAF;text-align:right}
+</style>
+</head>
+<body>
+<div class="stage">
+<div class="sc" data-screen-label="이용약관">
+  <div class="hd">
+    <a class="bk" href="javascript:void(0)" onclick="history.length>1?history.back():location.href='my.html'"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 6L9 12L15 18" stroke="#373B51" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    이용약관
+    <a class="lg" href="../terms.html">日本語</a>
+  </div>
+  <div class="bd">
+    <div class="doc">
+      <p class="lead">K-GUIDE(이하 "본 서비스")를 이용하시기 전에 아래 내용을 확인해 주세요.</p>
+
+      <h2>① 서비스 내용</h2>
+      <p>본 서비스는 한국 여행에 도움이 되는 정보와 일정 작성 도구를 무료로 제공합니다. 이용에 따른 비용은 발생하지 않습니다.</p>
+
+      <h2>② 정보의 정확성</h2>
+      <p>영업시간·요금·휴무일 등의 정보는 확인 시점을 기준으로 하며, 이후 변경될 수 있습니다. 최신 정보는 방문 전 이용자가 직접 해당 시설 등에 확인해 주세요.</p>
+
+      <h2>③ 가이드와 이용자 간의 연락</h2>
+      <p>본 서비스는 통역 가이드를 소개·안내할 수 있으나, 가이드와 이용자 사이에 이루어지는 연락·안내·요금·예약 등은 당사자 간에 직접 이루어지는 것입니다. 운영자는 이러한 거래에 관여하지 않으며 그 내용에 대해 책임을 지지 않습니다.</p>
+
+      <h2>④ 금지 사항</h2>
+      <p>본 서비스에 게재된 정보·이미지 등을 무단으로 복제·전재하거나 상업적 목적으로 재이용하는 것을 금지합니다.</p>
+
+      <h2>⑤ 서비스의 변경·중단</h2>
+      <p>운영자는 사전 예고 없이 서비스 내용을 변경하거나 제공을 중단·종료할 수 있습니다.</p>
+
+      <h2>⑥ 준거법</h2>
+      <p>본 약관은 대한민국 법률을 따릅니다.</p>
+
+      <h2>⑦ 문의처</h2>
+      <p>본 약관에 관한 문의는 아래로 연락해 주세요.</p>
+      <div class="card">
+        <b>LINE 공식계정</b><span>@897fvigb</span>
+        <b style="margin-top:6px">이메일</b><span>tournaria1@gmail.com</span>
+      </div>
+
+      <div class="rev">제정일: 2026년 9월 10일</div>
+    </div>
+  </div>
+</div>
+</div>
+</body>
+</html>

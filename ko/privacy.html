@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#3F52B4">
+<title>개인정보처리방침 | K-GUIDE</title>
+<script>
+(function(){
+  var W=390, H=844;
+  function fit(){
+    var s=document.querySelector('[data-screen-label]'); if(!s) return;
+    var vw=window.innerWidth, vh=window.innerHeight;
+    var stage=s.parentNode; if(!stage||stage===document.body){ return; }
+    stage.style.cssText='position:fixed;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;';
+    s.style.flexShrink='0'; s.style.transformOrigin='center center';
+    var k;
+    if(vw<=430){ k=vw/W; s.style.height=Math.round(vh/k)+'px'; s.style.boxShadow='none'; }
+    else { k=Math.min(vw/W, vh/H); s.style.height=H+'px'; s.style.boxShadow='0 8px 40px rgba(17,21,41,.10)'; }
+    s.style.transform='scale('+k+')'; s.style.margin='0';
+  }
+  document.addEventListener('DOMContentLoaded', fit);
+  window.addEventListener('resize', fit);
+  window.addEventListener('orientationchange', fit);
+})();
+</script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap">
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#F2F4FC;min-height:100%}
+  body{font-family:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;color:#111527}
+  a{color:#3F52B4;text-decoration:none}
+  ::-webkit-scrollbar{display:none}
+  .sc{position:relative;width:390px;height:844px;margin:0 auto;background:#fff;overflow:hidden;display:flex;flex-direction:column}
+  .hd{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;font-size:16px;font-weight:600;line-height:24px;color:#373B51}
+  .hd a.bk{position:absolute;left:8px;top:8px;width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center}
+  .hd a.lg{position:absolute;right:12px;top:14px;height:28px;display:flex;align-items:center;font-size:12px;font-weight:700;color:#3F52B4;background:#F2F4FC;padding:0 12px;border-radius:100px}
+  .bd{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 20px 40px}
+  .doc .lead{margin:4px 0 18px;font-size:13px;font-weight:500;line-height:1.8;color:#4B4F63}
+  .doc h2{margin:20px 0 6px;font-size:15px;font-weight:700;color:#111527}
+  .doc h2:first-of-type{margin-top:4px}
+  .doc p{margin:0;font-size:13.5px;font-weight:400;line-height:1.85;color:#373B51}
+  .doc ul{margin:4px 0 0;padding-left:18px}
+  .doc li{font-size:13.5px;font-weight:400;line-height:1.85;color:#373B51}
+  .card{margin-top:20px;border-radius:16px;background:#F7F7FA;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+  .card b{font-size:13px;font-weight:700;color:#111527}
+  .card span{font-size:13px;font-weight:500;line-height:1.8;color:#4B4F63}
+  .rev{margin-top:22px;font-size:11px;font-weight:500;color:#9C9FAF;text-align:right}
+</style>
+</head>
+<body>
+<div class="stage">
+<div class="sc" data-screen-label="개인정보처리방침">
+  <div class="hd">
+    <a class="bk" href="javascript:void(0)" onclick="history.length>1?history.back():location.href='my.html'"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M15 6L9 12L15 18" stroke="#373B51" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    개인정보처리방침
+    <a class="lg" href="../privacy.html">日本語</a>
+  </div>
+  <div class="bd">
+    <div class="doc">
+      <p class="lead">K-GUIDE(이하 "본 서비스")는 이용자의 개인정보를 소중히 여기며, 다음과 같은 방침에 따라 개인정보를 처리합니다.</p>
+
+      <h2>① 수집하는 정보</h2>
+      <ul>
+        <li>이메일 주소, 표시 이름(닉네임)</li>
+        <li>즐겨찾기·여정 등 이용 데이터</li>
+        <li>알림 구독 설정</li>
+        <li>가이드 신청 시: 자격증 번호, 사진</li>
+      </ul>
+
+      <h2>② 이용 목적</h2>
+      <p>로그인 인증, 데이터 동기화, 알림 발송을 위해 이용합니다.</p>
+
+      <h2>③ 보관 장소</h2>
+      <p>수집된 정보는 국외(대한민국 및 Supabase사 서버, 도쿄 리전)에 보관됩니다.</p>
+
+      <h2>④ 보관 기간</h2>
+      <p>탈퇴 시 등록된 정보를 삭제합니다.</p>
+
+      <h2>⑤ 제3자 제공</h2>
+      <p>법령에 근거한 경우를 제외하고 수집한 정보를 제3자에게 제공하지 않습니다.</p>
+
+      <h2>⑥ 위치정보</h2>
+      <p>위치정보는 단말기 내에서만 처리되며 서버에는 저장되지 않습니다.</p>
+
+      <h2>⑦ 쿠키·로컬스토리지</h2>
+      <p>로그인 상태 유지 및 여정 데이터 저장을 위해 쿠키와 로컬스토리지를 사용합니다.</p>
+
+      <h2>⑧ 이용자의 권리</h2>
+      <p>본인 정보의 열람·삭제를 원하시면 아래 이메일로 연락해 주세요.</p>
+
+      <h2>⑨ 문의처</h2>
+      <div class="card">
+        <b>LINE 공식계정</b><span>@897fvigb</span>
+        <b style="margin-top:6px">이메일</b><span>tournaria1@gmail.com</span>
+      </div>
+
+      <div class="rev">개정일: 2026년 9월 10일</div>
+    </div>
+  </div>
+</div>
+</div>
+</body>
+</html>
