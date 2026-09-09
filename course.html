@@ -2,6 +2,56 @@
 <html>
 <head>
 <meta charset="utf-8">
+<script>
+/* K-GUIDE DOM 안전망 (2026-09-09 핫픽스)
+   바닐라 스크립트가 넣은 노드와 React 재렌더가 부딪혀도 화면이 통째로 죽지 않게 한다.
+   support.js(React) 보다 먼저 실행되어야 하므로 head 맨 앞에 들어간다. */
+(function () {
+  if (window.__kgGuard) return; window.__kgGuard = 1;
+  function warn(m) { try { console.warn('[kg-guard] ' + m); } catch (e) { } }
+  var RE = /removeChild|insertBefore|replaceChild|not a child of this node|NotFoundError|HierarchyRequestError/;
+  var _rc = Node.prototype.removeChild, _ib = Node.prototype.insertBefore;
+  Node.prototype.removeChild = function (child) {
+    if (child && child.parentNode !== this) {
+      warn('removeChild: not a child');
+      if (child && child.parentNode) { try { return _rc.call(child.parentNode, child); } catch (e) { } }
+      return child;
+    }
+    return _rc.apply(this, arguments);
+  };
+  Node.prototype.insertBefore = function (node, ref) {
+    if (ref && ref.parentNode !== this) { warn('insertBefore: ref is not a child'); return this.appendChild(node); }
+    return _ib.apply(this, arguments);
+  };
+  window.addEventListener('error', function (e) {
+    var m = (e && e.message) || '';
+    if (!RE.test(String(m))) return;
+    warn('swallowed: ' + m);
+    e.preventDefault(); e.stopImmediatePropagation(); return false;
+  }, true);
+  window.addEventListener('unhandledrejection', function (e) {
+    var m = (e && e.reason && (e.reason.message || e.reason)) || '';
+    if (!RE.test(String(m))) return; warn('swallowed(promise): ' + m); e.preventDefault();
+  });
+  /* 런타임의 빨간 에러 오버레이가 떠도 사용자에게는 보이지 않게 지운다 */
+  function killOverlay() {
+    if (!document.body) return;
+    var t0 = document.body.textContent || '';
+    if (t0.indexOf('not a child of this node') < 0 && t0.indexOf('removeChild') < 0) return;
+    var a = document.body.querySelectorAll('div,pre,section,aside');
+    for (var i = 0; i < a.length; i++) {
+      var el = a[i]; if (el.id === 'kg-overlay-top') continue;
+      var t = el.textContent || ''; if (t.length > 800 || !RE.test(t)) continue;
+      if (el.querySelector && el.querySelector('[data-screen-label]')) continue;
+      try { el.parentNode && _rc.call(el.parentNode, el); warn('overlay removed'); } catch (e) { }
+      try { window.__dcBoot && window.__dcBoot(); } catch (e) { }
+      return;
+    }
+  }
+  var n = 0, iv = setInterval(function () { killOverlay(); if (++n > 240) clearInterval(iv); }, 500);
+  document.addEventListener('DOMContentLoaded', killOverlay);
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#3F52B4">
@@ -50,12 +100,12 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788925839"></script>
-<script src="./kicon.js?v=1788925839"></script>
+<script src="./data.js?v=1788929601"></script>
+<script src="./kicon.js?v=1788929601"></script>
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <script>window.KGT={"dow": ["日", "月", "火", "水", "木", "金", "土"], "cities": ["ソウル", "釜山", "済州", "近郊"], "ap": {"ICN1": "仁川 T1", "ICN2": "仁川 T2", "GMP": "金浦", "PUS": "金海", "CJU": "済州"}, "seoul": "ソウル", "myTrip": "マイ旅程", "dayTrip": "日帰り", "nights": "{n}泊{m}日", "spotUnit": "スポット", "min": "分", "title": "旅程をつくる", "nTrips": "{n}件の旅程", "emptyList": "まだ旅程がありません", "emptyListSub": "旅行の日にちを決めて、行きたい場所を入れていきましょう", "newTrip": "＋ 新しい旅程", "newTripTitle": "新しい旅程", "editTrip": "旅程を編集", "current": "表示中", "pickDates": "到着日・帰国日", "arriveDay": "到着日", "leaveDay": "帰国日", "maxDays": "最大10日まで選べます", "flightSec": "フライト", "optional": "任意", "flightHelp": "入れておくと、空港へ向かう時刻を計算してお知らせします", "inFlight": "到着便", "outFlight": "帰国便", "flightNo": "便名", "inHelp": "到着空港と着陸時刻", "outHelp": "出発空港と出発時刻", "intlFlight": "国際線（空港には3時間前に到着）", "citySec": "都市", "nameSec": "名前", "staySec": "泊まるところ", "stayHelp": "空港へ向かう時刻の計算に使います", "pickStay": "泊まるところを選ぶ", "change": "変える", "stayAreaHelp": "泊まるエリアを選んでください", "stayName": "ホテル名（任意）", "save": "保存", "cancel": "キャンセル", "saved": "保存しました", "needDates": "到着日と帰国日を選んでください", "deleted": "旅程を削除しました", "removed": "スポットを外しました", "undo": "元に戻す", "switchTrip": "別の旅程", "allTrips": "すべての旅程", "mapHint": "地図をタップして操作", "fullScreen": "全画面", "naverOpen": "NAVER地図で開く", "walkTotal": "合計 徒歩", "straight": "直線", "walkFor": "徒歩", "stayFor": "滞在", "emptyDay": "この日はまだ空いています", "findSpots": "スポットを探す", "addSpot": "スポットを追加", "moveDay": "別の日へ", "thisDayShut": "この日は休館", "tooLate": "間に合わない可能性", "shutToast": "{d}は{n}の休館日です。別の日がおすすめ", "addedTo": "{d}に追加しました", "addToTrip": "旅程に追加", "poolPick": "行きたい場所（まだ決めない）", "poolTitle": "行きたい場所", "poolEmpty": "まだありません", "putInto": "{d}に入れる", "poolBar": "行きたい場所 {n}件", "poolBarNo": "{n}件", "toTrip": "旅程へ →", "makeTrip": "旅程をつくる →", "noTripPool": "「行きたい場所」に入れました。旅程をつくると日にちに入れられます", "noTripYet": "まず旅程をつくってください", "migrated": "これまでのプランを旅程に移しました", "open": "開く", "close": "閉じる", "enter": "入力", "tlPack": "荷造り・チェックアウト", "tlLeave": "ホテル出発", "tlArrAp": "空港到着（目標）", "tlDep": "出発", "tlLand": "着陸", "tlImmi": "入国審査・荷物（約60分）", "tlOutAp": "空港出発", "tlHotel": "ホテル到着（予想）", "leaveDayTitle": "帰国日のうごき", "arriveDayTitle": "到着日のうごき", "tourFrom": "観光は {t} から", "etaIs": "移動 約{n}分", "until": "まで", "hLeft": "{h}時間{m}分", "mLeft": "{m}分", "mArex": "AREX", "mLimo": "リムジン", "mTaxi": "タクシー", "toCalendar": "カレンダーに入れる", "noFlight": "フライトを登録すると、空港へ向かう時刻をお知らせします", "openTrip": "旅程を開く →", "hcEve": "明日から {c} {n}", "hcEveSub": "到着便 {no} {t} · 荷造りチェック", "hcEveSub2": "荷造りチェック", "hcArrive": "到着日 · {d}", "hcArriveSub": "{t} 着 → ホテル到着 {h} ごろ · 観光は {s} から", "hcLeave": "帰国日 · {d}", "hcLeaveSub": "ホテル出発 {t} · 空港へ", "hcDay": "{n}日目 · {d}", "hcDaySub": "今日は {n}（{c}スポット · 徒歩 {k}km）", "hcFree": "今日は予定がありません", "hcShut": "{n}は本日休館", "notifySec": "通知", "ntAirport": "空港へ向かう時刻の通知", "ntAirportSub": "帰国日にホテル出発・空港到着の時刻をお知らせします", "ntClosed": "休館日の前日にお知らせ", "ntClosedSub": "次の日が休館のスポットがあれば前日20時に", "ntMorning": "朝の予定通知", "ntMorningSub": "旅行中まいあさ8時に今日の予定を", "ntHome": "ホームに今日の予定を表示", "ntHomeSub": "ホーム画面のいちばん上に今日の予定カードを出します", "sendTest": "テスト通知を送る", "pushTest": "テスト通知です。これが届けば設定完了です", "pushTestSent": "テスト通知を送りました（最大5分）", "pushNoServer": "通知サーバーに接続できませんでした", "pushUnsupported": "このブラウザは通知に対応していません", "pushIos": "iPhone は「ホーム画面に追加」してから通知をオンにできます", "pushDenied": "通知が許可されていません。ブラウザの設定から許可してください", "pushFail": "通知をオンにできませんでした", "pushPack": "🧳 荷造り・チェックアウトの時間です", "pushLeave": "🚗 そろそろホテルを出発 · 空港到着 {t} 目標", "pushArrAp": "✈ 空港到着の目標時刻 {t}", "pushTour": "🗺 観光は {t} から始められます", "pushClosed": "⚠ 明日 {d} は{n}が休館です", "pushMorning": "☀ 今日は {n}"};</script>
-<script src="./trip.js?v=1788925839"></script>
+<script src="./trip.js?v=1788929601"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./auth.js?v=1789000001"></script>
 </head>
@@ -238,11 +288,26 @@ class Component extends DCLogic {
 <script>
 (function(){
   var U='https://line.me/R/ti/p/@897fvigb'; if(!U) return;
+  /* React 가 관리하는 화면 노드 안에 넣지 않는다. body 직속 고정 컨테이너에만 붙인다. (2026-09-09 핫픽스) */
+  function host(){
+    var h=document.getElementById('kg-overlay-top');
+    if(!h){
+      h=document.createElement('div'); h.id='kg-overlay-top';
+      h.style.cssText='position:fixed; left:0; top:0; width:0; height:0; z-index:700; pointer-events:none;';
+    }
+    if(document.body && h.parentNode!==document.body) document.body.appendChild(h);
+    return h;
+  }
   var b=document.createElement('a'); b.href=U; b.target='_blank'; b.rel='noopener'; b.id='kgline';
   b.setAttribute('aria-label','LINEで相談');
   b.innerHTML='<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.6-.7L3 21l1.8-4.2A8.4 8.4 0 0 1 3 11.5C3 6.8 7 3 12 3s9 3.8 9 8.5z"/></svg><span style="font-size:9px;font-weight:700;letter-spacing:.5px;line-height:1;margin-top:1px">LINE</span>';
-  b.style.cssText='position:absolute; right:16px; bottom:114px; z-index:700; display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#06C755; color:#fff; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
-  function place(s){
+  b.style.cssText='position:fixed; right:16px; bottom:114px; z-index:700; pointer-events:auto; display:inline-flex; flex-direction:column; align-items:center; justify-content:center; width:56px; height:56px; border-radius:50%; background:#06C755; color:#fff; text-decoration:none; box-shadow:0 8px 32px rgba(17,21,41,.22);';
+  function screenEl(){ var a=document.querySelectorAll('[data-screen-label]'), out=null;
+    for(var i=0;i<a.length;i++){ if(a[i].closest('x-dc')) continue; var r=a[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=a[i]; }
+    return out; }
+  function place(){
+    var s=screenEl(); if(!s){ b.style.visibility='hidden'; return; }
+    b.style.visibility='';
     var sr=s.getBoundingClientRect(), top=sr.bottom;
     Array.prototype.forEach.call(s.children, function(c){
       if(c===b) return;
@@ -250,14 +315,14 @@ class Component extends DCLogic {
       var r=c.getBoundingClientRect();
       if(r.height>0 && r.height<260 && r.bottom>sr.bottom-260 && r.bottom<=sr.bottom+2) top=Math.min(top, r.top);
     });
-    b.style.bottom = Math.round(Math.max(16, sr.bottom-top+16)) + 'px';
+    b.style.right  = Math.round(Math.max(8, window.innerWidth - sr.right + 16)) + 'px';
+    b.style.bottom = Math.round(Math.max(16, window.innerHeight - top + 16)) + 'px';
   }
-  function screenEl(){ var a=document.querySelectorAll('[data-screen-label]'), out=null;
-    for(var i=0;i<a.length;i++){ if(a[i].closest('x-dc')) continue; var r=a[i].getBoundingClientRect(); if(r.width>0&&r.height>0) out=a[i]; }
-    return out; }
-  function mount(){ var s=screenEl(); if(!s) return; if(b.parentNode!==s) s.appendChild(b); place(s); }
+  function mount(){ var h=host(); if(b.parentNode!==h) h.appendChild(b); place(); }
   setInterval(mount, 700);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', mount); else mount();
+  window.addEventListener('resize', place);
+  window.addEventListener('scroll', place, true);
   if(window.visualViewport){ window.visualViewport.addEventListener('resize', function(){
     b.style.display = (window.visualViewport.height < window.innerHeight*0.75) ? 'none' : 'inline-flex'; }); }
 })();

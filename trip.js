@@ -1012,12 +1012,15 @@
   var K = window.KGTRIP, T = window.KGT || {};
   function render() {
     var host = document.getElementById('kghomecard'); if (!host || !K) return;
+    /* React 가 만든 슬롯 안에 우리 전용 컨테이너를 하나 두고, 거기에만 쓴다 (2026-09-09 핫픽스) */
+    var box = host.querySelector('[data-kghc]');
+    if (!box || box.parentNode !== host) { box = document.createElement('div'); box.setAttribute('data-kghc', '1'); box.style.display = 'contents'; try { host.appendChild(box); } catch (e) { return; } }
     var TRIPS = K.TRIPS, esc = K.esc;
     var n = K.NOTIFY.get();
     var t = TRIPS.cur();
-    if (!t || !n.homeCard) { host.innerHTML = ''; return; }
+    if (!t || !n.homeCard) { box.innerHTML = ''; return; }
     var today = K.todayS(), eve = K.addDays(t.start, -1);
-    if (today < eve || today > t.end) { host.innerHTML = ''; return; }
+    if (today < eve || today > t.end) { box.innerHTML = ''; return; }
     var open = false; try { open = localStorage.getItem('kg_home_card_open') === '1'; } catch (e) { }
     var title, sum, di = -1, tl = null, warn = '';
     if (today === eve) {
@@ -1055,9 +1058,18 @@
       h += '<a href="trip.html" style="margin-top:6px; height:36px; border-radius:12px; background:rgba(255,255,255,.18); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; text-decoration:none;">' + esc(T.openTrip || '旅程を開く →') + '</a></div>';
     }
     h += '</div>';
-    host.innerHTML = h;
+    box.innerHTML = h;
   }
   window.KGHOME_render = render;
+  /* React 재렌더로 슬롯 내용이 사라지면 다시 그린다 */
+  function alive() { var h = document.getElementById('kghomecard'); return !!(h && h.querySelector('[data-kghc]')); }
+  function recheck() { if (document.getElementById('kghomecard') && !alive()) { try { render(); } catch (e) { } } }
+  if (window.MutationObserver) {
+    var mo = new MutationObserver(recheck);
+    function watch() { if (document.body) mo.observe(document.body, { childList: true, subtree: true }); }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch); else watch();
+  }
+  setInterval(recheck, 1000);
   document.addEventListener('click', function (e) {
     var b = e.target.closest && e.target.closest('[data-hc]'); if (!b) return;
     var open = false; try { open = localStorage.getItem('kg_home_card_open') === '1'; localStorage.setItem('kg_home_card_open', open ? '0' : '1'); } catch (er) { }
@@ -1094,7 +1106,7 @@
       + '<div data-nt="test" style="cursor:pointer; flex:1; height:44px; border-radius:14px; background:#F2F4FC; color:#3F52B4; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;">' + K.esc(T.sendTest || 'テスト通知を送る') + '</div>'
       + '<div data-nt="ics" style="cursor:pointer; flex:1; height:44px; border-radius:14px; background:#F2F4FC; color:#3F52B4; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;">' + K.esc(T.toCalendar || 'カレンダーに入れる') + '</div></div>';
     h += '</div>';
-    host.innerHTML = h;
+    box.innerHTML = h;
   }
   window.KGNOTIFY_render = render;
   document.addEventListener('click', async function (e) {
