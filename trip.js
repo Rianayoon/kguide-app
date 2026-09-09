@@ -213,26 +213,233 @@
 
   /* ── Day 스팟 시각 계산 ──────────────────────── */
   function dist(a, b) { return (a && b && a.lat && b.lat) ? Math.hypot((a.lat - b.lat) * 111, (a.lng - b.lng) * 88) : 0; }
+
+  /* ── 11차 A: 이동시간·영업시간·피로 상수 (숫자는 여기 한 곳에서만 바꾼다) ── */
+  var TCFG = {
+    WALK_KMH: 4.5, DETOUR: 1.3, WALK_MAX_KM: 1.2,
+    METRO_KMH: 27, METRO_FIX: 12,
+    SAME_AREA_KM: 0.4, SAME_AREA_MIN: 5,
+    TRANSFER_PENALTY_MIN: 10,
+    MOVE_RATIO: 0.35,
+    SORT_GAIN_MIN: 10,
+    LATE_MIN: 1200,
+    DAY_END: 1260
+  };
+  window.KGTRIP_CFG = TCFG;
+
+  function rad(x) { return x * Math.PI / 180; }
+  function distKm(a, b) {
+    if (!a || !b || !a.lat || !b.lat || !a.lng || !b.lng) return 0;
+    var la1 = rad(+a.lat), la2 = rad(+b.lat), dla = la2 - la1, dlo = rad(+b.lng - +a.lng);
+    var h = Math.sin(dla / 2) * Math.sin(dla / 2) + Math.cos(la1) * Math.cos(la2) * Math.sin(dlo / 2) * Math.sin(dlo / 2);
+    return 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+  }
+  /* 좌표 기반 「추정치」다. 실측 경로 API 가 아니므로 화면에는 반드시 「約」을 붙인다 */
+  function legOf(a, b) {
+    if (!a || !b) return null;
+    if (a.city && b.city && a.city !== b.city) return { cross: true, min: 0, km: 0, mode: 'x' };
+    var d = distKm(a, b);
+    if (!d) return { min: 0, km: 0, mode: 'walk' };
+    if (a.area && b.area && a.area === b.area && d <= TCFG.SAME_AREA_KM) return { min: TCFG.SAME_AREA_MIN, km: d, mode: 'walk' };
+    if (d <= TCFG.WALK_MAX_KM) return { min: Math.max(1, Math.round(d / TCFG.WALK_KMH * 60 * TCFG.DETOUR)), km: d, mode: 'walk' };
+    return { min: Math.round((d * TCFG.DETOUR) / TCFG.METRO_KMH * 60 + TCFG.METRO_FIX), km: d, mode: 'metro' };
+  }
+  window.KGTRIP_leg = legOf;
+  /* 영업시간: 자유 문장에서 가장 이른 開始·가장 늦은 終了만 뽑는다. 못 뽑으면 검증하지 않는다(추측 금지) */
+  function hoursRange(s) {
+    var txt = String((s && s.hours) || '');
+    if (!txt) return null;
+    var re = /(\d{1,2}):(\d{2})\s*[–—\-~～〜ー−]\s*(\d{1,2}):(\d{2})/g, m, o = null, c = null;
+    while ((m = re.exec(txt))) {
+      var a = (+m[1]) * 60 + (+m[2]), b = (+m[3]) * 60 + (+m[4]);
+      if (b <= a) b += 1440;
+      if (o === null || a < o) o = a;
+      if (c === null || b > c) c = b;
+    }
+    if (o === null) return null;
+    return { open: o, close: c };
+  }
+  window.KGTRIP_hours = hoursRange;
+
   function dayPlan(t, di) {
-    var d = t.days[di]; if (!d) return { rows: [], walk: 0, warn: 0 };
+    var d = t.days[di]; if (!d) return { rows: [], walk: 0, warn: 0, stayMin: 0, moveMin: 0, startMin: 600, endMin: 600 };
     var tl = tlFor(t, d.date);
     var startMin = toMin(d.start || '10:00');
     if (tl && tl.kind === 'in') startMin = Math.max(startMin, tl.tourStart);
-    var limit = (tl && tl.kind === 'out') ? tl.rows[1].min : null;   /* ホテル出発 */
+    var limit = (tl && tl.kind === 'out') ? tl.rows[1].min : null;
     var sp = (d.spots || []).map(byId).filter(Boolean);
-    var mins = startMin, walkTotal = 0, warn = 0, rows = [];
+    var mins = startMin, moveTotal = 0, stayTotal = 0, warn = 0, rows = [];
     sp.forEach(function (x, i) {
-      var nx = sp[i + 1], km = dist(x, nx), walk = nx ? Math.max(1, Math.round(km / 0.08)) : 0;
+      var nx = sp[i + 1], leg = nx ? legOf(x, nx) : null;
       var stay = parseInt(x.stay, 10) || 60;
       var shut = shutOn(x, d.date);
       var late = (limit != null && mins >= limit);
+      var hr = hoursRange(x), hw = '', hs = false;
+      if (hr) {
+        var arr = mins % 1440;
+        if (hr.close > 1440 && arr < (hr.open % 1440)) arr += 1440;
+        if (arr < hr.open) hw = 'early';
+        else if (arr > hr.close) hw = 'late';
+        else if (hr.close - arr < stay) hs = true;
+      }
       if (shut) warn++;
-      rows.push({ id: x.id, n: i + 1, time: hm(mins), stay: stay, name: x.name, area: x.area || '', photo: bgOf(x.photo), shut: shut, late: late, hasLeg: !!nx, km: nx ? km.toFixed(1) : '', walk: nx ? walk : 0 });
-      mins += stay + walk; walkTotal += walk;
+      var mv = (leg && !leg.cross) ? leg.min : 0;
+      rows.push({
+        id: x.id, n: i + 1, time: hm(mins), min: mins, stay: stay, name: x.name, area: x.area || '', photo: bgOf(x.photo),
+        shut: shut, late: late, hw: hw, hShort: hs, hOpen: hr ? hm(hr.open % 1440) : '', hClose: hr ? hm(hr.close % 1440) : '',
+        hasLeg: !!nx, km: (leg && !leg.cross) ? leg.km.toFixed(1) : '', legMin: mv,
+        legMode: leg ? leg.mode : '', legCross: !!(leg && leg.cross)
+      });
+      stayTotal += stay; moveTotal += mv;
+      mins += stay + mv;
     });
-    return { rows: rows, walk: walkTotal, warn: warn, endMin: mins };
+    return { rows: rows, walk: moveTotal, warn: warn, endMin: mins, stayMin: stayTotal, moveMin: moveTotal, startMin: startMin };
   }
   window.KGTRIP_dayPlan = dayPlan;
+
+  /* ── 11차 A-5: 순서 정리 — 거리가 아니라 「피로」 기준. 스팟을 빼거나 막지 않고 순서만 바꾼다 ── */
+  function permute(a, cb) {
+    var n = a.length, used = [], out = [];
+    (function rec() {
+      if (out.length === n) { cb(out); return; }
+      for (var i = 0; i < n; i++) { if (used[i]) continue; used[i] = 1; out.push(a[i]); rec(); out.pop(); used[i] = 0; }
+    })();
+  }
+  function routeCost(t, di, order) {
+    var d = t.days[di], stayArea = (t.stay && t.stay.area) || '';
+    var tl = tlFor(t, d.date), mins = toMin(d.start || '10:00');
+    if (tl && tl.kind === 'in') mins = Math.max(mins, tl.tourStart);
+    var cost = 0, move = 0;
+    for (var i = 0; i < order.length; i++) {
+      var x = order[i], nx = order[i + 1];
+      mins += (parseInt(x.stay, 10) || 60);
+      if (!nx) break;
+      var l = legOf(x, nx), m = l.cross ? 90 : l.min;
+      cost += m + (l.mode === 'metro' ? TCFG.TRANSFER_PENALTY_MIN : 0);
+      if (mins >= TCFG.LATE_MIN && (x.areaKey || x.area) !== (nx.areaKey || nx.area)) cost += 30;
+      if (!l.cross) move += l.min;
+      mins += m;
+    }
+    var last = order[order.length - 1];
+    if (stayArea && last && (last.area === stayArea || last.areaKey === stayArea)) cost -= 15;
+    if (stayArea && order[0] && (order[0].area === stayArea || order[0].areaKey === stayArea)) cost -= 8;
+    return { cost: cost, move: move, end: mins };
+  }
+  function tidyOrder(t, di) {
+    var d = t.days[di]; if (!d) return null;
+    var sp = (d.spots || []).map(byId).filter(Boolean);
+    if (sp.length < 3) return null;
+    var head = sp[0], rest = sp.slice(1), best = null;
+    if (rest.length <= 6) {
+      permute(rest, function (arr) {
+        var o = [head].concat(arr), c = routeCost(t, di, o);
+        if (!best || c.cost < best.cost) best = { cost: c.cost, move: c.move, ids: o.map(function (x) { return x.id; }) };
+      });
+    } else {
+      var pool = rest.slice(), o = [head], cp = head;
+      while (pool.length) {
+        var bi = 0, bv = Infinity;
+        for (var i = 0; i < pool.length; i++) { var l = legOf(cp, pool[i]); var v = l.cross ? 999 : l.min + (l.mode === 'metro' ? TCFG.TRANSFER_PENALTY_MIN : 0); if (v < bv) { bv = v; bi = i; } }
+        cp = pool.splice(bi, 1)[0]; o.push(cp);
+      }
+      var c2 = routeCost(t, di, o);
+      best = { cost: c2.cost, move: c2.move, ids: o.map(function (x) { return x.id; }) };
+    }
+    var now = routeCost(t, di, sp);
+    return { now: now.move, next: best.move, ids: best.ids, same: best.ids.join() === sp.map(function (x) { return x.id; }).join() };
+  }
+  window.KGTRIP_tidy = tidyOrder;
+
+  /* ── 11차 B: 항공편 기반 코스 자동 배치 ── */
+  function ngDays(c) {
+    var s = String(c.ng_day || '');
+    if (!s || /^(なし|特になし)/.test(s)) return [];
+    return s.match(/[月火水木金土日](?=曜)/g) || [];
+  }
+  function courseSpots(c) {
+    return String(c.spots || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean).map(byId).filter(Boolean);
+  }
+  function courseCity(c) { var sp = courseSpots(c); return c.city || (sp[0] && sp[0].city) || 'ソウル'; }
+  function courseAreas(c) { var o = {}; courseSpots(c).forEach(function (s) { if (s.areaKey) o[s.areaKey] = 1; }); return Object.keys(o); }
+  function cityOk(cc, allowed) {
+    if (!allowed.length) return true;
+    if (allowed.indexOf(cc) >= 0) return true;
+    if (allowed.indexOf('近郊') >= 0 && ['ソウル', '釜山', '済州'].indexOf(cc) < 0) return true;
+    return false;
+  }
+  /* 그 Day 에 쓸 수 있는 시간 (기존 타임라인 계산 재사용) */
+  function dayWindow(t, di) {
+    var d = t.days[di], tl = tlFor(t, d.date), last = t.days.length - 1;
+    var from = 600, to = TCFG.DAY_END, luggage = false;
+    if (di === 0) { luggage = true; if (tl && tl.kind === 'in') from = tl.tourStart; }
+    if (di === last) { luggage = true; from = (di === 0 ? from : 540); if (tl && tl.kind === 'out') to = tl.rows[1].min; }
+    return { from: from, to: to, hours: Math.max(0, (to - from) / 60), luggage: luggage, hasFlight: !!tl };
+  }
+  window.KGTRIP_window = dayWindow;
+  /* 코스 조합 제안. variant 0,1,2… 는 다음 후보 조합 */
+  function autoPlan(t, variant) {
+    variant = variant || 0;
+    var allowed = (t.city && t.city.length) ? t.city.slice() : [];
+    var stayArea = (t.stay && t.stay.area) || '';
+    var all = CS().filter(function (c) { return courseSpots(c).length >= 2 && (parseFloat(c.hours) || 0) > 0; });
+    var used = {}, prevAreas = [], out = [], anyFlight = false;
+    for (var di = 0; di < t.days.length; di++) {
+      var d = t.days[di], w = dayWindow(t, di);
+      if (w.hasFlight) anyFlight = true;
+      if ((d.spots || []).length) { out.push({ di: di, date: d.date, busy: true, w: w }); prevAreas = []; continue; }
+      if (w.hours < 3) { out.push({ di: di, date: d.date, none: true, w: w }); prevAreas = []; continue; }
+      var dow = DOWJ[parseD(d.date).getDay()];
+      var cand = [];
+      all.forEach(function (c) {
+        if (used[c.id]) return;
+        if (!cityOk(courseCity(c), allowed)) return;
+        if (ngDays(c).indexOf(dow) >= 0) return;
+        var h = parseFloat(c.hours) || 0;
+        if (h > w.hours + 1) return;                              /* 1시간까지는 넘어도 후보로 두고 점수로 거른다 */
+        var sp = courseSpots(c), open = sp.filter(function (s) { return !shutOn(s, d.date); });
+        if (open.length < 2) return;
+        var ar = courseAreas(c);
+        if (prevAreas.length && ar.length && ar.every(function (a) { return prevAreas.indexOf(a) >= 0; })) return;
+        var sc = 0;
+        sc += (w.hours - h) * 2;                                  /* 남는 시간이 적은 코스를 우선 */
+        if (h > w.hours) sc += (h - w.hours) * 6;                 /* 시간을 넘기면 그만큼 불리하게 */
+        if (stayArea) {
+          var nearStay = ar.indexOf(stayArea) >= 0 || String(c.area || '').indexOf(stayArea) >= 0;
+          if (di === 0 && nearStay) sc -= 8;
+          if (di === t.days.length - 1) sc += nearStay ? -14 : 14;  /* 귀국일은 숙소 에리어 안 */
+        }
+        if (w.luggage) sc += 1;
+        /* 그 시간에 실제로 문이 열려 있는지 (A-4 와 같은 기준). 못 뽑히면 검증하지 않는다 */
+        var t0 = w.from, bad = 0;
+        for (var i2 = 0; i2 < open.length; i2++) {
+          var hr2 = hoursRange(open[i2]), st2 = parseInt(open[i2].stay, 10) || 60;
+          if (hr2 && (t0 < hr2.open || t0 > hr2.close || (hr2.close - t0) < st2)) bad++;
+          t0 += st2;
+          if (open[i2 + 1]) { var l2 = legOf(open[i2], open[i2 + 1]); t0 += (l2 && !l2.cross) ? l2.min : 0; }
+        }
+        sc += bad * 12;
+        if (t0 > w.to) sc += (t0 - w.to) / 10;
+        cand.push({ c: c, sc: sc, open: open, cut: sp.length - open.length, h: h, bad: bad });
+      });
+      cand.sort(function (a, b) { return a.sc - b.sc; });
+      if (!cand.length) { out.push({ di: di, date: d.date, none: true, w: w }); prevAreas = []; continue; }
+      var pick = cand[Math.min(variant, cand.length - 1)];
+      used[pick.c.id] = 1; prevAreas = courseAreas(pick.c);
+      out.push({ di: di, date: d.date, w: w, course: pick.c, ids: pick.open.map(function (s) { return s.id; }), cut: pick.cut, hours: pick.h });
+    }
+    return { days: out, anyFlight: anyFlight, variants: 3 };
+  }
+  window.KGTRIP_auto = autoPlan;
+  function applyPlan(t, plan) {
+    plan.days.forEach(function (r) {
+      if (r.busy || r.none || !r.ids) return;
+      t.days[r.di].spots = r.ids.slice();
+      t.pool = (t.pool || []).filter(function (id) { return r.ids.indexOf(id) < 0; });
+    });
+    TRIPS.put(t); return t;
+  }
+  window.KGTRIP_apply = applyPlan;
+
 
   /* ── 공통 UI 부품 ────────────────────────────── */
   function toast(msg, ms) {
@@ -507,7 +714,7 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else setTimeout(boot, 0);
 
-  window.KGTRIP = { TRIPS: TRIPS, dayPlan: dayPlan, tlFor: tlFor, shutOn: shutOn, mdw: mdw, md: md, hm: hm, toMin: toMin, addDays: addDays, diffDays: diffDays, ymd: ymd, parseD: parseD, todayS: todayS, esc: esc, bgOf: bgOf, byId: byId, sheet: sheet, closeSheet: closeSheet, toast: toast, pickDay: pickDay, dayChips: dayChips, etaMin: etaMin, apLabel: apLabel, AP_LIST: AP_LIST, NOTIFY: NOTIFY, PUSH: PUSHJ, freePool: freePool, uuid: uuid, lsGet: lsGet, lsSet: lsSet, DOW: DOW, pad: pad, up: up, base: base, inKo: inKo, dist: dist };
+  window.KGTRIP = { TRIPS: TRIPS, dayPlan: dayPlan, tlFor: tlFor, shutOn: shutOn, mdw: mdw, md: md, hm: hm, toMin: toMin, addDays: addDays, diffDays: diffDays, ymd: ymd, parseD: parseD, todayS: todayS, esc: esc, bgOf: bgOf, byId: byId, sheet: sheet, closeSheet: closeSheet, toast: toast, pickDay: pickDay, dayChips: dayChips, etaMin: etaMin, apLabel: apLabel, AP_LIST: AP_LIST, NOTIFY: NOTIFY, PUSH: PUSHJ, freePool: freePool, uuid: uuid, lsGet: lsGet, lsSet: lsSet, DOW: DOW, pad: pad, up: up, base: base, inKo: inKo, dist: dist, distKm: distKm, legOf: legOf, hoursRange: hoursRange, TCFG: TCFG, tidyOrder: tidyOrder, autoPlan: autoPlan, applyPlan: applyPlan, dayWindow: dayWindow, CS: CS };
 })();
 
 /* ═══ trip.html 화면 ═══════════════════════════════════════════ */
@@ -648,6 +855,7 @@
     h += '</div>';
     /* 저장 */
     h += '<div style="display:flex; flex-direction:column; gap:8px; padding-bottom:8px;">'
+      + (state.id && TRIPS.get(state.id) ? '<div data-omaedit="1" style="cursor:pointer; height:46px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:6px;">\u2728 ' + esc(T.omaRedo || 'おまかせで組み直す') + '</div>' : '')
       + '<div data-save="1" style="cursor:pointer; height:48px; border-radius:16px; background:' + (t.start && t.end ? '#3F52B4' : '#F2F4FC') + '; color:' + (t.start && t.end ? '#fff' : '#9C9FAF') + '; font-size:16px; font-weight:600; display:flex; align-items:center; justify-content:center;">' + esc(T.save || '保存') + '</div>'
       + '<div data-cancel="1" style="cursor:pointer; height:40px; color:#6B6E80; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center;">' + esc(T.cancel || 'キャンセル') + '</div></div>';
     h += '</div><div style="height:130px;"></div>';
@@ -692,6 +900,8 @@
         + '<div style="font-size:10px; font-weight:600; color:' + (on ? 'rgba(255,255,255,.8)' : '#9C9FAF') + '; margin-top:2px;">Day ' + (i + 1) + (p.warn ? ' · <span style="color:' + (on ? '#FFD3E2' : '#B22459') + '">⚠' + p.warn + '</span>' : '') + '</div></div>';
     });
     h += '</div>';
+    /* Day 요약 바 (한 줄) */
+    h += sumBar(t, plan, state.d);
     /* 타임라인 카드 */
     h += '<div style="padding:16px 16px 0;">' + (tl ? tlCard(t, tl) : noFlightCard(t)) + '</div>';
     /* 지도 */
@@ -707,12 +917,15 @@
     h += '<div style="display:flex; align-items:baseline; justify-content:space-between; padding:20px 16px 0;">'
       + '<div style="display:flex; align-items:center; gap:8px; min-width:0;"><div style="font-size:16px; font-weight:700; color:#111527;">' + esc(mdw(day.date)) + ' · ' + plan.rows.length + esc(T.spotUnit || 'スポット') + '</div>'
       + '<div data-tstart="1" style="cursor:pointer; flex-shrink:0; display:inline-flex; align-items:center; gap:4px; height:26px; padding:0 10px; border-radius:13px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:700;">' + esc(T.startAt || '開始') + ' <span style="font-family:Poppins,sans-serif;">' + esc(day.start || '10:00') + '</span></div></div>'
-      + (plan.walk ? '<div style="font-size:12px; font-weight:500; color:#6B6E80;">' + esc(T.walkTotal || '合計 徒歩') + ' <span style="font-family:Poppins,sans-serif;">' + plan.walk + '</span>' + esc(T.min || '分') + '</div>' : '') + '</div>';
+      + '</div>';
     h += '<div style="display:flex; flex-direction:column; gap:12px; padding:12px 16px 0;">';
     if (!plan.rows.length) {
-      h += card('<div style="padding:28px 16px; display:flex; flex-direction:column; align-items:center; gap:10px;">'
+      h += card('<div style="padding:24px 16px; display:flex; flex-direction:column; align-items:center; gap:12px;">'
         + '<div style="font-size:14px; font-weight:600; color:#4B4F63; text-align:center;">' + esc(T.emptyDay || 'この日はまだ空いています') + '</div>'
-        + '<a href="search.html" style="display:flex; align-items:center; justify-content:center; height:44px; padding:0 24px; border-radius:16px; background:#3F52B4; color:#fff; font-size:14px; font-weight:600; text-decoration:none;">' + esc(T.findSpots || 'スポットを探す') + '</a></div>');
+        + '<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:center;">'
+        + '<div data-oma="1" style="cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; height:44px; padding:0 20px; border-radius:16px; background:#3F52B4; color:#fff; font-size:14px; font-weight:700;">\u2728 ' + esc(T.omaBtn || 'おまかせで組む') + '</div>'
+        + '<a href="search.html" style="display:flex; align-items:center; justify-content:center; height:44px; padding:0 20px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:14px; font-weight:600; text-decoration:none;">' + esc(T.findSpots || 'スポットを探す') + '</a></div>'
+        + (K.dayWindow(t, state.d).hasFlight ? '' : '<div style="font-size:11px; font-weight:500; color:#9C9FAF; text-align:center; line-height:1.6;">' + esc(T.omaNoFlight || 'フライトを登録すると、もっと正確に組めます') + '</div>') + '</div>');
     }
     plan.rows.forEach(function (r, i) {
       h += '<div style="display:flex; flex-direction:column; gap:6px;">'
@@ -727,6 +940,7 @@
         + '<div style="font-size:11px; font-weight:500; color:#6B6E80; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + esc(r.area) + '</div>'
         + (r.shut ? '<div style="font-size:11px; font-weight:700; color:#B22459;">⚠ ' + esc(T.thisDayShut || 'この日は休館') + '</div>' : '')
         + (r.late ? '<div style="font-size:11px; font-weight:700; color:#B22459;">⚠ ' + esc(T.tooLate || '間に合わない可能性') + '</div>' : '')
+        + hoursWarn(r)
         + '</div></a></div>'
         + '<div style="display:flex; flex-direction:column; gap:4px; flex-shrink:0;">'
         + '<div data-up="' + i + '" style="width:32px; height:32px; border-radius:16px; background:#F2F4FC; display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:' + (i === 0 ? '.3' : '1') + ';"><k-icon name="ArrowRightSize20" size="18" style="color:#3F52B4; transform:rotate(-90deg)"></k-icon></div>'
@@ -735,8 +949,8 @@
         + '</div></div>'
         + '<div style="display:flex; align-items:center; gap:8px; padding-left:4px;">'
         + '<div data-move="' + i + '" style="cursor:pointer; display:inline-flex; align-items:center; height:28px; padding:0 12px; border-radius:14px; background:' + (r.shut || r.late ? '#FCF2F6' : '#F7F7FA') + '; color:' + (r.shut || r.late ? '#B22459' : '#4B4F63') + '; font-size:11px; font-weight:700;">' + esc(T.moveDay || '別の日へ') + '</div>'
-        + (r.hasLeg ? '<div style="font-size:11px; font-weight:500; color:#6B6E80;">' + esc(T.straight || '直線') + ' <span style="font-family:Poppins,sans-serif; color:#111527;">' + r.km + 'km</span> · ' + esc(T.walkFor || '徒歩') + ' <span style="font-family:Poppins,sans-serif; color:#111527;">' + r.walk + '</span>' + esc(T.min || '分') + '</div>' : '')
-        + '</div></div>';
+        + '</div></div>'
+        + legLine(r);
     });
     if (plan.rows.length) {
       h += '<a href="search.html" style="display:flex; align-items:center; justify-content:center; gap:6px; height:48px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:16px; font-weight:600; text-decoration:none;"><k-icon name="AddSize20" size="20" style="color:#3F52B4"></k-icon>' + esc(T.addSpot || 'スポットを追加') + '</a>';
@@ -744,6 +958,142 @@
     h += '</div>';
     h += '<div style="height:' + (state.pool ? 420 : 180) + 'px;"></div>';
     return h;
+  }
+
+  /* ── 11차 A: 요약 바 · 이동 줄 · 영업시간 경고 ── */
+  var ORANGE = '#A8620A', ORANGE_BG = '#FBF1E4';
+  function dur(m) { m = Math.max(0, Math.round(m)); var hh = Math.floor(m / 60), mm = m % 60; return hh ? (T.hLeft || '{h}時間{m}分').replace('{h}', hh).replace('{m}', mm) : (T.mLeft || '{m}分').replace('{m}', mm); }
+  function sumBar(t, plan, di) {
+    if (!plan.rows.length) return '';
+    var act = plan.stayMin + plan.moveMin;
+    var many = act > 0 && (plan.moveMin / act) > K.TCFG.MOVE_RATIO;
+    var txt = (T.sumTour || '観光 {t}').replace('{t}', dur(plan.stayMin))
+      + ' · ' + (T.sumMove || '移動 約{t}').replace('{t}', dur(plan.moveMin))
+      + ' · ' + (T.sumSpots || '{n}スポット').replace('{n}', plan.rows.length);
+    var h = '<div style="padding:12px 16px 0;">'
+      + '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:9px 12px; border-radius:12px; background:' + (many ? ORANGE_BG : '#F7F7FA') + ';">'
+      + '<div style="font-size:12px; font-weight:600; color:' + (many ? ORANGE : '#4B4F63') + ';">' + esc(txt) + '</div>'
+      + (many ? '<div style="font-size:11px; font-weight:700; color:' + ORANGE + ';">' + esc(T.moveMany || '移動が多めです') + '</div>' : '')
+      + '</div>';
+    h += hintLine(t, plan, di, many);
+    var w = K.dayWindow(t, di);
+    if (w.luggage) h += '<div style="padding:6px 4px 0; font-size:11px; font-weight:500; color:#9C9FAF;">' + esc(T.luggageHint || '荷物がある日は少なめでも大丈夫') + '</div>';
+    return h + '</div>';
+  }
+  /* 제안 한 줄 — 금지가 아니라 제안. 무시해도 아무 일도 일어나지 않는다 */
+  function hintLine(t, plan, di, many) {
+    if (plan.rows.length < 3) return '';
+    var areas = plan.rows.map(function (r) { var s2 = K.byId(r.id) || {}; return s2.areaKey || r.area || ''; });
+    var seen = {}, back = false, prev = '';
+    areas.forEach(function (a) { if (!a) return; if (a !== prev) { if (seen[a]) back = true; seen[a] = 1; prev = a; } });
+    var act = plan.stayMin + plan.moveMin;
+    var longDay = act > 660;
+    var r = K.tidyOrder(t, di);
+    var gain = (r && !r.same) ? (r.now - r.next) : 0;
+    var bigGain = r && r.now > 0 && (gain / r.now) >= 0.2;
+    var msg = '';
+    if (many || back || bigGain || longDay) {
+      if (gain >= K.TCFG.SORT_GAIN_MIN) msg = (T.hintTidy || '順番を整えると 約{n}分 短くなります').replace('{n}', Math.round(gain));
+      else if (back) msg = T.hintBack || '同じエリアを行ったり来たりしています';
+      else if (longDay) msg = T.hintLong || '今日は長めの一日です。無理のない範囲で';
+    }
+    return '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:8px 4px 0;">'
+      + '<div style="flex:1; min-width:0; font-size:11px; font-weight:500; color:#6B6E80; line-height:1.6;">' + esc(msg) + '</div>'
+      + '<div data-tidy="1" style="cursor:pointer; flex-shrink:0; display:inline-flex; align-items:center; height:26px; padding:0 11px; border-radius:13px; background:#F2F4FC; color:#3F52B4; font-size:11px; font-weight:700;">' + esc(T.tidyBtn || '順番を整える') + '</div></div>';
+  }
+  function legLine(r) {
+    if (!r.hasLeg) return '';
+    if (r.legCross) return '<div style="padding:2px 0 0 6px; font-size:11px; font-weight:700; color:#B22459;">⚠ ' + esc(T.legCross || '別の都市です') + '</div>';
+    var ic = r.legMode === 'metro' ? '🚇' : '🚶';
+    var tx = (r.legMode === 'metro' ? (T.legMetro || '地下鉄 約{n}分') : (T.legWalk || '徒歩 約{n}分')).replace('{n}', r.legMin);
+    return '<div style="padding:2px 0 0 6px; font-size:11px; font-weight:500; color:#9C9FAF;">' + ic + ' ' + esc(tx) + '</div>';
+  }
+  function hoursWarn(r) {
+    var m = '';
+    if (r.hw === 'late') m = (T.hoursLate || '到着予定 {a} · 営業は {c} まで').replace('{a}', r.time).replace('{c}', r.hClose);
+    else if (r.hw === 'early') m = (T.hoursEarly || '到着予定 {a} · 営業は {o} から').replace('{a}', r.time).replace('{o}', r.hOpen);
+    else if (r.hShort) m = T.hoursShort || '滞在時間が足りません';
+    if (!m) return '';
+    return '<div style="font-size:11px; font-weight:700; color:' + ORANGE + ';">' + esc(m) + '</div>';
+  }
+
+  /* ── 11차 A-5: 「順番を整える」 시트 ── */
+  function tidySheet() {
+    var t = TRIPS.get(state.id) || TRIPS.cur(); if (!t) return;
+    var r = K.tidyOrder(t, state.d);
+    if (!r || r.same || (r.now - r.next) < K.TCFG.SORT_GAIN_MIN) { K.toast(T.tidyFine || '今の順番で問題ありません'); return; }
+    var inner = '<div style="padding-top:8px; display:flex; flex-direction:column; gap:12px;">'
+      + '<div style="padding:14px 16px; border-radius:16px; background:#F2F4FC; font-size:15px; font-weight:700; color:#111527; text-align:center;">'
+      + esc((T.tidyCmp || '移動 {a} → 約{b}').replace('{a}', dur(r.now)).replace('{b}', dur(r.next))) + '</div>'
+      + '<div style="display:flex; flex-direction:column; gap:6px;">';
+    r.ids.forEach(function (id, i) {
+      var sp = K.byId(id) || {};
+      inner += '<div style="display:flex; align-items:center; gap:10px; padding:8px 12px; border-radius:12px; background:#fff; box-shadow:inset 0 0 0 1px #E1E3EC;">'
+        + '<span style="font-family:Poppins,sans-serif; font-size:12px; font-weight:700; color:#3F52B4; width:16px;">' + (i + 1) + '</span>'
+        + '<span style="flex:1; min-width:0; font-size:13px; font-weight:600; color:#111527; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + esc(sp.name || id) + '</span>'
+        + '<span style="font-size:11px; font-weight:500; color:#9C9FAF;">' + esc(sp.area || '') + '</span></div>';
+    });
+    inner += '</div><div style="display:flex; gap:8px;">'
+      + '<div data-tidyno="1" style="cursor:pointer; flex:1; height:48px; border-radius:16px; background:#F7F7FA; color:#4B4F63; font-size:15px; font-weight:700; display:flex; align-items:center; justify-content:center;">' + esc(T.tidyNo || 'やめる') + '</div>'
+      + '<div data-tidyok="1" style="cursor:pointer; flex:1.4; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:15px; font-weight:700; display:flex; align-items:center; justify-content:center;">' + esc(T.tidyOk || 'この順番にする') + '</div></div></div>';
+    var box = K.sheet(T.tidyTitle || '順番を整える', inner);
+    box.addEventListener('click', function (ev) {
+      var b = ev.target.closest && ev.target.closest('[data-tidyok],[data-tidyno]'); if (!b) return;
+      if (b.getAttribute('data-tidyok')) {
+        var t2 = TRIPS.get(state.id) || TRIPS.cur(), bak = (t2.days[state.d].spots || []).slice();
+        t2.days[state.d].spots = r.ids.slice(); TRIPS.put(t2); K.closeSheet(); render();
+        window.KGUNDO(T.tidyDone || '順番を変えました', function () { var t3 = TRIPS.get(state.id); t3.days[state.d].spots = bak; TRIPS.put(t3); render(); });
+      } else K.closeSheet();
+    });
+  }
+
+  /* ── 11차 B: 「おまかせ」 제안 시트 ── */
+  var omaV = 0;
+  function omaSheet(v) {
+    var t = TRIPS.get(state.id) || TRIPS.cur(); if (!t) return;
+    omaV = v || 0;
+    var plan = K.autoPlan(t, omaV);
+    var got = plan.days.filter(function (r) { return r.ids && r.ids.length; }).length;
+    if (!got) { K.toast(T.omaNone || '入れられるコースが見つかりませんでした'); return; }
+    var inner = '<div style="padding-top:6px; display:flex; flex-direction:column; gap:10px;">';
+    plan.days.forEach(function (r) {
+      var head = mdw(r.date), tag = '';
+      if (r.di === 0 && r.w.hasFlight) tag = (T.omaArrive || '到着日 · 観光は {t} から').replace('{t}', K.hm(r.w.from));
+      else if (r.di === t.days.length - 1 && r.w.hasFlight) tag = (T.omaLeave || '帰国日 · ホテル出発 {t}').replace('{t}', K.hm(r.w.to));
+      inner += '<div style="display:flex; flex-direction:column; gap:5px; padding:12px 14px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #E1E3EC;">'
+        + '<div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;">'
+        + '<span style="font-size:13px; font-weight:700; color:#111527;">' + esc(head) + '</span>'
+        + (tag ? '<span style="font-size:11px; font-weight:600; color:#6B6E80;">' + esc(tag) + '</span>' : '') + '</div>';
+      if (r.busy) inner += '<div style="font-size:12px; font-weight:600; color:#6B6E80;">' + esc((T.omaBusy || '{d} はすでに予定があるのでそのままにしました').replace('{d}', md(r.date))) + '</div>';
+      else if (!r.ids) inner += '<div style="font-size:12px; font-weight:600; color:#6B6E80;">' + esc(T.omaMoveOnly || 'この日は移動だけにしました') + '</div>';
+      else {
+        var mv = 0, sps = r.ids.map(K.byId).filter(Boolean);
+        for (var i = 0; i < sps.length - 1; i++) { var l = K.legOf(sps[i], sps[i + 1]); if (l && !l.cross) mv += l.min; }
+        inner += '<div style="font-size:14px; font-weight:700; color:#111527;">' + esc(r.course.name) + '</div>'
+          + '<div style="font-size:11px; font-weight:500; color:#6B6E80;">' + esc((T.omaCourseSum || '観光 {h}時間 · 移動 約{m}').replace('{h}', r.hours).replace('{m}', dur(mv))) + '</div>'
+          + '<div style="font-size:11px; font-weight:500; color:#9C9FAF; line-height:1.6;">' + esc(sps.map(function (x) { return x.name; }).join(' → ')) + '</div>'
+          + (r.cut ? '<div style="font-size:11px; font-weight:700; color:#B22459;">' + esc((T.omaCut || '{n}スポットは休館のため外しました').replace('{n}', r.cut)) + '</div>' : '');
+      }
+      inner += '</div>';
+    });
+    if (!plan.anyFlight) inner += '<div style="font-size:11px; font-weight:500; color:#9C9FAF; line-height:1.6;">' + esc(T.omaNoFlight || 'フライトを登録すると、もっと正確に組めます') + '</div>';
+    inner += '<div style="display:flex; gap:8px; padding-top:2px;">'
+      + '<div data-omano="1" style="cursor:pointer; flex:1; height:48px; border-radius:16px; background:#F7F7FA; color:#4B4F63; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center;">' + esc(T.omaCancel || 'やめる') + '</div>'
+      + '<div data-omanext="1" style="cursor:pointer; flex:1.2; height:48px; border-radius:16px; background:#fff; box-shadow:inset 0 0 0 1px #3F52B4; color:#3F52B4; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; text-align:center;">' + esc(T.omaOther || '別のプランを見る') + '</div>'
+      + '<div data-omaok="1" style="cursor:pointer; flex:1.4; height:48px; border-radius:16px; background:#3F52B4; color:#fff; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center;">' + esc(T.omaApply || 'このプランにする') + '</div></div></div>';
+    var box = K.sheet(T.omaTitle || 'おまかせプラン', inner);
+    box.addEventListener('click', function (ev) {
+      var b = ev.target.closest && ev.target.closest('[data-omaok],[data-omano],[data-omanext]'); if (!b) return;
+      if (b.getAttribute('data-omanext')) { K.closeSheet(); setTimeout(function () { omaSheet(omaV + 1); }, 120); return; }
+      if (b.getAttribute('data-omaok')) {
+        var t2 = TRIPS.get(state.id) || TRIPS.cur();
+        var bak = JSON.parse(JSON.stringify(t2));
+        K.applyPlan(t2, plan); K.closeSheet(); render();
+        window.KGUNDO(T.omaDone || 'プランを入れました', function () { TRIPS.put(bak); render(); });
+        return;
+      }
+      K.closeSheet();
+    });
   }
 
   function modeChips(t) {
@@ -909,9 +1259,12 @@
   /* ── 이벤트 ── */
   function cur() { return TRIPS.get(state.id) || TRIPS.cur(); }
   document.addEventListener('click', function (e) {
-    var el = e.target.closest ? e.target.closest('[data-tf],[data-tstart],[data-open],[data-edit],[data-del],[data-new],[data-cal],[data-pick],[data-city],[data-ap],[data-stay],[data-save],[data-cancel],[data-day],[data-up],[data-down],[data-rm],[data-move],[data-switch],[data-editrip],[data-mode],[data-ics],[data-drawer],[data-put]') : null;
+    var el = e.target.closest ? e.target.closest('[data-tidy],[data-oma],[data-omaedit],[data-tf],[data-tstart],[data-open],[data-edit],[data-del],[data-new],[data-cal],[data-pick],[data-city],[data-ap],[data-stay],[data-save],[data-cancel],[data-day],[data-up],[data-down],[data-rm],[data-move],[data-switch],[data-editrip],[data-mode],[data-ics],[data-drawer],[data-put]') : null;
     if (!el || !document.getElementById('kgtrip')) return;
     var g = function (k) { return el.getAttribute('data-' + k); };
+    if (g('tidy')) { e.preventDefault(); e.stopPropagation(); tidySheet(); return; }
+    if (g('oma')) { e.preventDefault(); e.stopPropagation(); omaSheet(0); return; }
+    if (g('omaedit')) { e.preventDefault(); e.stopPropagation(); var _t = TRIPS.get(state.id); if (!_t) return; draft = null; go('day', { id: _t.id, d: 0 }); setTimeout(function () { omaSheet(0); }, 60); return; }
     if (g('tf')) {
       e.preventDefault(); e.stopPropagation(); collect();
       var _k = g('tf'), _el = document.getElementById('f' + _k + 'time');
