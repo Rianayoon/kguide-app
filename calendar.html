@@ -50,8 +50,8 @@
 </script>
 <title>休館日カレンダー | K-GUIDE</title>
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="./data.js?v=1788912386"></script>
-<script src="./kicon.js?v=1788912386"></script>
+<script src="./data.js?v=1788912899"></script>
+<script src="./kicon.js?v=1788912899"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Poppins:wght@500;600;700&display=swap">
 <style>
   body { margin:0; background:#FAFAFA; font-family:"Noto Sans JP","Hiragino Sans",system-ui,sans-serif; -webkit-font-smoothing:antialiased; color:#111527; }
@@ -210,8 +210,9 @@ function render() {
     const d = addD(n), on = same(d, sel);
     return '<div data-t="' + n + '" style="flex:1; height:38px; border-radius:12px; background:' + (on ? '#3F52B4' : '#F2F4FC') + '; color:' + (on ? '#fff' : '#4B4F63') + '; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; cursor:pointer;">' + ['今日', '明日', '明後日'][n] + '</div>';
   }).join('');
-  const shut = TARGET.filter(x => closedOn(x.rest, sel));
-  const opens = TARGET.filter(x => !closedOn(x.rest, sel));
+  /*NOI18N*/const rj = (x) => x.restJa || x.rest;/*/NOI18N*/
+  const shut = TARGET.filter(x => closedOn(rj(x), sel));
+  const opens = TARGET.filter(x => !closedOn(rj(x), sel));
   const shown = moreOpen ? opens : opens.slice(0, 20);
   const lbl = dayLabel(sel);
   const sec = (title, n, body) => '<div style="display:flex; flex-direction:column; gap:12px;"><div style="display:flex; align-items:baseline; gap:8px; padding:0 16px;"><div style="font-size:18px; font-weight:700; color:#111527;">' + title + '</div><div style="font-family:Poppins,sans-serif; font-size:13px; font-weight:600; color:#6B6E80;">' + n + '</div></div><div style="display:flex; flex-direction:column; gap:8px; padding:0 16px;">' + body + '</div></div>';
