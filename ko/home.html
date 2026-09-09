@@ -50,8 +50,8 @@
 </script>
 
 <script src="https://kguide-rt.vercel.app/support.js"></script>
-<script src="../data.ko.js?v=1788912386"></script>
-<script src="../kicon.js?v=1788912386"></script>
+<script src="../data.ko.js?v=1788913224"></script>
+<script src="../kicon.js?v=1788913224"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../auth.js?v=1789000001"></script>
 </head>
@@ -80,7 +80,7 @@
           <div style="font-family:Poppins,sans-serif; font-weight:700; font-size:16px; color:#fff; letter-spacing:.02em; text-shadow:0 1px 4px rgba(17,21,41,.45);">K-GUIDE</div>
         </div>
         <div style="display:flex; align-items:center; gap:8px;"><a class="kg-lp" href="login.html" style="display:flex; align-items:center; gap:6px; height:36px; padding:0 14px; border-radius:38px; background:#3F52B4; color:#fff; font-size:12px; font-weight:600; text-decoration:none;">로그인</a>
-        <div id="kglangwrap" style="position:relative;"><div id="kglangbtn" style="display:flex; align-items:center; gap:4px; height:36px; padding:0 14px; border-radius:38px; background:#fff; font-size:12px; font-weight:600; color:#3F52B4; cursor:pointer; white-space:nowrap;">한국어<span style="font-size:9px;">▾</span></div><div id="kglangmenu" style="display:none; position:absolute; right:0; top:42px; z-index:900; border-radius:14px; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.28); overflow:hidden; padding:4px 0;"><div data-lang="ja" data-ready="y" style="padding:10px 14px; font-size:13px; font-weight:500; color:#4B4F63; cursor:pointer; white-space:nowrap;">일본어</div><div data-lang="ko" data-ready="y" style="padding:10px 14px; font-size:13px; font-weight:700; color:#3F52B4; cursor:pointer; white-space:nowrap;">한국어</div><div data-lang="en" data-ready="n" style="padding:10px 14px; font-size:13px; font-weight:500; color:#B9BCC9; cursor:default; white-space:nowrap;">English(준비 중)</div><div data-lang="zh" data-ready="n" style="padding:10px 14px; font-size:13px; font-weight:500; color:#B9BCC9; cursor:default; white-space:nowrap;">中文(준비 중)</div></div></div></div>
+        <div id="kglangwrap" style="position:relative;"><div id="kglangbtn" style="display:flex; align-items:center; gap:4px; height:36px; padding:0 14px; border-radius:38px; background:#fff; font-size:12px; font-weight:600; color:#3F52B4; cursor:pointer; white-space:nowrap;">한국어<span style="font-size:9px;">▾</span></div><div id="kglangmenu" style="display:none; position:absolute; right:0; top:42px; z-index:900; border-radius:14px; background:#fff; box-shadow:0 8px 32px rgba(131,139,180,.28); overflow:hidden; padding:4px 0;"><div data-lang="ja" data-ready="y" style="padding:10px 14px; font-size:13px; font-weight:500; color:#4B4F63; cursor:pointer; white-space:nowrap;">日本語</div><div data-lang="ko" data-ready="y" style="padding:10px 14px; font-size:13px; font-weight:700; color:#3F52B4; cursor:pointer; white-space:nowrap;">한국어</div><div data-lang="en" data-ready="n" style="padding:10px 14px; font-size:13px; font-weight:500; color:#B9BCC9; cursor:default; white-space:nowrap;">English(준비 중)</div><div data-lang="zh" data-ready="n" style="padding:10px 14px; font-size:13px; font-weight:500; color:#B9BCC9; cursor:default; white-space:nowrap;">中文(준비 중)</div></div></div></div>
       </div>
       <div style="position:absolute; right:16px; top:64px; z-index:6; display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
         <div onClick="{{ wxToggle }}" style="display:inline-flex; align-items:center; gap:6px; height:28px; padding:0 10px; border-radius:38px; background:#fff; box-shadow:0 2px 8px rgba(131,139,180,.16); font-size:11px; font-weight:600; color:#4B4F63; cursor:pointer; white-space:nowrap;">
@@ -244,13 +244,13 @@ const shot = (u) => `linear-gradient(180deg, rgba(17,21,41,0) 45%, rgba(17,21,41
 const qid = () => new URLSearchParams(location.search).get('id');
 const SENT_END = '.';
 const para = (t) => { const s = String(t || '').trim(); if (!s) return []; const out = []; let cur = '', n = 0; for (let i = 0; i < s.length; i++) { cur += s[i]; if (s[i] === SENT_END) { n++; if (n >= 2) { out.push({ t: cur.trim() }); cur = ''; n = 0; } } } if (cur.trim()) { if (out.length && cur.trim().length < 40) out[out.length - 1].t += cur.trim(); else out.push({ t: cur.trim() }); } return out; };
-/*NOI18N*/const DOWJ = ['日','月','火','水','木','金','土'];/*/NOI18N*/
+const DOWJ = ['日','月','火','水','木','金','土'];
 const DOW = ['일','월','화','수','목','금','토'];   // 표시용(언어별로 번역됨)
 const KR_HOLI = new Set(['2026-01-01','2026-02-16','2026-02-17','2026-02-18','2026-03-01','2026-03-02','2026-05-05','2026-05-24','2026-05-25','2026-06-06','2026-08-15','2026-08-17','2026-09-24','2026-09-25','2026-09-26','2026-10-03','2026-10-05','2026-10-09','2026-12-25','2027-01-01','2027-02-06','2027-02-07','2027-02-08','2027-03-01','2027-05-05','2027-05-13','2027-06-06','2027-08-15','2027-08-16','2027-09-14','2027-09-15','2027-09-16','2027-10-03','2027-10-04','2027-10-09','2027-12-25']);
 const SEOL = {day: ['2026-02-17','2027-02-07'], run: ['2026-02-16','2026-02-17','2026-02-18','2027-02-06','2027-02-07','2027-02-08']};
 const CHUSEOK = {day: ['2026-09-25','2027-09-15'], run: ['2026-09-24','2026-09-25','2026-09-26','2027-09-14','2027-09-15','2027-09-16']};
 const ymd = (d) => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-/*NOI18N*/
+
 function closedOn(r, d) {
   r = r || ''; if (!r) return false;
   if (/年中無休|無休|年中開放|年中運航|休みなし/.test(r) && !/店舗により|一部/.test(r)) return false;
@@ -273,7 +273,7 @@ function closedOn(r, d) {
   return false;
 }
 function isClosedToday(s){ return closedOn(s.restJa || s.rest, new Date()); }
-/*/NOI18N*/
+
 const OPEN = { dot: '#047857', open: '개관 중', openFg: '#047857' };
 const SHUT = { dot: '#B22459', open: '오늘 휴관', openFg: '#B22459' };
 const st = (s) => isClosedToday(s) ? SHUT : OPEN;
