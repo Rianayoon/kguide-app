@@ -142,7 +142,9 @@
     ICN: { '明洞': [61, 70, 60], '鍾路 · 光化門': [58, 75, 65], '北村 · 三清洞': [65, 80, 70], '東大門': [65, 80, 70], '弘大': [55, 65, 60], '江南': [73, 75, 70], '梨泰院': [70, 80, 65], '聖水': [75, 85, 70], '蚕室': [80, 85, 75], '汝矣島': [60, 60, 55], '大学路 · 城北': [70, 85, 70], '新村 · 西大門': [55, 70, 60], '仁川': [45, 50, 40], '仁川空港・永宗島': [20, 20, 15], '_': [70, 80, 65] },
     GMP: { '明洞': [35, 45, 35], '鍾路 · 光化門': [35, 45, 35], '弘大': [25, 35, 25], '江南': [40, 45, 40], '汝矣島': [25, 30, 20], '蚕室': [50, 55, 45], '_': [35, 45, 35] },
     PUS: { '海雲台': [60, 60, 45], '西面・田浦': [40, 40, 35], '南浦洞・チャガルチ': [45, 45, 40], '広安里': [50, 50, 40], '釜山駅・草梁': [45, 45, 35], '_': [50, 50, 40] },
-    CJU: { '済州市・空港周辺': [20, 20, 15], '_': [40, 45, 40] }
+    CJU: { '済州市・空港周辺': [20, 20, 15], '_': [40, 45, 40] },
+    TAE: { '明洞': [130, 241, 130], '鍾路 · 光化門': [133, 241, 133], '北村 · 三清洞': [143, 241, 143], '東大門': [138, 241, 138], '弘大': [138, 241, 138], '江南': [150, 241, 150], '梨泰院': [143, 241, 143], '聖水': [152, 241, 152], '蚕室': [157, 241, 157], '汝矣島': [138, 241, 138], '大学路 · 城北': [143, 241, 143], '新村 · 西大門': [135, 241, 135], '_': [140, 241, 140] },
+    CJJ: { '明洞': [100, 134, 100], '鍾路 · 光化門': [103, 134, 103], '北村 · 三清洞': [113, 134, 113], '東大門': [108, 134, 108], '弘大': [108, 134, 108], '江南': [120, 134, 120], '梨泰院': [113, 134, 113], '聖水': [122, 134, 122], '蚕室': [127, 134, 127], '汝矣島': [108, 134, 108], '大学路 · 城北': [113, 134, 113], '新村 · 西大門': [105, 134, 105], '_': [105, 134, 105] }
   };
   /* 한국어판은 에리어 이름이 한국어라 같은 값을 한 번 더 넣어 둔다(언어가 늘면 여기에 추가) */
   var ETA_ALIAS = {
@@ -190,12 +192,15 @@
     var names = f.days.split('').map(function (x) { return (T.dow || ['日', '月', '火', '水', '木', '金', '土'])[dowLabelIdx(x)]; });
     return (T.flightDayWarn || 'この便は {d} のみ運航').replace('{d}', names.join('・'));
   }
+  /* 대구·청주는 장거리 택시 공식 시간을 확인 못 해 택시 칸을 노출하지 않는다(要確認, 틀린 값을 보여주지 않기 위함) */
+  function apNoTaxi(airport) { var g = apGroup(airport); return g === 'TAE' || g === 'CJJ'; }
   function etaMin(airport, stay, mode) {
     var g = ETA[apGroup(airport)] || ETA.ICN;
     var area = (stay && (stay.area || stay.city)) || '';
     if (!g[area] && ETA_ALIAS[area]) area = ETA_ALIAS[area];
     var row = g[area] || g['_'];
-    var i = mode === 'limo' ? 1 : mode === 'taxi' ? 2 : 0;
+    var m = (apNoTaxi(airport) && mode === 'taxi') ? 'arex' : mode;
+    var i = m === 'limo' ? 1 : m === 'taxi' ? 2 : 0;
     return row[i];
   }
 
@@ -746,7 +751,7 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else setTimeout(boot, 0);
 
-  window.KGTRIP = { TRIPS: TRIPS, dayPlan: dayPlan, tlFor: tlFor, shutOn: shutOn, mdw: mdw, md: md, hm: hm, toMin: toMin, addDays: addDays, diffDays: diffDays, ymd: ymd, parseD: parseD, todayS: todayS, esc: esc, bgOf: bgOf, byId: byId, sheet: sheet, closeSheet: closeSheet, toast: toast, pickDay: pickDay, dayChips: dayChips, etaMin: etaMin, apLabel: apLabel, AP_LIST: AP_LIST, NOTIFY: NOTIFY, PUSH: PUSHJ, freePool: freePool, uuid: uuid, lsGet: lsGet, lsSet: lsSet, DOW: DOW, pad: pad, up: up, base: base, inKo: inKo, dist: dist, distKm: distKm, legOf: legOf, hoursRange: hoursRange, TCFG: TCFG, tidyOrder: tidyOrder, autoPlan: autoPlan, applyPlan: applyPlan, dayWindow: dayWindow, CS: CS, findFlight: findFlight, apCodeForFlight: apCodeForFlight, flightTimeFor: flightTimeFor, flightDayWarn: flightDayWarn };
+  window.KGTRIP = { TRIPS: TRIPS, dayPlan: dayPlan, tlFor: tlFor, shutOn: shutOn, mdw: mdw, md: md, hm: hm, toMin: toMin, addDays: addDays, diffDays: diffDays, ymd: ymd, parseD: parseD, todayS: todayS, esc: esc, bgOf: bgOf, byId: byId, sheet: sheet, closeSheet: closeSheet, toast: toast, pickDay: pickDay, dayChips: dayChips, etaMin: etaMin, apLabel: apLabel, apNoTaxi: apNoTaxi, AP_LIST: AP_LIST, NOTIFY: NOTIFY, PUSH: PUSHJ, freePool: freePool, uuid: uuid, lsGet: lsGet, lsSet: lsSet, DOW: DOW, pad: pad, up: up, base: base, inKo: inKo, dist: dist, distKm: distKm, legOf: legOf, hoursRange: hoursRange, TCFG: TCFG, tidyOrder: tidyOrder, autoPlan: autoPlan, applyPlan: applyPlan, dayWindow: dayWindow, CS: CS, findFlight: findFlight, apCodeForFlight: apCodeForFlight, flightTimeFor: flightTimeFor, flightDayWarn: flightDayWarn };
 })();
 
 /* ═══ trip.html 화면 ═══════════════════════════════════════════ */
@@ -1158,10 +1163,13 @@
     });
   }
 
-  function modeChips(t) {
-    var ms = [['arex', T.mArex || 'AREX'], ['limo', T.mLimo || 'リムジン'], ['taxi', T.mTaxi || 'タクシー']];
+  function modeChips(t, apKey) {
+    var noTaxi = K.apNoTaxi(apKey);
+    var ms = [['arex', T.mArex || 'AREX'], ['limo', T.mLimo || 'リムジン']];
+    if (!noTaxi) ms.push(['taxi', T.mTaxi || 'タクシー']);
+    var curMode = (noTaxi && (t.mode || 'arex') === 'taxi') ? 'arex' : (t.mode || 'arex');
     return '<div style="display:flex; gap:6px;">' + ms.map(function (m) {
-      var on = (t.mode || 'arex') === m[0];
+      var on = curMode === m[0];
       return '<div data-mode="' + m[0] + '" style="cursor:pointer; display:inline-flex; align-items:center; height:28px; padding:0 12px; border-radius:14px; background:' + (on ? 'rgba(255,255,255,.24)' : 'rgba(255,255,255,.10)') + '; color:#fff; box-shadow:' + (on ? 'inset 0 0 0 1px rgba(255,255,255,.7)' : 'none') + '; font-size:11px; font-weight:700;">' + esc(m[1]) + '</div>';
     }).join('') + '</div>';
   }
@@ -1193,7 +1201,7 @@
     });
     if (tl.kind === 'in') h += '<div style="padding:4px 0 0 22px; font-size:12px; font-weight:700;">' + esc((T.tourFrom || '観光は {t} から').replace('{t}', hm(tl.tourStart))) + '</div>';
     h += '</div>';
-    h += '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">' + modeChips(t)
+    h += '<div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">' + modeChips(t, tl.flight.airport)
       + '<div style="font-size:11px; font-weight:500; opacity:.85;">' + esc((T.etaIs || '移動 約{n}分').replace('{n}', tl.eta)) + '</div></div>';
     h += '<div data-ics="1" style="cursor:pointer; height:38px; border-radius:12px; background:rgba(255,255,255,.18); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center;">' + esc(T.toCalendar || 'カレンダーに入れる') + '</div>';
     h += '</div>';

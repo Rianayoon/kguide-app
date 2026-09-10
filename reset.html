@@ -40,60 +40,21 @@
   .hd{height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;font-size:16px;font-weight:600;line-height:24px;color:#373B51}
   .hd a.bk{position:absolute;left:8px;top:8px;width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center}
   .bd{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 16px 40px;display:flex;flex-direction:column;gap:16px}
-  .hero{position:relative;flex-shrink:0;height:260px;overflow:hidden}
-  .hero .img{position:absolute;inset:0;background:url('https://tong.visitkorea.or.kr/cms/resource_photo/62/4061962_image2_1.jpg') center / cover no-repeat}
-  .hero .vl{position:absolute;inset:0;background:linear-gradient(180deg, rgba(255,255,255,0.70) 0%, rgba(255,255,255,1) 104%)}
-  .hero .in{position:absolute;left:16px;right:16px;top:56px;display:flex;flex-direction:column;align-items:center;gap:12px}
-  .hero .ic{width:88px;height:88px;border-radius:44px;background:#F2F4FC;display:flex;align-items:center;justify-content:center}
-  .hero h1{margin:0;font-size:20px;font-weight:700;text-align:center;color:#111527}
-  .hero p{margin:0;font-size:14px;font-weight:500;line-height:1.7;text-align:center;color:#4B4F63}
-  .sheet{position:relative;flex-shrink:0;border-radius:32px 32px 0 0;background:#fff;box-shadow:0 8px 32px rgba(131,139,180,.16);display:flex;flex-direction:column;flex:1;min-height:0}
-  .sheet .grip{height:32px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-  .sheet .grip i{width:40px;height:4px;border-radius:100px;background:#D1D3DB;display:block}
-  .sheet .in{padding:0 16px 34px;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
   label.f{display:flex;flex-direction:column;gap:6px}
   label.f>span{font-size:12px;font-weight:600;line-height:16px;color:#4B4F63}
   label.f>span em{font-style:normal;color:#9C9FAF;font-weight:500}
-  .f input,.f textarea{width:100%;height:48px;border:0;box-shadow:inset 0 0 0 1px #E1E3EC;border-radius:14px;background:#fff;padding:0 14px;font-size:15px;font-family:inherit;color:#111527;outline:none}
-  .f input:focus,.f textarea:focus{box-shadow:inset 0 0 0 2px #3F52B4}
-  .f textarea{height:96px;padding:12px 14px;line-height:1.6;resize:none}
-  .f input[type=file]{padding:12px 14px;height:auto;font-size:13px;color:#4B4F63}
+  .f input{width:100%;height:48px;border:0;box-shadow:inset 0 0 0 1px #E1E3EC;border-radius:14px;background:#fff;padding:0 14px;font-size:15px;font-family:inherit;color:#111527;outline:none}
+  .f input:focus{box-shadow:inset 0 0 0 2px #3F52B4}
   .btn{width:100%;height:48px;border:0;border-radius:16px;background:#3F52B4;color:#fff;font-size:16px;font-weight:600;letter-spacing:.02em;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;text-decoration:none}
   .btn:active{background:#323D76}
-  .btn.ghost{background:#fff;color:#3F52B4;box-shadow:inset 0 0 0 1px #3F52B4}
-  .btn.flat{background:#F2F4FC;color:#3F52B4}
-  .btn.off{background:#F2F4FC;color:#9C9FAF;cursor:default}
-  .btn.sm{height:40px;font-size:14px;border-radius:12px}
   .btn[disabled]{opacity:.55;cursor:default}
   .msg{display:none;font-size:13px;font-weight:600;line-height:1.6;border-radius:12px;padding:10px 12px;background:#F2F4FC;color:#323D76}
   .msg.on{display:block}
-  .row{display:flex;gap:8px}
-  .row>*{flex:1}
   .links{display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;font-weight:600;color:#3F52B4}
-  .links span{color:#D1D3DB}
-  .note{font-size:11px;font-weight:500;line-height:1.6;text-align:center;color:#6B6E80}
   .card{border-radius:16px;background:#F7F7FA;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
   .card h3{margin:0;font-size:15px;font-weight:700;color:#111527}
   .kv{display:flex;gap:8px;font-size:13px;line-height:1.6}
-  .kv b{flex:0 0 82px;font-weight:600;color:#6B6E80}
-  .kv span{flex:1;min-width:0;color:#373B51;word-break:break-all}
-  .badge{align-self:flex-start;font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px;background:#F2F4FC;color:#3F52B4}
-  .badge.g{background:#3F52B4;color:#fff}
-  .badge.n{background:#EDEDF2;color:#6B6E80}
-  .menu{display:flex;flex-direction:column;gap:12px}
-  .menu a{min-height:60px;border-radius:16px;background:#F7F7FA;padding:8px 16px;display:flex;align-items:center;gap:16px}
-  .menu a .ic{width:40px;height:40px;flex-shrink:0;border-radius:20px;background:#F2F4FC;display:flex;align-items:center;justify-content:center}
-  .menu a .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
-  .menu a .tx b{font-size:14px;font-weight:600;line-height:20px;color:#373B51}
-  .menu a .tx i{font-style:normal;font-size:12px;line-height:16px;color:#4B4F63}
-  .menu a .vl{font-size:14px;font-weight:600;color:#3F52B4;white-space:nowrap}
-  .nav{position:absolute;left:0;right:0;bottom:0;height:98px;border-radius:16px 16px 0 0;background:#fff;box-shadow:0 8px 32px rgba(131,139,180,.16);display:grid;grid-template-columns:repeat(5,1fr);align-items:start;padding:6px 12px 0}
-  .nav a{display:flex;flex-direction:column;align-items:center;gap:8px}
-  .nav a div{width:38px;height:38px;border-radius:48px;display:flex;align-items:center;justify-content:center}
-  .nav a span{font-size:10px;font-weight:600;letter-spacing:.02em;color:#6B6E80}
-  .nav a.on div{background:#F2F4FC}
-  .nav a.on span{color:#3F52B4}
-  .sp{height:4px}
+  .kv span{flex:1;min-width:0;color:#373B51}
 </style>
 <script src="./kicon.js?v=1789000000"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -104,46 +65,74 @@
 <div class="sc" data-screen-label="パスワード再設定">
   <div class="hd"><a class="bk" href="login.html"><k-icon name="ArrowRightSize24" size="24" style="color:#373B51;transform:rotate(180deg)"></k-icon></a>パスワード再設定</div>
   <div class="bd">
-    <div class="card">
-      <h3>パスワードをお忘れですか</h3>
-      <div class="kv"><span style="color:#4B4F63">ご登録のメールアドレスに再設定リンクをお送りします。<br>가입하신 이메일로 비밀번호 재설정 링크를 보내드립니다.</span></div>
+    <div id="step1">
+      <div class="card">
+        <h3>パスワードをお忘れの方</h3>
+        <div class="kv"><span style="color:#4B4F63">登録したメールアドレスにリセット用リンクを送ります。</span></div>
+      </div>
+      <div style="height:14px"></div>
+      <div id="msg1" class="msg"></div>
+      <label class="f"><span>メールアドレス</span><input id="em" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
+      <div style="height:14px"></div>
+      <button class="btn" id="send">リセットメールを送る</button>
+      <div style="height:14px"></div>
+      <div class="links"><a href="login.html">ログインに戻る</a></div>
     </div>
-    <div id="msg" class="msg"></div>
-    <div id="p1" style="display:flex;flex-direction:column;gap:14px">
-      <label class="f"><span>メールアドレス / 이메일</span><input id="em" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com"></label>
-      <button class="btn" id="send">再設定メールを送る</button>
+    <div id="step2" style="display:none">
+      <div class="card">
+        <h3>新しいパスワード</h3>
+        <div class="kv"><span style="color:#4B4F63">新しいパスワードを入力してください。</span></div>
+      </div>
+      <div style="height:14px"></div>
+      <div id="msg2" class="msg"></div>
+      <label class="f"><span>新しいパスワード <em>（6文字以上）</em></span><input id="pw1" type="password" autocomplete="new-password" placeholder="••••••••"></label>
+      <div style="height:10px"></div>
+      <label class="f"><span>新しいパスワード（確認）</span><input id="pw2" type="password" autocomplete="new-password" placeholder="••••••••"></label>
+      <div style="height:14px"></div>
+      <button class="btn" id="upd">パスワードを更新</button>
     </div>
-    <div id="p2" style="display:none;flex-direction:column;gap:14px">
-      <label class="f"><span>新しいパスワード / 새 비밀번호 <em>（6文字以上）</em></span><input id="np" type="password" autocomplete="new-password" placeholder="••••••••"></label>
-      <button class="btn" id="save">パスワードを変更</button>
-    </div>
-    <div class="links"><a href="login.html">ログインに戻る</a></div>
   </div>
 </div>
 <script>
 (function(){
-  var msg=document.getElementById('msg');
-  function say(t){ msg.innerHTML=t; msg.className='msg on'; }
-  var recovery = /type=recovery/.test(location.hash) || /type=recovery/.test(location.search);
-  function toStep2(){ document.getElementById('p1').style.display='none'; document.getElementById('p2').style.display='flex'; }
-  if(recovery) toStep2();
-  KGA.sb.auth.onAuthStateChange(function(ev){ if(ev==='PASSWORD_RECOVERY') toStep2(); });
-
-  document.getElementById('send').onclick=async function(){
-    var b=this, em=document.getElementById('em').value.trim();
-    if(!em){ say('メールアドレスを入力してください / 이메일을 입력해 주세요'); return; }
-    b.disabled=true; b.textContent='送信中…';
-    try{ await KGA.sendReset(em); say('メールを送りました。リンクから新しいパスワードを設定してください。<br>메일을 보냈습니다. 링크를 눌러 새 비밀번호를 정해 주세요.'); }
-    catch(e){ say(e.message||'送信できませんでした'); }
-    b.disabled=false; b.textContent='再設定メールを送る';
+  var step1=document.getElementById('step1'), step2=document.getElementById('step2');
+  var msg1=document.getElementById('msg1'), msg2=document.getElementById('msg2');
+  var send=document.getElementById('send'), upd=document.getElementById('upd');
+  function say(el,t){ el.textContent=t; el.className='msg on'; }
+  send.onclick=async function(){
+    var em=document.getElementById('em').value.trim();
+    if(!em){ say(msg1,'メールアドレスを入力してください'); return; }
+    send.disabled=true; send.textContent='送信中…';
+    try{
+      await KGA.sendReset(em);
+      say(msg1,'メールを送信しました。届いたリンクからこのページに戻ってきてください');
+      send.textContent='送信しました';
+    }catch(e){
+      say(msg1, e.message||'送信できませんでした');
+      send.disabled=false; send.textContent='リセットメールを送る';
+    }
   };
-  document.getElementById('save').onclick=async function(){
-    var b=this, np=document.getElementById('np').value;
-    if(np.length<6){ say('6文字以上にしてください / 6자 이상으로 정해 주세요'); return; }
-    b.disabled=true; b.textContent='変更中…';
-    try{ await KGA.setPassword(np); say('変更しました。ログインしてください。<br>변경되었습니다. 다시 로그인해 주세요.'); setTimeout(function(){ location.replace('login.html'); },1500); }
-    catch(e){ say(e.message||'変更できませんでした'); b.disabled=false; b.textContent='パスワードを変更'; }
+  upd.onclick=async function(){
+    var pw1=document.getElementById('pw1').value, pw2=document.getElementById('pw2').value;
+    if(!pw1||pw1.length<6){ say(msg2,'パスワードは6文字以上にしてください'); return; }
+    if(pw1!==pw2){ say(msg2,'パスワードが一致しません'); return; }
+    upd.disabled=true; upd.textContent='更新中…';
+    try{
+      await KGA.setPassword(pw1);
+      say(msg2,'パスワードを更新しました。まもなくマイページに移動します');
+      setTimeout(function(){ location.replace('my.html'); }, 1500);
+    }catch(e){
+      say(msg2, e.message||'更新できませんでした');
+      upd.disabled=false; upd.textContent='パスワードを更新';
+    }
   };
+  function showStep2(){ step1.style.display='none'; step2.style.display='block'; }
+  if(/type=recovery/.test(location.hash)) showStep2();
+  document.addEventListener('DOMContentLoaded', function(){
+    if(window.supabase && KGA && KGA.sb){
+      KGA.sb.auth.onAuthStateChange(function(ev){ if(ev==='PASSWORD_RECOVERY') showStep2(); });
+    }
+  });
 })();
 </script>
 </div>
